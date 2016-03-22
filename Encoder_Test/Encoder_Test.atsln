@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Encoder_Test", "Encoder_Test\Encoder_Test.cproj", "{16BD6BED-3B0F-4A47-9400-D09460BCD216}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Release|ARM = Release|ARM
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{16BD6BED-3B0F-4A47-9400-D09460BCD216}.Debug|ARM.ActiveCfg = Debug|ARM
+		{16BD6BED-3B0F-4A47-9400-D09460BCD216}.Debug|ARM.Build.0 = Debug|ARM
+		{16BD6BED-3B0F-4A47-9400-D09460BCD216}.Release|ARM.ActiveCfg = Release|ARM
+		{16BD6BED-3B0F-4A47-9400-D09460BCD216}.Release|ARM.Build.0 = Release|ARM
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
