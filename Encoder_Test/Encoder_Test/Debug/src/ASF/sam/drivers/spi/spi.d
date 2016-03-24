@@ -1,4 +1,5 @@
-src/main.d src/main.o: ../src/main.c ../src/asf.h \
+src/ASF/sam/drivers/spi/spi.d src/ASF/sam/drivers/spi/spi.o: \
+ ../src/ASF/sam/drivers/spi/spi.c ../src/ASF/sam/drivers/spi/spi.h \
  ../src/ASF/sam/utils/compiler.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu-toolchain\lib\gcc\arm-none-eabi\4.8.4\include\stddef.h \
  ../src/ASF/common/utils/parts.h \
@@ -84,30 +85,17 @@ src/main.d src/main.o: ../src/main.c ../src/asf.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu-toolchain\arm-none-eabi\include\alloca.h \
  ../src/ASF/common/utils/interrupt.h \
  ../src/ASF/common/utils/interrupt/interrupt_sam_nvic.h \
- ../src/ASF/sam/utils/status_codes.h \
- ../src/ASF/sam/components/display/aat31xx/aat31xx.h \
- ../src/config/conf_board.h \
- ../src/ASF/sam/components/display/ili9225/ili9225.h \
- ../src/ASF/common/boards/board.h \
- ../src/ASF/sam/boards/sam3n_ek/sam3n_ek.h \
- ../src/ASF/sam/utils/cmsis/sam3n/source/templates/exceptions.h \
- ../src/ASF/common/services/gpio/gpio.h \
- ../src/ASF/common/services/gpio/sam_gpio/sam_gpio.h \
- ../src/ASF/sam/drivers/pio/pio.h \
- ../src/ASF/common/services/ioport/ioport.h \
- ../src/ASF/common/services/ioport/sam/ioport_pio.h \
  ../src/ASF/common/services/clock/sysclk.h ../src/config/conf_clock.h \
  ../src/ASF/common/services/clock/sam3n/sysclk.h \
  ../src/ASF/common/services/clock/osc.h \
  ../src/ASF/common/services/clock/sam3n/osc.h \
+ ../src/ASF/common/boards/board.h \
+ ../src/ASF/sam/boards/sam3n_ek/sam3n_ek.h \
+ ../src/ASF/sam/utils/cmsis/sam3n/source/templates/exceptions.h \
  ../src/ASF/sam/drivers/pmc/pmc.h ../src/ASF/common/services/clock/pll.h \
- ../src/ASF/common/services/clock/sam3n/pll.h \
- ../src/ASF/sam/drivers/pmc/sleep.h ../src/ASF/sam/boards/sam3n_ek/led.h \
- ../src/ASF/common/services/spi/sam_spi/spi_master.h \
- ../src/ASF/sam/drivers/spi/spi.h ../src/config/conf_spi_master.h \
- ../src/ASF/sam/drivers/pio/pio_handler.h
+ ../src/ASF/common/services/clock/sam3n/pll.h
 
-../src/asf.h:
+../src/ASF/sam/drivers/spi/spi.h:
 
 ../src/ASF/sam/utils/compiler.h:
 
@@ -279,30 +267,6 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu
 
 ../src/ASF/common/utils/interrupt/interrupt_sam_nvic.h:
 
-../src/ASF/sam/utils/status_codes.h:
-
-../src/ASF/sam/components/display/aat31xx/aat31xx.h:
-
-../src/config/conf_board.h:
-
-../src/ASF/sam/components/display/ili9225/ili9225.h:
-
-../src/ASF/common/boards/board.h:
-
-../src/ASF/sam/boards/sam3n_ek/sam3n_ek.h:
-
-../src/ASF/sam/utils/cmsis/sam3n/source/templates/exceptions.h:
-
-../src/ASF/common/services/gpio/gpio.h:
-
-../src/ASF/common/services/gpio/sam_gpio/sam_gpio.h:
-
-../src/ASF/sam/drivers/pio/pio.h:
-
-../src/ASF/common/services/ioport/ioport.h:
-
-../src/ASF/common/services/ioport/sam/ioport_pio.h:
-
 ../src/ASF/common/services/clock/sysclk.h:
 
 ../src/config/conf_clock.h:
@@ -313,20 +277,14 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu
 
 ../src/ASF/common/services/clock/sam3n/osc.h:
 
+../src/ASF/common/boards/board.h:
+
+../src/ASF/sam/boards/sam3n_ek/sam3n_ek.h:
+
+../src/ASF/sam/utils/cmsis/sam3n/source/templates/exceptions.h:
+
 ../src/ASF/sam/drivers/pmc/pmc.h:
 
 ../src/ASF/common/services/clock/pll.h:
 
 ../src/ASF/common/services/clock/sam3n/pll.h:
-
-../src/ASF/sam/drivers/pmc/sleep.h:
-
-../src/ASF/sam/boards/sam3n_ek/led.h:
-
-../src/ASF/common/services/spi/sam_spi/spi_master.h:
-
-../src/ASF/sam/drivers/spi/spi.h:
-
-../src/config/conf_spi_master.h:
-
-../src/ASF/sam/drivers/pio/pio_handler.h:
