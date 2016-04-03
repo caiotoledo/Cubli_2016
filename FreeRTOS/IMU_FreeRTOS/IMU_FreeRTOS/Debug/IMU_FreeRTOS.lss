@@ -31,7 +31,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  13 .debug_line   0001296e  00000000  00000000  0004f3bc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_str    00049131  00000000  00000000  00061d2a  2**0
+ 14 .debug_str    00049130  00000000  00000000  00061d2a  2**0
                   CONTENTS, READONLY, DEBUGGING
  15 .debug_frame  000032c8  00000000  00000000  000aae5c  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -10685,7 +10685,7 @@ static void task_led0(void *pvParameters)
   402f48:	2017      	movs	r0, #23
   402f4a:	47a0      	blx	r4
 		vTaskDelay(DELAY_500MS);
-  402f4c:	f44f 707a 	mov.w	r0, #1000	; 0x3e8
+  402f4c:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
   402f50:	4b04      	ldr	r3, [pc, #16]	; (402f64 <task_led0+0x28>)
   402f52:	4798      	blx	r3
   402f54:	e7f6      	b.n	402f44 <task_led0+0x8>

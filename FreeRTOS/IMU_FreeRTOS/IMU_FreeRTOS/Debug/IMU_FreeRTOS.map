@@ -8107,7 +8107,7 @@ OUTPUT(IMU_FreeRTOS.elf elf32-littlearm)
  .debug_line    0x000112aa      0x4ee src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.o
  .debug_line    0x00011798     0x11d6 src/main.o
 
-.debug_str      0x00000000    0x49131
+.debug_str      0x00000000    0x49130
  .debug_str     0x00000000    0x38b27 src/ASF/common/services/clock/sam3n/sysclk.o
                               0x38e6c (size before relaxing)
  .debug_str     0x00038b27     0x4b28 src/ASF/common/services/freertos/sam/freertos_twi_master.o
@@ -8162,8 +8162,8 @@ OUTPUT(IMU_FreeRTOS.elf elf32-littlearm)
                                0x93ab (size before relaxing)
  .debug_str     0x00047fb0      0x383 src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.o
                                0x625c (size before relaxing)
- .debug_str     0x00048333      0xdfe src/main.o
-                              0x4237b (size before relaxing)
+ .debug_str     0x00048333      0xdfd src/main.o
+                              0x4237a (size before relaxing)
 
 .debug_frame    0x00000000     0x32c8
  .debug_frame   0x00000000       0x58 src/ASF/common/services/clock/sam3n/sysclk.o

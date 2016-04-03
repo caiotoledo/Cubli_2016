@@ -37,7 +37,7 @@
 #define TASK_LED_STACK_PRIORITY            (tskIDLE_PRIORITY+1)
 
 #define DELAY_1S							(1000/portTICK_RATE_MS)
-#define DELAY_500MS							(1000/portTICK_RATE_MS)
+#define DELAY_500MS							(500/portTICK_RATE_MS)
 
 extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 		signed char *pcTaskName);
