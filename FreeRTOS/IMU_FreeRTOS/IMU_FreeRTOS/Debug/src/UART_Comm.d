@@ -1,5 +1,5 @@
-src/main.d src/main.o: ../src/main.c ../src/asf.h \
- ../src/ASF/sam/utils/compiler.h \
+src/UART_Comm.d src/UART_Comm.o: ../src/UART_Comm.c ../src/UART_Comm.h \
+ ../src/asf.h ../src/ASF/sam/utils/compiler.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu-toolchain\lib\gcc\arm-none-eabi\4.8.4\include\stddef.h \
  ../src/ASF/common/utils/parts.h \
  ../src/ASF/sam/utils/preprocessor/preprocessor.h \
@@ -143,7 +143,9 @@ src/main.d src/main.o: ../src/main.c ../src/asf.h \
  ../src/ASF/common/services/twi/sam_twi/twi_slave.h \
  ../src/ASF/common/services/twi/twi_slave.h \
  ../src/ASF/common/services/twi/sam_twi/twi_slave.h \
- ../src/ASF/sam/drivers/pio/pio_handler.h ../src/UART_Comm.h ../src/IMU.h
+ ../src/ASF/sam/drivers/pio/pio_handler.h
+
+../src/UART_Comm.h:
 
 ../src/asf.h:
 
@@ -446,7 +448,3 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu
 ../src/ASF/common/services/twi/sam_twi/twi_slave.h:
 
 ../src/ASF/sam/drivers/pio/pio_handler.h:
-
-../src/UART_Comm.h:
-
-../src/IMU.h:

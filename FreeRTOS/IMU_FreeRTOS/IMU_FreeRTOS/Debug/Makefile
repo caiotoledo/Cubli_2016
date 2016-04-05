@@ -109,6 +109,7 @@ SUBDIRS :=  \
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
+../src/UART_Comm.c \
 ../src/ASF/common/services/clock/sam3n/sysclk.c \
 ../src/ASF/common/services/freertos/sam/freertos_peripheral_control.c \
 ../src/ASF/common/services/freertos/sam/freertos_twi_master.c \
@@ -142,6 +143,7 @@ C_SRCS +=  \
 ../src/ASF/thirdparty/freertos/freertos-7.3.0/source/queue.c \
 ../src/ASF/thirdparty/freertos/freertos-7.3.0/source/tasks.c \
 ../src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.c \
+../src/IMU.c \
 ../src/main.c
 
 
@@ -152,6 +154,7 @@ ASM_SRCS +=
 
 
 OBJS +=  \
+src/UART_Comm.o \
 src/ASF/common/services/clock/sam3n/sysclk.o \
 src/ASF/common/services/freertos/sam/freertos_peripheral_control.o \
 src/ASF/common/services/freertos/sam/freertos_twi_master.o \
@@ -185,9 +188,11 @@ src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/heap_4.o \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/queue.o \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/tasks.o \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.o \
+src/IMU.o \
 src/main.o
 
 OBJS_AS_ARGS +=  \
+src/UART_Comm.o \
 src/ASF/common/services/clock/sam3n/sysclk.o \
 src/ASF/common/services/freertos/sam/freertos_peripheral_control.o \
 src/ASF/common/services/freertos/sam/freertos_twi_master.o \
@@ -221,9 +226,11 @@ src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/heap_4.o \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/queue.o \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/tasks.o \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.o \
+src/IMU.o \
 src/main.o
 
 C_DEPS +=  \
+src/UART_Comm.d \
 src/ASF/common/services/clock/sam3n/sysclk.d \
 src/ASF/common/services/freertos/sam/freertos_peripheral_control.d \
 src/ASF/common/services/freertos/sam/freertos_twi_master.d \
@@ -257,9 +264,11 @@ src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/heap_4.d \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/queue.d \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/tasks.d \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.d \
+src/IMU.d \
 src/main.d
 
 C_DEPS_AS_ARGS +=  \
+src/UART_Comm.d \
 src/ASF/common/services/clock/sam3n/sysclk.d \
 src/ASF/common/services/freertos/sam/freertos_peripheral_control.d \
 src/ASF/common/services/freertos/sam/freertos_twi_master.d \
@@ -293,6 +302,7 @@ src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/heap_4.d \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/queue.d \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/tasks.d \
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.d \
+src/IMU.d \
 src/main.d
 
 OUTPUT_FILE_PATH +=IMU_FreeRTOS.elf
@@ -378,6 +388,17 @@ LINKER_SCRIPT_DEP+=  \
 
 
 
+
+
+
+
+
+src/%.o: ../src/%.c
+	@echo Building file: $<
+	@echo Invoking: ARM/GNU C Compiler : 4.8.4
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\ARM GCC\Native\4.8.1443\arm-gnu-toolchain\bin\arm-none-eabi-gcc.exe$(QUOTE)  -x c -mthumb -D__SAM3N4C__ -DDEBUG -Dscanf=iscanf -DBOARD=SAM3N_EK -D__SAM3N4C__ -DARM_MATH_CM3=true -Dprintf=iprintf -D__FREERTOS__  -I"../common/applications/user_application/sam3n4c_sam3n_ek/config" -I"../src/config" -I"../src/ASF/thirdparty/CMSIS/Lib/GCC" -I"../src/ASF/common/utils" -I"../src" -I"../src/ASF/common/services/clock" -I"../src/ASF/sam/drivers/pmc" -I"../src/ASF/common/services/gpio" -I"../src/ASF/sam/utils" -I"../src/ASF/sam/utils/preprocessor" -I"../src/ASF/sam/boards" -I"../src/ASF/common/boards" -I"../src/ASF/sam/utils/cmsis/sam3n/source/templates" -I"../src/ASF/sam/drivers/pio" -I"../src/ASF/sam/utils/header_files" -I"../src/ASF/common/services/ioport" -I"../src/ASF/sam/utils/cmsis/sam3n/include" -I"../src/ASF/sam/boards/sam3n_ek" -I"../src/ASF/thirdparty/CMSIS/Include" -I"../src/ASF/sam/drivers/pdc" -I"../src/ASF/sam/drivers/pdc/pdc_uart_example" -I"../src/ASF/sam/drivers/uart" -I"../src/ASF/common/services/freertos/sam" -I"../src/ASF/common/services/serial/sam_uart" -I"../src/ASF/common/services/serial" -I"../src/ASF/common/services/twi" -I"../src/ASF/sam/drivers/twi" -I"../src/ASF/sam/drivers/usart" -I"../src/ASF/thirdparty/freertos/freertos-7.3.0/source/include" -I"../src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/gcc/sam" -I"../src/ASF/common/utils/stdio/stdio_serial" -I"../src/ASF/sam/components/display/aat31xx" -I"../src/ASF/sam/components/display/ili9225" -I"../src/ASF/common/services/spi/sam_spi" -I"../src/ASF/common/services/spi" -I"../src/ASF/sam/drivers/spi"  -O1 -fdata-sections -ffunction-sections -mlong-calls -g3 -Wall -mcpu=cortex-m3 -c -pipe -fno-strict-aliasing -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -std=gnu99 -ffunction-sections -fdata-sections -Wchar-subscripts -Wcomment -Wformat=2 -Wimplicit-int -Wmain -Wparentheses -Wsequence-point -Wreturn-type -Wswitch -Wtrigraphs -Wunused -Wuninitialized -Wunknown-pragmas -Wfloat-equal -Wundef -Wshadow -Wbad-function-cast -Wwrite-strings -Wsign-compare -Waggregate-return  -Wmissing-declarations -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations -Wpacked -Wredundant-decls -Wnested-externs -Wlong-long -Wunreachable-code -Wcast-align --param max-inline-insns-single=500 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
 
 src/ASF/common/services/clock/sam3n/%.o: ../src/ASF/common/services/clock/sam3n/%.c
 	@echo Building file: $<
@@ -527,13 +548,6 @@ src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/gcc/sam/%.o: ../src/A
 	
 
 src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/%.o: ../src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/%.c
-	@echo Building file: $<
-	@echo Invoking: ARM/GNU C Compiler : 4.8.4
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\ARM GCC\Native\4.8.1443\arm-gnu-toolchain\bin\arm-none-eabi-gcc.exe$(QUOTE)  -x c -mthumb -D__SAM3N4C__ -DDEBUG -Dscanf=iscanf -DBOARD=SAM3N_EK -D__SAM3N4C__ -DARM_MATH_CM3=true -Dprintf=iprintf -D__FREERTOS__  -I"../common/applications/user_application/sam3n4c_sam3n_ek/config" -I"../src/config" -I"../src/ASF/thirdparty/CMSIS/Lib/GCC" -I"../src/ASF/common/utils" -I"../src" -I"../src/ASF/common/services/clock" -I"../src/ASF/sam/drivers/pmc" -I"../src/ASF/common/services/gpio" -I"../src/ASF/sam/utils" -I"../src/ASF/sam/utils/preprocessor" -I"../src/ASF/sam/boards" -I"../src/ASF/common/boards" -I"../src/ASF/sam/utils/cmsis/sam3n/source/templates" -I"../src/ASF/sam/drivers/pio" -I"../src/ASF/sam/utils/header_files" -I"../src/ASF/common/services/ioport" -I"../src/ASF/sam/utils/cmsis/sam3n/include" -I"../src/ASF/sam/boards/sam3n_ek" -I"../src/ASF/thirdparty/CMSIS/Include" -I"../src/ASF/sam/drivers/pdc" -I"../src/ASF/sam/drivers/pdc/pdc_uart_example" -I"../src/ASF/sam/drivers/uart" -I"../src/ASF/common/services/freertos/sam" -I"../src/ASF/common/services/serial/sam_uart" -I"../src/ASF/common/services/serial" -I"../src/ASF/common/services/twi" -I"../src/ASF/sam/drivers/twi" -I"../src/ASF/sam/drivers/usart" -I"../src/ASF/thirdparty/freertos/freertos-7.3.0/source/include" -I"../src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/gcc/sam" -I"../src/ASF/common/utils/stdio/stdio_serial" -I"../src/ASF/sam/components/display/aat31xx" -I"../src/ASF/sam/components/display/ili9225" -I"../src/ASF/common/services/spi/sam_spi" -I"../src/ASF/common/services/spi" -I"../src/ASF/sam/drivers/spi"  -O1 -fdata-sections -ffunction-sections -mlong-calls -g3 -Wall -mcpu=cortex-m3 -c -pipe -fno-strict-aliasing -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -std=gnu99 -ffunction-sections -fdata-sections -Wchar-subscripts -Wcomment -Wformat=2 -Wimplicit-int -Wmain -Wparentheses -Wsequence-point -Wreturn-type -Wswitch -Wtrigraphs -Wunused -Wuninitialized -Wunknown-pragmas -Wfloat-equal -Wundef -Wshadow -Wbad-function-cast -Wwrite-strings -Wsign-compare -Waggregate-return  -Wmissing-declarations -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations -Wpacked -Wredundant-decls -Wnested-externs -Wlong-long -Wunreachable-code -Wcast-align --param max-inline-insns-single=500 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
-	@echo Finished building: $<
-	
-
-src/%.o: ../src/%.c
 	@echo Building file: $<
 	@echo Invoking: ARM/GNU C Compiler : 4.8.4
 	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\ARM GCC\Native\4.8.1443\arm-gnu-toolchain\bin\arm-none-eabi-gcc.exe$(QUOTE)  -x c -mthumb -D__SAM3N4C__ -DDEBUG -Dscanf=iscanf -DBOARD=SAM3N_EK -D__SAM3N4C__ -DARM_MATH_CM3=true -Dprintf=iprintf -D__FREERTOS__  -I"../common/applications/user_application/sam3n4c_sam3n_ek/config" -I"../src/config" -I"../src/ASF/thirdparty/CMSIS/Lib/GCC" -I"../src/ASF/common/utils" -I"../src" -I"../src/ASF/common/services/clock" -I"../src/ASF/sam/drivers/pmc" -I"../src/ASF/common/services/gpio" -I"../src/ASF/sam/utils" -I"../src/ASF/sam/utils/preprocessor" -I"../src/ASF/sam/boards" -I"../src/ASF/common/boards" -I"../src/ASF/sam/utils/cmsis/sam3n/source/templates" -I"../src/ASF/sam/drivers/pio" -I"../src/ASF/sam/utils/header_files" -I"../src/ASF/common/services/ioport" -I"../src/ASF/sam/utils/cmsis/sam3n/include" -I"../src/ASF/sam/boards/sam3n_ek" -I"../src/ASF/thirdparty/CMSIS/Include" -I"../src/ASF/sam/drivers/pdc" -I"../src/ASF/sam/drivers/pdc/pdc_uart_example" -I"../src/ASF/sam/drivers/uart" -I"../src/ASF/common/services/freertos/sam" -I"../src/ASF/common/services/serial/sam_uart" -I"../src/ASF/common/services/serial" -I"../src/ASF/common/services/twi" -I"../src/ASF/sam/drivers/twi" -I"../src/ASF/sam/drivers/usart" -I"../src/ASF/thirdparty/freertos/freertos-7.3.0/source/include" -I"../src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/gcc/sam" -I"../src/ASF/common/utils/stdio/stdio_serial" -I"../src/ASF/sam/components/display/aat31xx" -I"../src/ASF/sam/components/display/ili9225" -I"../src/ASF/common/services/spi/sam_spi" -I"../src/ASF/common/services/spi" -I"../src/ASF/sam/drivers/spi"  -O1 -fdata-sections -ffunction-sections -mlong-calls -g3 -Wall -mcpu=cortex-m3 -c -pipe -fno-strict-aliasing -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -std=gnu99 -ffunction-sections -fdata-sections -Wchar-subscripts -Wcomment -Wformat=2 -Wimplicit-int -Wmain -Wparentheses -Wsequence-point -Wreturn-type -Wswitch -Wtrigraphs -Wunused -Wuninitialized -Wunknown-pragmas -Wfloat-equal -Wundef -Wshadow -Wbad-function-cast -Wwrite-strings -Wsign-compare -Waggregate-return  -Wmissing-declarations -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations -Wpacked -Wredundant-decls -Wnested-externs -Wlong-long -Wunreachable-code -Wcast-align --param max-inline-insns-single=500 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

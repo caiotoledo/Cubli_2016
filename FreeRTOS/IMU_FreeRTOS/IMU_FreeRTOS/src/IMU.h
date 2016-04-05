@@ -9,6 +9,8 @@
 #ifndef IMU_H_
 #define IMU_H_
 
+#include <asf.h>
+
 enum ADXL_Addr_Reg_t {
 	ADXL_OffsetX	= 0x1E,
 	ADXL_OffsetY,
@@ -31,8 +33,8 @@ enum ADXL_Addr_Reg_t {
 };
 
 enum ADXL_Addr_Dev_t {
-	ADXL_High		= 0x1D,		//Standard Address
-	ADXL_Low		= 0x53
+	ADXL_High		= 0x1D,
+	ADXL_Low		= 0x53		//Standard Address
 };
 
 enum ITG_Addr_Reg_t {
@@ -65,6 +67,8 @@ typedef enum ADXL_Addr_Dev_t ADXL_Addr_Dev;
 typedef enum ITG_Addr_Reg_t ITG_Addr_Reg;
 typedef enum ITG_Addr_Dev_t ITG_Addr_Dev;
 
-uint8_t twi_init(void);
+xSemaphoreHandle xseIMU;
+
+static void IMUTask(void *pvParameters);
 
 #endif /* IMU_H_ */

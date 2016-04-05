@@ -2,6 +2,8 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+src\UART_Comm.c
+
 src\ASF\common\services\clock\sam3n\sysclk.c
 
 src\ASF\common\services\freertos\sam\freertos_peripheral_control.c
@@ -67,6 +69,8 @@ src\ASF\thirdparty\freertos\freertos-7.3.0\source\queue.c
 src\ASF\thirdparty\freertos\freertos-7.3.0\source\tasks.c
 
 src\ASF\thirdparty\freertos\freertos-7.3.0\source\timers.c
+
+src\IMU.c
 
 src\main.c
 

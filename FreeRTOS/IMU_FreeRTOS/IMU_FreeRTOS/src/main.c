@@ -29,12 +29,16 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 #include <asf.h>
-#include <stdarg.h>
+//#include <stdarg.h>
+#include "UART_Comm.h"
+#include "IMU.h"
 
-#define TASK_MONITOR_STACK_SIZE            (2048/sizeof(portSTACK_TYPE))
-#define TASK_MONITOR_STACK_PRIORITY        (tskIDLE_PRIORITY)
-#define TASK_LED_STACK_SIZE                (1024/sizeof(portSTACK_TYPE))
-#define TASK_LED_STACK_PRIORITY            (tskIDLE_PRIORITY+1)
+#define TASK_IMU_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
+#define TASK_IMU_STACK_PRIORITY			(configTIMER_TASK_PRIORITY - 1)
+#define TASK_MONITOR_STACK_SIZE         (2048/sizeof(portSTACK_TYPE))
+#define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY)
+#define TASK_LED_STACK_SIZE             (1024/sizeof(portSTACK_TYPE))
+#define TASK_LED_STACK_PRIORITY         (tskIDLE_PRIORITY+1)
 
 #define DELAY_1S							(1000/portTICK_RATE_MS)
 #define DELAY_500MS							(500/portTICK_RATE_MS)
@@ -47,8 +51,9 @@ void vTimerCallback(void *pvParameters);
 
 xTimerHandle xTimer;
 xSemaphoreHandle xSem;
-xSemaphoreHandle xMux;
+/*xSemaphoreHandle xMux;*/
 
+/*
 void printf_mux( const char * format, ... ){
 	xSemaphoreTake(xMux, portMAX_DELAY);
 	va_list(args);
@@ -57,7 +62,7 @@ void printf_mux( const char * format, ... ){
 	printf("\n");
 	va_end(args);
 	xSemaphoreGive(xMux);
-}
+}*/
 
 /**
  * \brief Called if stack overflow during execution
@@ -117,12 +122,13 @@ void config_lcd(void){
 	ili9225_display_on();
 	
 	/* Draw filled rectangle with white color */
-	ili9225_fill(COLOR_WHITE);
+	ili9225_fill( (ili9225_color_t) COLOR_WHITE);
 }
 
 /**
  * \brief Configure the console UART.
  */
+/*
 static void configure_console(void)
 {
 	const usart_serial_options_t uart_serial_options = {
@@ -132,10 +138,10 @@ static void configure_console(void)
 		.paritytype = CONF_UART_PARITY,
 	};
 
-	/* Configure console UART. */
+	/ * Configure console UART. * /
 	sysclk_enable_peripheral_clock(CONSOLE_UART_ID);
 	stdio_serial_init(CONF_UART, &uart_serial_options);
-}
+}*/
 
 /**
  * \brief This task, when activated, send every ten seconds on debug UART
@@ -209,13 +215,18 @@ int main (void)
 		printf("Failed to create test led task\r\n");
 	}
 	
+	if (xTaskCreate(IMUTask, "IMU Task", TASK_IMU_STACK_SIZE, NULL,
+	TASK_IMU_STACK_PRIORITY, NULL) != pdPASS) {
+		printf("Failed to create test led task\r\n");
+	}
+	
 	xTimer = xTimerCreate("Timer", DELAY_1S , pdTRUE, NULL, vTimerCallback);
 	
 	xTimerStart(xTimer, 0);
 	
 	vSemaphoreCreateBinary(xSem);
 	
-	xMux = xSemaphoreCreateMutex();
+	/*xMux = xSemaphoreCreateMutex();*/
 	
 	/* Start the scheduler. */
 	vTaskStartScheduler();
