@@ -286,7 +286,7 @@
     <PercepioTrace>
       <TargetOS>FreeRTOS</TargetOS>
       <Frequency>48000000</Frequency>
-      <EnableTraceInterrupts>False</EnableTraceInterrupts>
+      <EnableTraceInterrupts>True</EnableTraceInterrupts>
       <EnableNonintrusive>True</EnableNonintrusive>
       <EnableTargetOS>True</EnableTargetOS>
       <EnableApplicationOutput>True</EnableApplicationOutput>
@@ -522,7 +522,6 @@
       <Value>../src/ASF/sam/drivers/spi</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
-  <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
   <armgcc.compiler.optimization.OtherFlags>-fdata-sections</armgcc.compiler.optimization.OtherFlags>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
@@ -541,6 +540,7 @@
     </ListValues>
   </armgcc.linker.libraries.LibrarySearchPaths>
   <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+  <armgcc.linker.memorysettings.ExternalRAM />
   <armgcc.linker.miscellaneous.LinkerFlags>-Wl,--entry=Reset_Handler -Wl,--cref -mthumb -T../src/ASF/sam/utils/linker_scripts/sam3n/sam3n4/gcc/flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
   <armgcc.preprocessingassembler.general.AssemblerFlags>-DARM_MATH_CM3=true -DBOARD=SAM3N_EK -D__SAM3N4C__ -Dprintf=iprintf -Dscanf=iscanf -D__FREERTOS__</armgcc.preprocessingassembler.general.AssemblerFlags>

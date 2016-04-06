@@ -33,13 +33,14 @@
 #include "UART_Comm.h"
 #include "IMU.h"
 
-#define TASK_IMU_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
+#define TASK_IMU_STACK_SIZE				(4096/sizeof(portSTACK_TYPE))
 #define TASK_IMU_STACK_PRIORITY			(configTIMER_TASK_PRIORITY - 1)
 #define TASK_MONITOR_STACK_SIZE         (2048/sizeof(portSTACK_TYPE))
 #define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY)
-#define TASK_LED_STACK_SIZE             (1024/sizeof(portSTACK_TYPE))
+#define TASK_LED_STACK_SIZE             configMINIMAL_STACK_SIZE//(1024/sizeof(portSTACK_TYPE))
 #define TASK_LED_STACK_PRIORITY         (tskIDLE_PRIORITY+1)
 
+#define DELAY_5S							(5000/portTICK_RATE_MS)
 #define DELAY_1S							(1000/portTICK_RATE_MS)
 #define DELAY_500MS							(500/portTICK_RATE_MS)
 
@@ -47,22 +48,6 @@ extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 		signed char *pcTaskName);
 extern void vApplicationIdleHook(void);
 extern void vApplicationTickHook(void);
-void vTimerCallback(void *pvParameters);
-
-xTimerHandle xTimer;
-xSemaphoreHandle xSem;
-/*xSemaphoreHandle xMux;*/
-
-/*
-void printf_mux( const char * format, ... ){
-	xSemaphoreTake(xMux, portMAX_DELAY);
-	va_list(args);
-	va_start(args, format);
-	vprintf(format, args);
-	printf("\n");
-	va_end(args);
-	xSemaphoreGive(xMux);
-}*/
 
 /**
  * \brief Called if stack overflow during execution
@@ -75,6 +60,7 @@ extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 	 * identify which task has overflowed its stack.
 	 */
 	for (;;) {
+		LED_On(LED2_GPIO);
 	}
 }
 
@@ -126,24 +112,6 @@ void config_lcd(void){
 }
 
 /**
- * \brief Configure the console UART.
- */
-/*
-static void configure_console(void)
-{
-	const usart_serial_options_t uart_serial_options = {
-		.baudrate = CONF_UART_BAUDRATE,
-		.charlength = CONF_UART_CHAR_LENGTH,
-		.stopbits = CONF_UART_STOP_BITS,
-		.paritytype = CONF_UART_PARITY,
-	};
-
-	/ * Configure console UART. * /
-	sysclk_enable_peripheral_clock(CONSOLE_UART_ID);
-	stdio_serial_init(CONF_UART, &uart_serial_options);
-}*/
-
-/**
  * \brief This task, when activated, send every ten seconds on debug UART
  * the whole report of free heap and total tasks status
  */
@@ -157,7 +125,7 @@ static void task_monitor(void *pvParameters)
 		printf_mux("Name\t\tState\tPrior\tStack\tNum");
 		vTaskList((signed portCHAR *)szList);
 		printf_mux(szList);
-		vTaskDelay(DELAY_1S);
+		vTaskDelay(DELAY_5S);
 	}
 }
 
@@ -165,24 +133,10 @@ static void task_led0(void *pvParameters)
 {
 	UNUSED(pvParameters);
 	for (;;) {
-		printf_mux("\tLed0!");
+		//printf_mux("\tLed0!");
 		LED_Toggle(LED0_GPIO);
-		vTaskDelay(DELAY_500MS);
+		vTaskDelay(DELAY_1S);
 	}
-}
-
-static void task_led1(void *pvParameters)
-{
-	UNUSED(pvParameters);
-	for (;;) {
-		printf_mux("\tLed1!");
-		LED_Toggle(LED1_GPIO);
-		xSemaphoreTake(xSem, portMAX_DELAY);
-	}
-}
-
-void vTimerCallback(void *pvParameters){
-	xSemaphoreGive(xSem);
 }
 
 int main (void)
@@ -202,7 +156,7 @@ int main (void)
 	/* Create task to monitor processor activity */
 	if (xTaskCreate(task_monitor, "Monitor", TASK_MONITOR_STACK_SIZE, NULL,
 	TASK_MONITOR_STACK_PRIORITY, NULL) != pdPASS) {
-		printf("Failed to create Monitor task\r\n");
+	printf("Failed to create Monitor task\r\n");
 	}
 	
 	if (xTaskCreate(task_led0, "Led0", TASK_LED_STACK_SIZE, NULL,
@@ -210,23 +164,10 @@ int main (void)
 		printf("Failed to create test led task\r\n");
 	}
 	
-	if (xTaskCreate(task_led1, "Led1", TASK_LED_STACK_SIZE, NULL,
-	TASK_LED_STACK_PRIORITY, NULL) != pdPASS) {
-		printf("Failed to create test led task\r\n");
-	}
-	
-	if (xTaskCreate(IMUTask, "IMU Task", TASK_IMU_STACK_SIZE, NULL,
+	if (xTaskCreate(IMUTask, "IMU_T", TASK_IMU_STACK_SIZE, NULL,
 	TASK_IMU_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test led task\r\n");
 	}
-	
-	xTimer = xTimerCreate("Timer", DELAY_1S , pdTRUE, NULL, vTimerCallback);
-	
-	xTimerStart(xTimer, 0);
-	
-	vSemaphoreCreateBinary(xSem);
-	
-	/*xMux = xSemaphoreCreateMutex();*/
 	
 	/* Start the scheduler. */
 	vTaskStartScheduler();

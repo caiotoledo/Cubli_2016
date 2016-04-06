@@ -12,7 +12,7 @@
 xSemaphoreHandle xMux;
 
 void printf_mux( const char * format, ... ){
-	xSemaphoreTake(xMux, portMAX_DELAY);
+	xSemaphoreTake(xMux, 1000);
 	va_list(args);
 	va_start(args, format);
 	vprintf(format, args);
