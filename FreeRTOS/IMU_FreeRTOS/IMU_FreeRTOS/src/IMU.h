@@ -11,10 +11,15 @@
 
 #include <asf.h>
 
-#define TWI_TASK_DELAY	(500/portTICK_RATE_MS)
-#define OFFSET_X		(350)
-#define OFFSET_Y		(1050)
-#define OFFSET_Z		(0)
+#define TWI_TASK_DELAY		(100/portTICK_RATE_MS)
+
+#define ACEL_OFFSET_X		(350)
+#define ACEL_OFFSET_Y		(1050)
+#define ACEL_OFFSET_Z		(0)
+
+#define GYRO_OFFSET_X		(5)
+#define GYRO_OFFSET_Y		(0)
+#define GYRO_OFFSET_Z		(0)
 
 enum ADXL_Addr_Reg_t {
 	ADXL_OffsetX	= 0x1E,
@@ -42,10 +47,10 @@ enum ADXL_Addr_Dev_t {
 	ADXL_Low		= 0x53		//Standard Address
 };
 
-enum ADXL_Axis_t {
-	Acel_X,
-	Acel_Y,
-	Acel_Z
+enum Axis_t {
+	Axis_X,
+	Axis_Y,
+	Axis_Z
 };
 
 enum ITG_Addr_Reg_t {
@@ -75,14 +80,15 @@ enum ITG_Addr_Dev_t {
 
 typedef enum ADXL_Addr_Reg_t	ADXL_Addr_Reg;
 typedef enum ADXL_Addr_Dev_t	ADXL_Addr_Dev;
-typedef enum ADXL_Axis_t		ADXL_Axis;
+typedef enum Axis_t				Axis_Op;
 typedef enum ITG_Addr_Reg_t		ITG_Addr_Reg;
 typedef enum ITG_Addr_Dev_t		ITG_Addr_Dev;
 
 void IMUTask(void *pvParameters);
-void vTimerIMU(void *pvParameters);
 
-static float get_acel_value(ADXL_Axis axis, ADXL_Addr_Dev dev, xSemaphoreHandle xse);
+static void vTimerIMU(void *pvParameters);
+static float get_gyro_value(Axis_Op axis, ITG_Addr_Dev dev, xSemaphoreHandle xse);
+static float get_acel_value(Axis_Op axis, ADXL_Addr_Dev dev, xSemaphoreHandle xse);
 static status_code_t configIMU(xSemaphoreHandle xse);
 static uint8_t twi_init(void);
 static status_code_t adxl_init(ADXL_Addr_Dev ADXL_Dev, xSemaphoreHandle xSem);

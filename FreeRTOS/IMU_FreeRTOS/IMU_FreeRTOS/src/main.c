@@ -33,6 +33,8 @@
 #include "UART_Comm.h"
 #include "IMU.h"
 
+#define TASK_MONITOR
+
 #define TASK_IMU_STACK_SIZE				(4096/sizeof(portSTACK_TYPE))
 #define TASK_IMU_STACK_PRIORITY			(configTIMER_TASK_PRIORITY - 1)
 #define TASK_MONITOR_STACK_SIZE         (2048/sizeof(portSTACK_TYPE))
@@ -153,11 +155,13 @@ int main (void)
 	ili9225_set_foreground_color(COLOR_BLACK);
 	ili9225_draw_string(10,10, (uint8_t *)"IMU FreeRTOS");
 	
+#ifdef TASK_MONITOR
 	/* Create task to monitor processor activity */
 	if (xTaskCreate(task_monitor, "Monitor", TASK_MONITOR_STACK_SIZE, NULL,
 	TASK_MONITOR_STACK_PRIORITY, NULL) != pdPASS) {
-	printf("Failed to create Monitor task\r\n");
+		printf("Failed to create Monitor task\r\n");
 	}
+#endif
 	
 	if (xTaskCreate(task_led0, "Led0", TASK_LED_STACK_SIZE, NULL,
 	TASK_LED_STACK_PRIORITY, NULL) != pdPASS) {

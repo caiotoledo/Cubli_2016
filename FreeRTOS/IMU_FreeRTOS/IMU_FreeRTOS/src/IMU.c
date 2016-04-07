@@ -10,16 +10,23 @@
 #include <string.h>
 
 #define TWI_SPEED		400000	//400KHz Fast-Speed
-#define TWI_BLOCK_TIME	(500/portTICK_RATE_MS)
+//#define TWI_BLOCK_TIME	(500/portTICK_RATE_MS)
+//#define TWI_BLOCK_TIME	(10/portTICK_RATE_MS)
+#define TWI_BLOCK_TIME	(0)
+//#define TWI_SEM_WAIT	(100/portTICK_RATE_MS)
+#define TWI_SEM_WAIT	(0)
 
-freertos_twi_if freertos_twi = NULL;
+#define CONST_ADXL		(3.9)
+#define CONST_ITG		(14.375)
+
+freertos_twi_if freertos_twi;
 char buffer[50];
 
 xSemaphoreHandle xseIMU;
 xSemaphoreHandle xSemIMUTimer;
 xTimerHandle xTimerIMU;
 
-void vTimerIMU(void *pvParameters){
+static void vTimerIMU(void *pvParameters){
 	xSemaphoreGive(xSemIMUTimer);
 }
 
@@ -32,6 +39,8 @@ void IMUTask(void *pvParameters){
 	xTimerStart(xTimerIMU, 0);
 	
 	vSemaphoreCreateBinary(xseIMU);
+	configASSERT(xseIMU);
+	xSemaphoreTake(xseIMU, 0);
 	status = configIMU(xseIMU);
 	if (status != STATUS_OK){
 		printf_mux("Error IMU!");
@@ -40,27 +49,82 @@ void IMUTask(void *pvParameters){
 	}
 	
 	float acel[3];
+	float gyro[3];
 	
 	for (;;){
+		xSemaphoreTake(xSemIMUTimer, portMAX_DELAY);
 		
 		memset(acel, 0, sizeof(acel));
-		acel[0] = get_acel_value(Acel_X, ADXL_Low, xseIMU) + OFFSET_X;
-		acel[1] = get_acel_value(Acel_Y, ADXL_Low, xseIMU) + OFFSET_Y;	
-		acel[2] = get_acel_value(Acel_Z, ADXL_Low, xseIMU) + OFFSET_Z;	
+		acel[0] = get_acel_value(Axis_X, ADXL_Low, xseIMU) + ACEL_OFFSET_X;
+		acel[1] = get_acel_value(Axis_Y, ADXL_Low, xseIMU) + ACEL_OFFSET_Y;	
+		acel[2] = get_acel_value(Axis_Z, ADXL_Low, xseIMU) + ACEL_OFFSET_Z;
 		
+		memset(gyro, 0, sizeof(gyro));
+		gyro[0] = get_gyro_value(Axis_X, ITG_Low, xseIMU) + GYRO_OFFSET_X;
+		gyro[1] = get_gyro_value(Axis_Y, ITG_Low, xseIMU) + GYRO_OFFSET_Y;
+		gyro[2] = get_gyro_value(Axis_Z, ITG_Low, xseIMU) + GYRO_OFFSET_Z;
+		
+		printf_mux("Acel:");
 		printf_mux("X = %0.3f\tY = %0.3f\tZ = %0.3f", acel[0] , acel[1], acel[2]);
+		printf_mux("Gyro:");
+		printf_mux("X = %0.3f\tY = %0.3f\tZ = %0.3f", gyro[0] , gyro[1], gyro[2]);
 		
-		sprintf(buffer, "X = %0.3f\nY = %0.3f\nZ = %0.3f", acel[0], acel[1], acel[2]);
-		ili9225_set_foreground_color(COLOR_WHITE);
+		/*
+		*	To do:
+		*	- Create a Task to write on LCD
+		*/
+		/*ili9225_set_foreground_color(COLOR_WHITE);
 		ili9225_draw_filled_rectangle(0,40,ILI9225_LCD_WIDTH,ILI9225_LCD_HEIGHT);
+		
 		ili9225_set_foreground_color(COLOR_BLACK);
+		sprintf(buffer, "Acel:\nX = %0.3f\nY = %0.3f\nZ = %0.3f", acel[0], acel[1], acel[2]);
 		ili9225_draw_string(10,50, buffer);
 		
-		xSemaphoreTake(xSemIMUTimer, portMAX_DELAY);
+		ili9225_set_foreground_color(COLOR_BLACK);
+		sprintf(buffer, "Gyro:\nX = %0.3f\nY = %0.3f\nZ = %0.3f", gyro[0], gyro[1], gyro[2]);
+		ili9225_draw_string(10,130, buffer);*/
 	}
 }
 
-static float get_acel_value(ADXL_Axis axis, ADXL_Addr_Dev dev, xSemaphoreHandle xse){
+static float get_gyro_value(Axis_Op axis, ITG_Addr_Dev dev, xSemaphoreHandle xse){
+	status_code_t result;
+	float gyro_value = -800;
+	uint16_t itg = 0;
+	uint8_t b[2];
+	memset(b, 0, sizeof(b));
+	
+	switch (axis)
+	{
+		case Axis_X:
+			result = itg_read(dev, b, ITG_DataX1, sizeof(b), xse);
+			break;
+		case Axis_Y:
+			result = itg_read(dev, b, ITG_DataY1, sizeof(b), xse);
+			break;
+		case Axis_Z:
+			result = itg_read(dev, b, ITG_DataZ1, sizeof(b), xse);
+			break;
+	}
+	
+	if (result != STATUS_OK){
+		return gyro_value;
+	}
+	
+	xSemaphoreTake(xse, TWI_SEM_WAIT);
+	
+	itg = (uint16_t)( (b[0] << 8) | b[1] );
+	
+	if ( !(itg & 0x8000) ){
+		gyro_value = ((float)itg) / CONST_ITG;
+	} else {
+		itg = ( ( (~itg) +1 ) & 0x7FFF);
+		gyro_value = -(((float)itg) / CONST_ITG);
+	}
+	
+	return gyro_value;
+}
+
+static float get_acel_value(Axis_Op axis, ADXL_Addr_Dev dev, xSemaphoreHandle xse){
 	status_code_t result;
 	float acel_value = -16000;
 	uint16_t adxl = 0;
@@ -68,13 +132,13 @@ static float get_acel_value(ADXL_Axis axis, ADXL_Addr_Dev dev, xSemaphoreHandle 
 	memset(b, 0, sizeof(b));
 	
 	switch (axis) {
-		case Acel_X:
+		case Axis_X:
 			result = adxl_read(dev, b, ADXL_DataX0, sizeof(b), xse);
 			break;
-		case Acel_Y:
+		case Axis_Y:
 			result = adxl_read(dev, b, ADXL_DataY0, sizeof(b), xse);
 			break;
-		case Acel_Z:
+		case Axis_Z:
 			result = adxl_read(dev, b, ADXL_DataZ0, sizeof(b), xse);
 			break;
 	}
@@ -83,22 +147,15 @@ static float get_acel_value(ADXL_Axis axis, ADXL_Addr_Dev dev, xSemaphoreHandle 
 		return acel_value;
 	}
 	
-	xSemaphoreTake(xse, 0);
+	xSemaphoreTake(xse, TWI_SEM_WAIT);
 	
 	adxl = (uint16_t)( (b[1] << 8) | b[0] );
 	
-	/*if ( !(adxl & 0xF000) ){
-		acel_value = 3.9 * ((float) adxl);
-	} else {
-		adxl = ( ( (~adxl) +1 ) & 0x0FFF);
-		acel_value = -(3.9 * ((float) adxl) );
-	}*/
-	
 	if ( !(adxl & 0xFC00) ){
-		acel_value = 3.9 * ((float) adxl);
-		} else {
+		acel_value = CONST_ADXL * ((float) adxl);
+	} else {
 		adxl = ( ( (~adxl) +1 ) & 0x03FF);
-		acel_value = -(3.9 * ((float) adxl) );
+		acel_value = -(CONST_ADXL * ((float) adxl) );
 	}
 	
 	return acel_value;
@@ -137,7 +194,7 @@ static uint8_t twi_init(void){
 		//Size Receiver Buffer
 		0,
 		//Priority Interrupt
-		0x0F,
+		(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY+1),
 		TWI_I2C_MASTER,
 		( USE_TX_ACCESS_MUTEX | USE_RX_ACCESS_MUTEX )
 	};
@@ -249,8 +306,6 @@ static status_code_t adxl_read (ADXL_Addr_Dev adxl_addr, uint8_t *value, ADXL_Ad
 	status_code_t result = STATUS_ERR_TIMEOUT;
 	
 	result = freertos_twi_read_packet_async(freertos_twi, &rx, TWI_BLOCK_TIME, xSem);
-	
-	//xSemaphoreTake(xSem, TWI_BLOCK_TIME);
 	
 	return result;
 }
