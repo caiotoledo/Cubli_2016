@@ -664,6 +664,12 @@
     <Folder Include="src\config\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\LCD.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\LCD.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\UART_Comm.c">
       <SubType>compile</SubType>
     </Compile>

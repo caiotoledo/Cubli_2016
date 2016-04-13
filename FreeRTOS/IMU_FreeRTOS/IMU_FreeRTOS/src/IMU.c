@@ -7,6 +7,7 @@
 
 #include "IMU.h"
 #include "UART_Comm.h"
+#include "LCD.h"
 #include <string.h>
 
 #define TWI_SPEED		400000	//400KHz Fast-Speed
@@ -18,6 +19,8 @@
 
 #define CONST_ADXL		(3.9)
 #define CONST_ITG		(14.375)
+
+#define xQueueOverwrite(xQueue,pvItemToQueue)	xQueueReset(xQueue);xQueueSendToFront(xQueue,pvItemToQueue,(0))
 
 freertos_twi_if freertos_twi;
 char buffer[50];
@@ -55,34 +58,23 @@ void IMUTask(void *pvParameters){
 		xSemaphoreTake(xSemIMUTimer, portMAX_DELAY);
 		
 		memset(acel, 0, sizeof(acel));
-		acel[0] = get_acel_value(Axis_X, ADXL_Low, xseIMU) + ACEL_OFFSET_X;
-		acel[1] = get_acel_value(Axis_Y, ADXL_Low, xseIMU) + ACEL_OFFSET_Y;	
-		acel[2] = get_acel_value(Axis_Z, ADXL_Low, xseIMU) + ACEL_OFFSET_Z;
+		acel[Axis_X] = get_acel_value(Axis_X, ADXL_Low, xseIMU) + ACEL_OFFSET_X;
+		xQueueOverwrite(xQueueAcel[Axis_X], (void * ) &acel[Axis_X]);
+		acel[Axis_Y] = get_acel_value(Axis_Y, ADXL_Low, xseIMU) + ACEL_OFFSET_Y;
+		xQueueOverwrite(xQueueAcel[Axis_Y], (void * ) &acel[Axis_Y]);
+		acel[Axis_Z] = get_acel_value(Axis_Z, ADXL_Low, xseIMU) + ACEL_OFFSET_Z;
+		xQueueOverwrite(xQueueAcel[Axis_Z], (void * ) &acel[Axis_Z]);
 		
 		memset(gyro, 0, sizeof(gyro));
-		gyro[0] = get_gyro_value(Axis_X, ITG_Low, xseIMU) + GYRO_OFFSET_X;
-		gyro[1] = get_gyro_value(Axis_Y, ITG_Low, xseIMU) + GYRO_OFFSET_Y;
-		gyro[2] = get_gyro_value(Axis_Z, ITG_Low, xseIMU) + GYRO_OFFSET_Z;
+		gyro[Axis_X] = get_gyro_value(Axis_X, ITG_Low, xseIMU) + GYRO_OFFSET_X;
+		xQueueOverwrite(xQueueGyro[Axis_X], (void * ) &gyro[Axis_X]);
+		gyro[Axis_Y] = get_gyro_value(Axis_Y, ITG_Low, xseIMU) + GYRO_OFFSET_Y;
+		xQueueOverwrite(xQueueGyro[Axis_Y], (void * ) &gyro[Axis_Y]);
+		gyro[Axis_Z] = get_gyro_value(Axis_Z, ITG_Low, xseIMU) + GYRO_OFFSET_Z;
+		xQueueOverwrite(xQueueGyro[Axis_Z], (void * ) &gyro[Axis_Z]);
 		
-		printf_mux("Acel:");
-		printf_mux("X = %0.3f\tY = %0.3f\tZ = %0.3f", acel[0] , acel[1], acel[2]);
-		printf_mux("Gyro:");
-		printf_mux("X = %0.3f\tY = %0.3f\tZ = %0.3f", gyro[0] , gyro[1], gyro[2]);
-		
-		/*
-		*	To do:
-		*	- Create a Task to write on LCD
-		*/
-		/*ili9225_set_foreground_color(COLOR_WHITE);
-		ili9225_draw_filled_rectangle(0,40,ILI9225_LCD_WIDTH,ILI9225_LCD_HEIGHT);
-		
-		ili9225_set_foreground_color(COLOR_BLACK);
-		sprintf(buffer, "Acel:\nX = %0.3f\nY = %0.3f\nZ = %0.3f", acel[0], acel[1], acel[2]);
-		ili9225_draw_string(10,50, buffer);
-		
-		ili9225_set_foreground_color(COLOR_BLACK);
-		sprintf(buffer, "Gyro:\nX = %0.3f\nY = %0.3f\nZ = %0.3f", gyro[0], gyro[1], gyro[2]);
-		ili9225_draw_string(10,130, buffer);*/
+		printf_mux("Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f", acel[0] , acel[1], acel[2]);
+		printf_mux("Gyro:\tX = %0.3f\tY = %0.3f\tZ = %0.3f", gyro[0] , gyro[1], gyro[2]);
 	}
 }
 
@@ -92,6 +84,8 @@ static float get_gyro_value(Axis_Op axis, ITG_Addr_Dev dev, xSemaphoreHandle xse
 	uint16_t itg = 0;
 	uint8_t b[2];
 	memset(b, 0, sizeof(b));
+	
+	signed portBASE_TYPE resultSem;
 	
 	switch (axis)
 	{
@@ -110,7 +104,8 @@ static float get_gyro_value(Axis_Op axis, ITG_Addr_Dev dev, xSemaphoreHandle xse
 		return gyro_value;
 	}
 	
-	xSemaphoreTake(xse, TWI_SEM_WAIT);
+	resultSem = xSemaphoreTake(xse, TWI_SEM_WAIT);
+	if (resultSem != pdTRUE) LED_Toggle(LED1_GPIO);
 	
 	itg = (uint16_t)( (b[0] << 8) | b[1] );
 	
@@ -131,6 +126,8 @@ static float get_acel_value(Axis_Op axis, ADXL_Addr_Dev dev, xSemaphoreHandle xs
 	uint8_t b[2];
 	memset(b, 0, sizeof(b));
 	
+	signed portBASE_TYPE resultSem;
+	
 	switch (axis) {
 		case Axis_X:
 			result = adxl_read(dev, b, ADXL_DataX0, sizeof(b), xse);
@@ -147,7 +144,8 @@ static float get_acel_value(Axis_Op axis, ADXL_Addr_Dev dev, xSemaphoreHandle xs
 		return acel_value;
 	}
 	
-	xSemaphoreTake(xse, TWI_SEM_WAIT);
+	resultSem = xSemaphoreTake(xse, TWI_SEM_WAIT);
+	if (resultSem != pdTRUE) LED_Toggle(LED1_GPIO);
 	
 	adxl = (uint16_t)( (b[1] << 8) | b[0] );
 	

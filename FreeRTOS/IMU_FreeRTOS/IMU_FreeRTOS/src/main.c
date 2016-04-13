@@ -29,22 +29,24 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 #include <asf.h>
-//#include <stdarg.h>
 #include "UART_Comm.h"
 #include "IMU.h"
+#include "LCD.h"
 
 #define TASK_MONITOR
 
+#define TASK_LCD_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
+#define TASK_LCD_STACK_PRIORITY			(tskIDLE_PRIORITY+2)
 #define TASK_IMU_STACK_SIZE				(4096/sizeof(portSTACK_TYPE))
 #define TASK_IMU_STACK_PRIORITY			(configTIMER_TASK_PRIORITY - 1)
-#define TASK_MONITOR_STACK_SIZE         (2048/sizeof(portSTACK_TYPE))
+#define TASK_MONITOR_STACK_SIZE         (512)	//Bytes
 #define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY)
-#define TASK_LED_STACK_SIZE             configMINIMAL_STACK_SIZE//(1024/sizeof(portSTACK_TYPE))
+#define TASK_LED_STACK_SIZE             configMINIMAL_STACK_SIZE
 #define TASK_LED_STACK_PRIORITY         (tskIDLE_PRIORITY+1)
 
-#define DELAY_5S							(5000/portTICK_RATE_MS)
-#define DELAY_1S							(1000/portTICK_RATE_MS)
-#define DELAY_500MS							(500/portTICK_RATE_MS)
+#define DELAY_5S						(5000/portTICK_RATE_MS)
+#define DELAY_1S						(1000/portTICK_RATE_MS)
+#define DELAY_500MS						(500/portTICK_RATE_MS)
 
 extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 		signed char *pcTaskName);
@@ -80,39 +82,6 @@ extern void vApplicationTickHook(void)
 {
 }
 
-struct ili9225_opt_t g_ili9225_display_opt;
-/**
- * \brief Override SPI handler.
- */
-void SPI_Handler(void)
-{
-	ili9225_spi_handler();
-}
-
-void config_lcd(void){
-	
-	/* Initialize display parameter */
-	g_ili9225_display_opt.ul_width = ILI9225_LCD_WIDTH;
-	g_ili9225_display_opt.ul_height = ILI9225_LCD_HEIGHT;
-	g_ili9225_display_opt.foreground_color = COLOR_BLACK;
-	g_ili9225_display_opt.background_color = COLOR_WHITE;
-
-	/* Switch off backlight */
-	aat31xx_disable_backlight();
-
-	/* Initialize LCD */
-	ili9225_init(&g_ili9225_display_opt);
-
-	/* Set backlight level */
-	aat31xx_set_backlight(AAT31XX_AVG_BACKLIGHT_LEVEL);
-
-	/* Turn on LCD */
-	ili9225_display_on();
-	
-	/* Draw filled rectangle with white color */
-	ili9225_fill( (ili9225_color_t) COLOR_WHITE);
-}
-
 /**
  * \brief This task, when activated, send every ten seconds on debug UART
  * the whole report of free heap and total tasks status
@@ -120,6 +89,7 @@ void config_lcd(void){
 static void task_monitor(void *pvParameters)
 {
 	static portCHAR szList[256];
+	static uint32_t freeHeap;
 	UNUSED(pvParameters);
 
 	for (;;) {
@@ -127,6 +97,8 @@ static void task_monitor(void *pvParameters)
 		printf_mux("Name\t\tState\tPrior\tStack\tNum");
 		vTaskList((signed portCHAR *)szList);
 		printf_mux(szList);
+		freeHeap = (uint32_t)xPortGetFreeHeapSize();
+		printf_mux("Free Heap: %u", freeHeap);
 		vTaskDelay(DELAY_5S);
 	}
 }
@@ -137,7 +109,7 @@ static void task_led0(void *pvParameters)
 	for (;;) {
 		//printf_mux("\tLed0!");
 		LED_Toggle(LED0_GPIO);
-		vTaskDelay(DELAY_1S);
+		vTaskDelay(DELAY_500MS);
 	}
 }
 
@@ -152,30 +124,38 @@ int main (void)
 	printf("Console OK!\n");
 	
 	config_lcd();
-	ili9225_set_foreground_color(COLOR_BLACK);
-	ili9225_draw_string(10,10, (uint8_t *)"IMU FreeRTOS");
 	
 #ifdef TASK_MONITOR
 	/* Create task to monitor processor activity */
 	if (xTaskCreate(task_monitor, "Monitor", TASK_MONITOR_STACK_SIZE, NULL,
 	TASK_MONITOR_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create Monitor task\r\n");
+		LED_On(LED2_GPIO);
 	}
 #endif
 	
 	if (xTaskCreate(task_led0, "Led0", TASK_LED_STACK_SIZE, NULL,
 	TASK_LED_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test led task\r\n");
+		LED_On(LED2_GPIO);
 	}
 	
 	if (xTaskCreate(IMUTask, "IMU_T", TASK_IMU_STACK_SIZE, NULL,
 	TASK_IMU_STACK_PRIORITY, NULL) != pdPASS) {
-		printf("Failed to create test led task\r\n");
+		printf("Failed to create test IMUTask\r\n");
+		LED_On(LED2_GPIO);
+	}
+
+	if (xTaskCreate(LCDTask, "LCD_T", TASK_LCD_STACK_SIZE, NULL,
+	TASK_LCD_STACK_PRIORITY, NULL) != pdPASS) {
+		printf("Failed to create test LCDTask\r\n");
+		LED_On(LED2_GPIO);
 	}
 	
 	/* Start the scheduler. */
 	vTaskStartScheduler();
 
 	/* Will only get here if there was insufficient memory to create the idle task. */
+	LED_On(LED2_GPIO);
 	return 0;
 }

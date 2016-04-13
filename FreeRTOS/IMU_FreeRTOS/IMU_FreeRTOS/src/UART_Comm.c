@@ -37,4 +37,5 @@ void configure_console(void){
 	stdio_serial_init(CONF_UART, &uart_serial_options);
 	
 	xMux = xSemaphoreCreateMutex();
+	xSemaphoreGive(xMux);
 }

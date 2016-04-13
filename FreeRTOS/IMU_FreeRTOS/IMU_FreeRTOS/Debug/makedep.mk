@@ -2,6 +2,8 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+src\LCD.c
+
 src\UART_Comm.c
 
 src\ASF\common\services\clock\sam3n\sysclk.c
