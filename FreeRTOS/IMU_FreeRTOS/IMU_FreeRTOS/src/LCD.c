@@ -72,6 +72,8 @@ void LCDTask(void *pvParameters){
 	ili9225_draw_string(5,10, (uint8_t *)"IMU FreeRTOS");
 	
 	for (;;){
+		vTaskDelay(TASK_DELAY);
+		
 		memset(lcd_acel, 0, sizeof(lcd_acel));
 		for (i = 0; i < NUM_AXIS; i++){
 			statusQueue = xQueueReceive(xQueueAcel[i], &(lcd_acel[i]),QUEUE_WAIT);
@@ -88,13 +90,11 @@ void LCDTask(void *pvParameters){
 		ili9225_draw_filled_rectangle(0,30,ILI9225_LCD_WIDTH,ILI9225_LCD_HEIGHT);
 		
 		ili9225_set_foreground_color(COLOR_BLACK);
-		sprintf(lcd_buf, "Acel:\nX=%0.3f\nY=%0.3f\nZ=%0.3f", lcd_acel[0], lcd_acel[1], lcd_acel[2]);
+		sprintf(lcd_buf, "Acel:\nX= %0.3f\nY= %0.3f\nZ= %0.3f", lcd_acel[0], lcd_acel[1], lcd_acel[2]);
 		ili9225_draw_string(5,30, lcd_buf);
-		sprintf(lcd_buf, "Gyro:\nX = %0.3f\nY = %0.3f\nZ = %0.3f", lcd_gyro[0], lcd_gyro[1], lcd_gyro[2]);
+		sprintf(lcd_buf, "Gyro:\nX= %0.3f\nY= %0.3f\nZ= %0.3f", lcd_gyro[0], lcd_gyro[1], lcd_gyro[2]);
 		ili9225_draw_string(5,110, lcd_buf);
 		sprintf(lcd_buf,"%u bytes Free", (uint32_t)xPortGetFreeHeapSize());
 		ili9225_draw_string(5,190, lcd_buf);
-		
-		vTaskDelay(TASK_DELAY);
 	}
 }

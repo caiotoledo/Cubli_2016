@@ -13,13 +13,25 @@
 
 #define TWI_TASK_DELAY		(100/portTICK_RATE_MS)
 
-#define ACEL_OFFSET_X		(350)
-#define ACEL_OFFSET_Y		(1050)
-#define ACEL_OFFSET_Z		(0)
+#define ACEL_OFFSET_X		(350.0)
+#define ACEL_OFFSET_Y		(1050.0)
+#define ACEL_OFFSET_Z		(0.0)
 
-#define GYRO_OFFSET_X		(5)
-#define GYRO_OFFSET_Y		(0)
-#define GYRO_OFFSET_Z		(0)
+#define GYRO_OFFSET_X		(5.0)
+#define GYRO_OFFSET_Y		(0.0)
+#define GYRO_OFFSET_Z		(0.0)
+
+static const float offsetAcel[] = {
+	ACEL_OFFSET_X,
+	ACEL_OFFSET_Y,
+	ACEL_OFFSET_Z
+};
+
+static const float offsetGyro[] = {
+	GYRO_OFFSET_X,
+	GYRO_OFFSET_Y,
+	GYRO_OFFSET_Z
+};
 
 enum ADXL_Addr_Reg_t {
 	ADXL_OffsetX	= 0x1E,
@@ -87,15 +99,17 @@ typedef enum ITG_Addr_Dev_t		ITG_Addr_Dev;
 void IMUTask(void *pvParameters);
 
 static void vTimerIMU(void *pvParameters);
-static float get_gyro_value(Axis_Op axis, ITG_Addr_Dev dev, xSemaphoreHandle xse);
-static float get_acel_value(Axis_Op axis, ADXL_Addr_Dev dev, xSemaphoreHandle xse);
-static status_code_t configIMU(xSemaphoreHandle xse);
-static uint8_t twi_init(void);
-static status_code_t adxl_init(ADXL_Addr_Dev ADXL_Dev, xSemaphoreHandle xSem);
-static status_code_t itg_init(ITG_Addr_Dev ITG_Dev, xSemaphoreHandle xSem);
-static status_code_t itg_write(ITG_Addr_Dev itg_addr, uint8_t value, ITG_Addr_Reg itg_reg, xSemaphoreHandle xSem);
-static status_code_t itg_read (ITG_Addr_Dev itg_addr, uint8_t *value, ITG_Addr_Reg itg_reg, uint8_t len, xSemaphoreHandle xSem);
-static status_code_t adxl_write(ADXL_Addr_Dev adxl_addr, uint8_t value, ADXL_Addr_Reg adxl_reg, xSemaphoreHandle xSem);
-static status_code_t adxl_read (ADXL_Addr_Dev adxl_addr, uint8_t *value, ADXL_Addr_Reg adxl_reg, uint8_t len, xSemaphoreHandle xSem);
+static void getAllAcelValue(ADXL_Addr_Dev dev, float *acel);
+static void getAllGyroValue(ITG_Addr_Dev dev, float *gyro);
+static float get_gyro_value(Axis_Op axis, ITG_Addr_Dev dev);
+static float get_acel_value(Axis_Op axis, ADXL_Addr_Dev dev);
+static status_code_t configIMU();
+uint8_t twi_init();
+static status_code_t adxl_init(ADXL_Addr_Dev ADXL_Dev);
+static status_code_t itg_init(ITG_Addr_Dev ITG_Dev);
+static status_code_t itg_write(ITG_Addr_Dev itg_addr, uint8_t value, ITG_Addr_Reg itg_reg);
+static status_code_t itg_read (ITG_Addr_Dev itg_addr, uint8_t *value, ITG_Addr_Reg itg_reg, uint8_t len);
+static status_code_t adxl_write(ADXL_Addr_Dev adxl_addr, uint8_t value, ADXL_Addr_Reg adxl_reg);
+static status_code_t adxl_read (ADXL_Addr_Dev adxl_addr, uint8_t *value, ADXL_Addr_Reg adxl_reg, uint8_t len);
 
 #endif /* IMU_H_ */

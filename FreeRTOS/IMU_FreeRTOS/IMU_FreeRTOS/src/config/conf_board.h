@@ -53,6 +53,9 @@
 /* Configure ADC example pins */
 #define CONF_BOARD_ADC
 
+/* Configure TWI0 Pins */
+#define CONF_BOARD_TWI0
+
 /*
  * LED pins are not configured for PWM function here.
  * Because those LED pins are enabled for PIO function by default.
