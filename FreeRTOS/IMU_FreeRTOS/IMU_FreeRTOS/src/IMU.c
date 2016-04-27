@@ -33,6 +33,11 @@ void IMUTask(void *pvParameters){
 	UNUSED(pvParameters);
 	status_code_t status;
 	
+	vSemaphoreCreateBinary(xseIMUValues);
+	configASSERT(xseIMUValues);
+	xSemaphoreTake(xseIMUValues, 0);
+	
+	//Timer Task:
 	vSemaphoreCreateBinary(xSemIMUTimer);
 	configASSERT(xSemIMUTimer);
 	xSemaphoreTake(xSemIMUTimer, 0);
@@ -65,8 +70,8 @@ void IMUTask(void *pvParameters){
 			xQueueOverwrite(xQueueGyro[i], (void * ) &gyro[i]);
 		}
 		
-		printf_mux("Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f", acel[0] , acel[1], acel[2]);
-		printf_mux("Gyro:\tX = %0.3f\tY = %0.3f\tZ = %0.3f", gyro[0] , gyro[1], gyro[2]);
+		//Give Semaphore to UART Transfer:
+		xSemaphoreGive(xseIMUValues);
 	}
 }
 

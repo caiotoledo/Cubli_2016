@@ -70,7 +70,7 @@
 #define configUSE_TICK_HOOK				1
 #define configCPU_CLOCK_HZ				( sysclk_get_cpu_hz() )
 #define configTICK_RATE_HZ				( ( portTickType ) 1000 )
-#define configMAX_PRIORITIES			( ( unsigned portBASE_TYPE ) 5 )
+#define configMAX_PRIORITIES			( ( unsigned portBASE_TYPE ) 6 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 70 )
 //#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 0x3000 ) )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 0x30F0 ) )

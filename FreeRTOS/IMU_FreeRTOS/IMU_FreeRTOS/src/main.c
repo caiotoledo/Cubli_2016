@@ -35,10 +35,14 @@
 
 //#define TASK_MONITOR
 
-#define TASK_LCD_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
+//#define TASK_LCD_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
+#define TASK_LCD_STACK_SIZE				(1024/sizeof(portSTACK_TYPE))
 #define TASK_LCD_STACK_PRIORITY			(tskIDLE_PRIORITY+2)
-#define TASK_IMU_STACK_SIZE				(4096/sizeof(portSTACK_TYPE))
+//#define TASK_IMU_STACK_SIZE				(4096/sizeof(portSTACK_TYPE))
+#define TASK_IMU_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
 #define TASK_IMU_STACK_PRIORITY			(configTIMER_TASK_PRIORITY - 1)
+#define TASK_UART_STACK_SIZE			(2048/sizeof(portSTACK_TYPE))
+#define TASK_UART_STACK_PRIORITY		(tskIDLE_PRIORITY+3)
 #define TASK_MONITOR_STACK_SIZE         (512)	//Bytes
 #define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY)
 #define TASK_LED_STACK_SIZE             configMINIMAL_STACK_SIZE
@@ -110,13 +114,13 @@ static void task_monitor(void *pvParameters)
 	UNUSED(pvParameters);
 
 	for (;;) {
-		printf_mux("--- Number of Tasks: %u", (unsigned int)uxTaskGetNumberOfTasks());
-		printf_mux("Name\t\tState\tPrior\tStack\tNum");
+		vTaskDelay(DELAY_5S);
+		printf_mux("--- Number of Tasks: %u\n", (unsigned int)uxTaskGetNumberOfTasks());
+		printf_mux("Name\t\tState\tPrior\tStack\tNum\n");
 		vTaskList((signed portCHAR *)szList);
 		printf_mux(szList);
 		freeHeap = (uint32_t)xPortGetFreeHeapSize();
-		printf_mux("Free Heap: %u", freeHeap);
-		vTaskDelay(DELAY_5S);
+		printf_mux("Free Heap: %u\n", freeHeap);
 	}
 }
 
@@ -166,6 +170,12 @@ int main (void)
 	if (xTaskCreate(LCDTask, "LCD_T", TASK_LCD_STACK_SIZE, NULL,
 	TASK_LCD_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test LCDTask\r\n");
+		LED_On(LED2_GPIO);
+	}
+	
+	if (xTaskCreate(UARTTXTask, "TX_Task", TASK_UART_STACK_SIZE, NULL,
+	TASK_UART_STACK_PRIORITY, NULL) != pdPASS) {
+		printf("Failed to create test TX_Task\r\n");
 		LED_On(LED2_GPIO);
 	}
 	

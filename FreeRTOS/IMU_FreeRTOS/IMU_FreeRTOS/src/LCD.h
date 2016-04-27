@@ -10,11 +10,7 @@
 #define LCD_H_
 
 #include <asf.h>
-
-#define NUM_AXIS		3
-
-xQueueHandle xQueueAcel[NUM_AXIS];
-xQueueHandle xQueueGyro[NUM_AXIS];
+#include "IMU.h"
 
 void config_lcd(void);
 void LCDTask(void *pvParameters);

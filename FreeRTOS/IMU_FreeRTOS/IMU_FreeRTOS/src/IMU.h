@@ -21,6 +21,11 @@
 #define GYRO_OFFSET_Y		(0.0)
 #define GYRO_OFFSET_Z		(0.0)
 
+#define NUM_AXIS		3
+
+volatile xQueueHandle xQueueAcel[NUM_AXIS];
+volatile xQueueHandle xQueueGyro[NUM_AXIS];
+
 static const float offsetAcel[] = {
 	ACEL_OFFSET_X,
 	ACEL_OFFSET_Y,
@@ -95,6 +100,8 @@ typedef enum ADXL_Addr_Dev_t	ADXL_Addr_Dev;
 typedef enum Axis_t				Axis_Op;
 typedef enum ITG_Addr_Reg_t		ITG_Addr_Reg;
 typedef enum ITG_Addr_Dev_t		ITG_Addr_Dev;
+
+xSemaphoreHandle xseIMUValues;
 
 void IMUTask(void *pvParameters);
 

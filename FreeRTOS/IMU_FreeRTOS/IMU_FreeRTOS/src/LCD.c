@@ -7,7 +7,7 @@
 #include "LCD.h"
 #include <string.h>
 
-#define QUEUE_WAIT		(portMAX_DELAY)
+#define LCD_WAIT		(portMAX_DELAY)
 
 #define TASK_DELAY		(500/portTICK_RATE_MS)
 
@@ -76,13 +76,13 @@ void LCDTask(void *pvParameters){
 		
 		memset(lcd_acel, 0, sizeof(lcd_acel));
 		for (i = 0; i < NUM_AXIS; i++){
-			statusQueue = xQueueReceive(xQueueAcel[i], &(lcd_acel[i]),QUEUE_WAIT);
+			statusQueue = xQueuePeek(xQueueAcel[i], &(lcd_acel[i]),LCD_WAIT);
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
 		memset(lcd_gyro, 0, sizeof(lcd_gyro));
 		for (i = 0; i < NUM_AXIS; i++){
-			statusQueue = xQueueReceive(xQueueGyro[i], &(lcd_gyro[i]),QUEUE_WAIT);
+			statusQueue = xQueuePeek(xQueueGyro[i], &(lcd_gyro[i]),LCD_WAIT);
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
