@@ -33,7 +33,7 @@
 #include "IMU.h"
 #include "LCD.h"
 
-//#define TASK_MONITOR
+#define TASK_MONITOR
 
 //#define TASK_LCD_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
 #define TASK_LCD_STACK_SIZE				(1024/sizeof(portSTACK_TYPE))
@@ -56,6 +56,8 @@ extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 		signed char *pcTaskName);
 extern void vApplicationIdleHook(void);
 extern void vApplicationTickHook(void);
+
+xSemaphoreHandle xseMonitor;
 
 /**
  * \brief Called if stack overflow during execution
@@ -114,7 +116,8 @@ static void task_monitor(void *pvParameters)
 	UNUSED(pvParameters);
 
 	for (;;) {
-		vTaskDelay(DELAY_5S);
+		vTaskDelay(DELAY_1S);
+		xSemaphoreTake(xseMonitor, portMAX_DELAY); //Button Semaphore
 		printf_mux("--- Number of Tasks: %u\n", (unsigned int)uxTaskGetNumberOfTasks());
 		printf_mux("Name\t\tState\tPrior\tStack\tNum\n");
 		vTaskList((signed portCHAR *)szList);
@@ -133,6 +136,27 @@ static void task_led0(void *pvParameters)
 	}
 }
 
+void button_handler(uint32_t id, uint32_t mask){
+	xSemaphoreGiveFromISR(xseMonitor, NULL);
+}
+
+void config_interrupt(){
+	//The GPIO was already configured by board_init().
+	pio_handler_set(PIOA, ID_PIOA, PIO_PA15, PIO_IT_FALL_EDGE, button_handler);
+	pio_enable_interrupt(PIOA, PIO_PA15);
+	pio_handler_set(PIOA, ID_PIOA, PIO_PA16, PIO_IT_FALL_EDGE, button_handler);
+	pio_enable_interrupt(PIOA, PIO_PA16);
+	
+	NVIC_DisableIRQ(PIOA_IRQn);
+	NVIC_ClearPendingIRQ(PIOA_IRQn);
+	NVIC_SetPriority(PIOA_IRQn, 0);
+	NVIC_EnableIRQ(PIOA_IRQn);
+	
+	vSemaphoreCreateBinary(xseMonitor);
+	configASSERT(xseMonitor);
+	xSemaphoreTake(xseMonitor, 0);
+}
+
 int main (void)
 {
 	/* Initialize Board and Clock */
@@ -145,6 +169,8 @@ int main (void)
 	printf("Console OK!\n");
 	
 	config_lcd();
+	
+	config_interrupt();
 	
 #ifdef TASK_MONITOR
 	/* Create task to monitor processor activity */

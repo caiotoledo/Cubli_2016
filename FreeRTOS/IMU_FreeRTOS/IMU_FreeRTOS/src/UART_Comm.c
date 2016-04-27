@@ -53,7 +53,6 @@ void configure_console(void){
 	uart_settings.ul_mode = UART_MR_PAR_NO;
 
 	/* Configure console UART. */
-	/*sysclk_enable_peripheral_clock(CONSOLE_UART_ID);*/
 	stdio_serial_init(CONF_UART, &uart_serial_options);
 	
 	freertos_uart = freertos_uart_serial_init(UART0, 
@@ -63,7 +62,7 @@ void configure_console(void){
 }
 
 /**
- * \UART Task
+ * \UART TX Task
  */
 void UARTTXTask (void *pvParameters){
 	UNUSED(pvParameters);
