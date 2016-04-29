@@ -23,10 +23,15 @@ char buffer[50];
 
 xSemaphoreHandle xseIMU;
 xSemaphoreHandle xSemIMUTimer;
+xSemaphoreHandle xSemIMUInt;
 xTimerHandle xTimerIMU;
 
 static void vTimerIMU(void *pvParameters){
 	xSemaphoreGive(xSemIMUTimer);
+}
+
+void intpin_handler(uint32_t id, uint32_t mask){
+	xSemaphoreGiveFromISR(xSemIMUInt, NULL);
 }
 
 void IMUTask(void *pvParameters){
@@ -37,12 +42,19 @@ void IMUTask(void *pvParameters){
 	configASSERT(xseIMUValues);
 	xSemaphoreTake(xseIMUValues, 0);
 	
+#ifndef INT_PIN
 	//Timer Task:
 	vSemaphoreCreateBinary(xSemIMUTimer);
 	configASSERT(xSemIMUTimer);
 	xSemaphoreTake(xSemIMUTimer, 0);
 	xTimerIMU = xTimerCreate("TimerIMU", TWI_TASK_DELAY , pdTRUE, NULL, vTimerIMU);
 	xTimerStart(xTimerIMU, 0);
+#else
+	//Semaphore INT IMU:
+	vSemaphoreCreateBinary(xSemIMUInt);
+	configASSERT(xSemIMUInt);
+	xSemaphoreTake(xSemIMUInt, 0);
+#endif
 	
 	status = configIMU();
 	if (status != STATUS_OK){
@@ -56,7 +68,11 @@ void IMUTask(void *pvParameters){
 	uint8_t i = 0;
 	
 	for (;;){
-		xSemaphoreTake(xSemIMUTimer, portMAX_DELAY);
+		#ifndef INT_PIN
+			xSemaphoreTake(xSemIMUTimer, portMAX_DELAY);
+		#else
+			xSemaphoreTake(xSemIMUInt, portMAX_DELAY);
+		#endif
 		
 		memset(acel, 0, sizeof(acel));
 		getAllAcelValue(ADXL_Low, acel);
@@ -245,14 +261,21 @@ uint8_t twi_init(){
 static status_code_t adxl_init(ADXL_Addr_Dev ADXL_Dev){
 	status_code_t result;
 	
-	//result = adxl_write(ADXL_Dev, 0x0B, ADXL_DataFormat, xSem);	//16g, 13-bit mode
 	result = adxl_write(ADXL_Dev, 0x08, ADXL_DataFormat);	//2g, 10-bit mode
 	if (result != STATUS_OK) return result;
 	
-	result = adxl_write(ADXL_Dev, 0x09, ADXL_BWRate);		//Sample rate = 50Hz = 20ms LPF = 25Hz
+	result = adxl_write(ADXL_Dev, BWrate50Hz, ADXL_BWRate);
 	if (result != STATUS_OK) return result;
 	
-	result = adxl_write(ADXL_Dev, 0x08, ADXL_PowerCtl);	//Start Measurement
+	result = adxl_write(ADXL_Dev, 0x80, ADXL_IntEnable);	//Interrupt EN = Data Ready
+	if (result != STATUS_OK) return result;
+	
+	result = adxl_write(ADXL_Dev, 0x7F, ADXL_InitMap);		//Interrupt Map = DataReady: INT1 / Others: INT2
+	if (result != STATUS_OK) return result;
+	
+	clearInterruptADXL(ADXL_Dev);
+	
+	result = adxl_write(ADXL_Dev, 0x08, ADXL_PowerCtl);		//Start Measurement
 	if (result != STATUS_OK) return result;
 	
 	return result;
@@ -335,4 +358,9 @@ static status_code_t adxl_read (ADXL_Addr_Dev adxl_addr, uint8_t *value, ADXL_Ad
 	result = freertos_twi_read_packet(freertos_twi, &rx, TWI_BLOCK_TIME);
 	
 	return result;
+}
+
+static void clearInterruptADXL(ADXL_Addr_Dev dev){
+	uint8_t b;
+	adxl_read(dev, &b, ADXL_DataX0, 1);
 }

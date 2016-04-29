@@ -53,7 +53,11 @@ void configure_console(void){
 	uart_settings.ul_mode = UART_MR_PAR_NO;
 
 	/* Configure console UART. */
-	stdio_serial_init(CONF_UART, &uart_serial_options);
+	stdio_base = (void *)CONF_UART;
+	ptr_put = (int (*)(void volatile*,char))&usart_serial_putchar;
+	ptr_get = (void (*)(void volatile*,char*))&usart_serial_getchar;
+	setbuf(stdout, NULL);
+	setbuf(stdin, NULL);
 	
 	freertos_uart = freertos_uart_serial_init(UART0, 
 											&uart_settings, 
@@ -95,5 +99,46 @@ void UARTTXTask (void *pvParameters){
 				uart_gyro[0], uart_gyro[1], uart_gyro[2]);
 		result = freertos_uart_write_packet(freertos_uart, uartBuf, strlen((char *)uartBuf), UART_WAIT);
 		if (result != STATUS_OK) LED_Toggle(LED2_GPIO);
+	}
+}
+
+// Task to receive commands via Serial:
+void UARTRXTask(void *pvParameters){
+	UNUSED(pvParameters);
+	
+	uint8_t receive;
+	uint8_t *buf_msg = NULL;
+	uint8_t *msg = NULL;
+	uint32_t countChar = 0;
+	
+	int size = 0;
+	
+	for (;;){
+		//Receive only one character at a time
+		size = freertos_uart_serial_read_packet(freertos_uart, &receive, sizeof(receive), portMAX_DELAY);
+		if (size == sizeof(receive)){
+			//Enter is the end of message:
+			if (receive == '\n'){
+				printf_mux(msg);
+				countChar = 0;
+				free(msg);
+			} 
+			//Keep receiving characters:
+			else {
+				countChar++;
+				buf_msg = (uint8_t *) realloc(msg, (countChar+1) * sizeof(uint8_t));
+				
+				if (buf_msg != NULL) {
+					msg = buf_msg;
+					msg[countChar-1] = receive;
+					msg[countChar] = '\0';	//NULL Terminator
+				} else {
+					free(msg);
+					printf_mux("Error (re)allocating memory");
+					LED_On(LED2_GPIO);
+					vTaskDelete(NULL);
+				}
+			}
+		}
 	}
 }

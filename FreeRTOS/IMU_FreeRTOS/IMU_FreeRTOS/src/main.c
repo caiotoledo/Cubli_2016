@@ -33,12 +33,10 @@
 #include "IMU.h"
 #include "LCD.h"
 
-#define TASK_MONITOR
+//#define TASK_MONITOR
 
-//#define TASK_LCD_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
 #define TASK_LCD_STACK_SIZE				(1024/sizeof(portSTACK_TYPE))
 #define TASK_LCD_STACK_PRIORITY			(tskIDLE_PRIORITY+2)
-//#define TASK_IMU_STACK_SIZE				(4096/sizeof(portSTACK_TYPE))
 #define TASK_IMU_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
 #define TASK_IMU_STACK_PRIORITY			(configTIMER_TASK_PRIORITY - 1)
 #define TASK_UART_STACK_SIZE			(2048/sizeof(portSTACK_TYPE))
@@ -142,16 +140,23 @@ void button_handler(uint32_t id, uint32_t mask){
 
 void config_interrupt(){
 	//The GPIO was already configured by board_init().
-	pio_handler_set(PIOA, ID_PIOA, PIO_PA15, PIO_IT_FALL_EDGE, button_handler);
-	pio_enable_interrupt(PIOA, PIO_PA15);
-	pio_handler_set(PIOA, ID_PIOA, PIO_PA16, PIO_IT_FALL_EDGE, button_handler);
-	pio_enable_interrupt(PIOA, PIO_PA16);
+	pio_handler_set(PIOA, ID_PIOA, PIN_PUSHBUTTON_1_MASK, PIO_IT_FALL_EDGE, button_handler);
+	pio_enable_interrupt(PIOA, PIN_PUSHBUTTON_1_MASK);
+	
+	//Interrupt pin ADXL345:
+	#ifdef INT_PIN
+		pio_set_input(PIOA, INT_PIN, PIO_DEFAULT);
+		pio_pull_down(PIOA, INT_PIN, ENABLE);
+		pio_handler_set(PIOA, ID_PIOA, INT_PIN, PIO_IT_RISE_EDGE, intpin_handler);
+		pio_enable_interrupt(PIOA,INT_PIN);
+	#endif
 	
 	NVIC_DisableIRQ(PIOA_IRQn);
 	NVIC_ClearPendingIRQ(PIOA_IRQn);
 	NVIC_SetPriority(PIOA_IRQn, 0);
 	NVIC_EnableIRQ(PIOA_IRQn);
 	
+	//Semaphore for Monitor:
 	vSemaphoreCreateBinary(xseMonitor);
 	configASSERT(xseMonitor);
 	xSemaphoreTake(xseMonitor, 0);
@@ -199,11 +204,17 @@ int main (void)
 		LED_On(LED2_GPIO);
 	}
 	
-	if (xTaskCreate(UARTTXTask, "TX_Task", TASK_UART_STACK_SIZE, NULL,
+	if (xTaskCreate(UARTTXTask, "TX_T", TASK_UART_STACK_SIZE, NULL,
 	TASK_UART_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test TX_Task\r\n");
 		LED_On(LED2_GPIO);
 	}
+	
+	/*if (xTaskCreate(UARTRXTask, "RX_T", TASK_UART_STACK_SIZE, NULL,
+	TASK_UART_STACK_PRIORITY, NULL) != pdPASS) {
+		printf("Failed to create test RX_Task\r\n");
+		LED_On(LED2_GPIO);
+	}*/
 	
 	/* Start the scheduler. */
 	vTaskStartScheduler();

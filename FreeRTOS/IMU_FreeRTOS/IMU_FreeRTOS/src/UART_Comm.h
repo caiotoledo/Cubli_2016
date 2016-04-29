@@ -18,5 +18,6 @@ xQueueHandle xQueueUARTGyro[NUM_AXIS];
 void printf_mux( const char * format, ... );
 void configure_console(void);
 void UARTTXTask (void *pvParameters);
+void UARTRXTask(void *pvParameters);
 
 #endif /* UART_COMM_H_ */
