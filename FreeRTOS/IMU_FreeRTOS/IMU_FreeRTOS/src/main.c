@@ -84,6 +84,7 @@ extern void vApplicationIdleHook(void)
  */
 extern void vApplicationTickHook(void)
 {
+	g_tickCounter++;
 }
 
 void vApplicationMallocFailedHook(void)
@@ -168,6 +169,7 @@ int main (void)
 	sysclk_init();
 	NVIC_SetPriorityGrouping(0);
 	board_init();
+	g_tickCounter = 0;
 
 	/* Initialize the console uart */
 	configure_console();

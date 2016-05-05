@@ -9,6 +9,7 @@
 #include "UART_Comm.h"
 #include "LCD.h"
 #include <string.h>
+#include <math.h>
 
 #define TWI_SPEED		400000	//400KHz Fast-Speed
 #define TWI_BLOCK_TIME	(portMAX_DELAY)
@@ -18,19 +19,26 @@
 
 #define xQueueOverwrite(xQueue,pvItemToQueue)	xQueueReset(xQueue);xQueueSendToFront(xQueue,pvItemToQueue,(0))
 
+#define ALPHA			0.7143//0.8333//0.9091
+
 freertos_twi_if freertos_twi;
 char buffer[50];
 
 xSemaphoreHandle xseIMU;
-xSemaphoreHandle xSemIMUTimer;
 xSemaphoreHandle xSemIMUInt;
 xTimerHandle xTimerIMU;
 
+uint8_t configBWRate = BWrate6_25Hz;
+uint32_t lastTickCounter = 0;
+double dt;
+
 static void vTimerIMU(void *pvParameters){
-	xSemaphoreGive(xSemIMUTimer);
+	xSemaphoreGive(xSemIMUInt);
 }
 
 void intpin_handler(uint32_t id, uint32_t mask){
+	dt = (double)(g_tickCounter - lastTickCounter)/(portTICK_RATE_MS*1000);
+	lastTickCounter = g_tickCounter;
 	xSemaphoreGiveFromISR(xSemIMUInt, NULL);
 }
 
@@ -42,43 +50,45 @@ void IMUTask(void *pvParameters){
 	configASSERT(xseIMUValues);
 	xSemaphoreTake(xseIMUValues, 0);
 	
-#ifndef INT_PIN
-	//Timer Task:
-	vSemaphoreCreateBinary(xSemIMUTimer);
-	configASSERT(xSemIMUTimer);
-	xSemaphoreTake(xSemIMUTimer, 0);
-	xTimerIMU = xTimerCreate("TimerIMU", TWI_TASK_DELAY , pdTRUE, NULL, vTimerIMU);
-	xTimerStart(xTimerIMU, 0);
-#else
-	//Semaphore INT IMU:
 	vSemaphoreCreateBinary(xSemIMUInt);
 	configASSERT(xSemIMUInt);
 	xSemaphoreTake(xSemIMUInt, 0);
+	
+#ifndef INT_PIN
+	//Timer Task:
+	xTimerIMU = xTimerCreate("TimerIMU", TWI_TASK_DELAY , pdTRUE, NULL, vTimerIMU);
+	xTimerStart(xTimerIMU, 0);
 #endif
 	
 	status = configIMU();
+	lastTickCounter = g_tickCounter;
 	if (status != STATUS_OK){
 		printf_mux("Error IMU!");
 		LED_On(LED2_GPIO);
 		vTaskDelete(NULL);
 	}
 	
-	float acel[3];
-	float gyro[3];
+	double acel[3];
+	double gyro[3];
+	double anglePure = 0;
+	double angleComplFilter = initComplFilter(ADXL_Low);
+	double angleKalman = 0;
 	uint8_t i = 0;
 	
 	for (;;){
-		#ifndef INT_PIN
-			xSemaphoreTake(xSemIMUTimer, portMAX_DELAY);
-		#else
-			xSemaphoreTake(xSemIMUInt, portMAX_DELAY);
-		#endif
+		xSemaphoreTake(xSemIMUInt, portMAX_DELAY);
 		
 		memset(acel, 0, sizeof(acel));
 		getAllAcelValue(ADXL_Low, acel);
 		for (i = 0; i < NUM_AXIS; i++){
 			xQueueOverwrite(xQueueAcel[i], (void * ) &acel[i]);
 		}
+		
+		anglePure = getPureAngle(acel);
+		xQueueOverwrite(xQueueAngle[0], (void * ) &anglePure);
+		getComplFilterAngle(&angleComplFilter, acel, gyro);
+		xQueueOverwrite(xQueueAngle[1], (void * ) &angleComplFilter);
+		xQueueOverwrite(xQueueAngle[2], (void * ) &angleKalman);
 		
 		memset(gyro, 0, sizeof(gyro));		
 		getAllGyroValue(ITG_Low, gyro);
@@ -91,7 +101,29 @@ void IMUTask(void *pvParameters){
 	}
 }
 
-static void getAllAcelValue(ADXL_Addr_Dev dev, float *acel){
+static double getPureAngle(double *acel){
+	double angle = 0.0;
+	
+	angle = sin(acel[Axis_X]/acel[Axis_Y]) * (180.0/M_PI);
+	
+	return angle;
+}
+
+static double initComplFilter(ADXL_Addr_Dev dev){
+	double acelInit[3];
+	getAllAcelValue(dev, acelInit);
+	return getPureAngle(acelInit);
+}
+
+static void getComplFilterAngle(double *angle, double *acel, double *gyro){
+	double angle_measure;
+	
+	angle_measure = getPureAngle(acel);
+	
+	*angle = (*angle + (gyro[Axis_Z]*dt) )*ALPHA + (1-ALPHA)*angle_measure;
+}
+
+static void getAllAcelValue(ADXL_Addr_Dev dev, double *acel){
 	status_code_t result;
 	memset(acel, (-16000), NUM_AXIS);
 	uint8_t b[6] = {0};
@@ -117,7 +149,7 @@ static void getAllAcelValue(ADXL_Addr_Dev dev, float *acel){
 	}
 }
 
-static void getAllGyroValue(ITG_Addr_Dev dev, float *gyro){
+static void getAllGyroValue(ITG_Addr_Dev dev, double *gyro){
 	status_code_t result;
 	memset(gyro, (-16000), NUM_AXIS);
 	uint8_t b[6] = {0};
@@ -264,7 +296,7 @@ static status_code_t adxl_init(ADXL_Addr_Dev ADXL_Dev){
 	result = adxl_write(ADXL_Dev, 0x08, ADXL_DataFormat);	//2g, 10-bit mode
 	if (result != STATUS_OK) return result;
 	
-	result = adxl_write(ADXL_Dev, BWrate50Hz, ADXL_BWRate);
+	result = adxl_write(ADXL_Dev, configBWRate, ADXL_BWRate);
 	if (result != STATUS_OK) return result;
 	
 	result = adxl_write(ADXL_Dev, 0x80, ADXL_IntEnable);	//Interrupt EN = Data Ready

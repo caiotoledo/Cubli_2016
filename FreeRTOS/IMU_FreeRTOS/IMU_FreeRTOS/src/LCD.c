@@ -46,12 +46,17 @@ void config_lcd(void){
 	/* Queue FreeRTOS Initialization */
 	uint8_t i;
 	for (i = 0; i < NUM_AXIS; i++){
-		xQueueAcel[i] = xQueueCreate(1, sizeof(float));
+		xQueueAcel[i] = xQueueCreate(1, sizeof(double));
 		if (xQueueAcel[i] == NULL){
 			LED_On(LED2_GPIO);
 			while(1);
 		}
-		xQueueGyro[i] = xQueueCreate(1, sizeof(float));
+		xQueueAngle[i] = xQueueCreate(1, sizeof(double));
+		if (xQueueAngle[i] == NULL){
+			LED_On(LED2_GPIO);
+			while(1);
+		}
+		xQueueGyro[i] = xQueueCreate(1, sizeof(double));
 		if (xQueueGyro[i] == NULL){
 			LED_On(LED2_GPIO);
 			while(1);
@@ -62,8 +67,9 @@ void config_lcd(void){
 void LCDTask(void *pvParameters){
 	UNUSED(pvParameters);
 	
-	float lcd_acel[3];
-	float lcd_gyro[3];
+	double lcd_acel[3];
+	double lcd_angle[3];
+	double lcd_gyro[3];
 	char lcd_buf[40];
 	uint8_t i = 0;
 	signed portBASE_TYPE statusQueue;
@@ -80,6 +86,12 @@ void LCDTask(void *pvParameters){
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
+		memset(lcd_angle, 0, sizeof(lcd_angle));
+		for (i = 0; i < NUM_AXIS; i++){
+			statusQueue = xQueuePeek(xQueueAngle[i], &(lcd_angle[i]),LCD_WAIT);
+			if (statusQueue != pdPASS) vTaskDelete(NULL);
+		}
+		
 		memset(lcd_gyro, 0, sizeof(lcd_gyro));
 		for (i = 0; i < NUM_AXIS; i++){
 			statusQueue = xQueuePeek(xQueueGyro[i], &(lcd_gyro[i]),LCD_WAIT);
@@ -90,11 +102,11 @@ void LCDTask(void *pvParameters){
 		ili9225_draw_filled_rectangle(0,30,ILI9225_LCD_WIDTH,ILI9225_LCD_HEIGHT);
 		
 		ili9225_set_foreground_color(COLOR_BLACK);
-		sprintf(lcd_buf, "Acel:\nX= %0.3f\nY= %0.3f\nZ= %0.3f", lcd_acel[0], lcd_acel[1], lcd_acel[2]);
+		sprintf(lcd_buf, "Acel:\nX=%0.3f mG\nY=%0.3f mG\nGyro:\n%0.3f Graus/s", lcd_acel[0], lcd_acel[1],lcd_gyro[2]);
 		ili9225_draw_string(5,30, lcd_buf);
-		sprintf(lcd_buf, "Gyro:\nX= %0.3f\nY= %0.3f\nZ= %0.3f", lcd_gyro[0], lcd_gyro[1], lcd_gyro[2]);
+		sprintf(lcd_buf, "Angle Pure:\n%0.3f\nAngle Comp.:\n%0.3f\nKalman:\n%0.3f", lcd_angle[0], lcd_angle[1],lcd_angle[2]);
 		ili9225_draw_string(5,110, lcd_buf);
-		sprintf(lcd_buf,"%u bytes Free", (uint32_t)xPortGetFreeHeapSize());
-		ili9225_draw_string(5,190, lcd_buf);
+		/*sprintf(lcd_buf,"%u bytes Free", (uint32_t)xPortGetFreeHeapSize());
+		ili9225_draw_string(5,200, lcd_buf);*/
 	}
 }

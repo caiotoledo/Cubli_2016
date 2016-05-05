@@ -26,7 +26,10 @@
 #define INT_PIN				PIO_PA20
 
 volatile xQueueHandle xQueueAcel[NUM_AXIS];
+volatile xQueueHandle xQueueAngle[NUM_AXIS];
 volatile xQueueHandle xQueueGyro[NUM_AXIS];
+
+volatile uint32_t g_tickCounter;
 
 static const float offsetAcel[] = {
 	ACEL_OFFSET_X,
@@ -80,6 +83,31 @@ enum Rate_ADXL_t {
 	BWrate3200Hz,
 };
 
+/*
+typedef struct rateADXL_t {
+	uint8_t rateEnum;
+	double	dt;
+} rateADXL;
+
+rateADXL mapRate[] = {
+	{ BWrate0_10Hz, 10.0},
+	{ BWrate0_20Hz, 5.0},
+	{ BWrate0_39Hz, (1/0.39) },
+	{ BWrate0_78Hz, (1/0.78) },
+	{ BWrate1_56Hz, (1/1.56) },
+	{ BWrate3_13Hz, (1/3.13) },
+	{ BWrate6_25Hz, (1/6.25) },
+	{ BWrate12_5Hz, (1/12.5) },
+	{ BWrate25Hz,	(1/25.0) },
+	{ BWrate50Hz,	(1/50.0) },
+	{ BWrate100Hz,	(1/100.0) },
+	{ BWrate200Hz,	(1/200.0) },
+	{ BWrate400Hz,	(1/400.0) },
+	{ BWrate800Hz,	(1/800.0) },
+	{ BWrate1600Hz, (1/1600.0) },
+	{ BWrate3200Hz, (1/3200.0) },
+};*/
+
 enum ADXL_Addr_Dev_t {
 	ADXL_High		= 0x1D,
 	ADXL_Low		= 0x53		//Standard Address
@@ -126,10 +154,14 @@ xSemaphoreHandle xseIMUValues;
 
 void IMUTask(void *pvParameters);
 
+static double getPureAngle(double *acel);
+static double initComplFilter(ADXL_Addr_Dev dev);
+static void getComplFilterAngle(double *angle, double *acel, double *gyro);
+
 static void vTimerIMU(void *pvParameters);
 void intpin_handler(uint32_t id, uint32_t mask);
-static void getAllAcelValue(ADXL_Addr_Dev dev, float *acel);
-static void getAllGyroValue(ITG_Addr_Dev dev, float *gyro);
+static void getAllAcelValue(ADXL_Addr_Dev dev, double *acel);
+static void getAllGyroValue(ITG_Addr_Dev dev, double *gyro);
 static float get_gyro_value(Axis_Op axis, ITG_Addr_Dev dev);
 static float get_acel_value(Axis_Op axis, ADXL_Addr_Dev dev);
 static status_code_t configIMU();
