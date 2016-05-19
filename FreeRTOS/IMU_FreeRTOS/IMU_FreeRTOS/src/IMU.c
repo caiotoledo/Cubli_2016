@@ -8,6 +8,7 @@
 #include "IMU.h"
 #include "UART_Comm.h"
 #include "LCD.h"
+#include "KalmanFilter.h"
 #include <string.h>
 #include <math.h>
 
@@ -28,16 +29,19 @@ xSemaphoreHandle xseIMU;
 xSemaphoreHandle xSemIMUInt;
 xTimerHandle xTimerIMU;
 
-uint8_t configBWRate = BWrate6_25Hz;
+//uint8_t configBWRate = BWrate6_25Hz;
+uint8_t configBWRate = BWrate100Hz;
 uint32_t lastTickCounter = 0;
-double dt;
+double dt = (((double)TWI_TASK_DELAY)/ ((double)configTICK_RATE_HZ));
+
+static KalmanConst kalmanC;
 
 static void vTimerIMU(void *pvParameters){
 	xSemaphoreGive(xSemIMUInt);
 }
 
 void intpin_handler(uint32_t id, uint32_t mask){
-	dt = (double)(g_tickCounter - lastTickCounter)/(portTICK_RATE_MS*1000);
+	//dt = (double)(g_tickCounter - lastTickCounter)/configTICK_RATE_HZ;
 	lastTickCounter = g_tickCounter;
 	xSemaphoreGiveFromISR(xSemIMUInt, NULL);
 }
@@ -72,8 +76,21 @@ void IMUTask(void *pvParameters){
 	double gyro[3];
 	double anglePure = 0;
 	double angleComplFilter = initComplFilter(ADXL_Low);
-	double angleKalman = 0;
+	double angleKalman = angleComplFilter;
 	uint8_t i = 0;
+	
+	//Init Kalman Constants:
+	kalmanC.angleInit	=	angleKalman;
+	kalmanC.bias		=	0;
+	kalmanC.Qangle		=	0.001;
+	kalmanC.Qbias		=	0.003;
+	kalmanC.Rmeasure	=	0.03;
+	kalmanC.P[0][0]		=	0;
+	kalmanC.P[0][1]		=	0;
+	kalmanC.P[1][0]		=	0;
+	kalmanC.P[1][1]		=	0;
+	
+	initKalman(&kalmanC);
 	
 	for (;;){
 		xSemaphoreTake(xSemIMUInt, portMAX_DELAY);
@@ -84,17 +101,18 @@ void IMUTask(void *pvParameters){
 			xQueueOverwrite(xQueueAcel[i], (void * ) &acel[i]);
 		}
 		
-		anglePure = getPureAngle(acel);
-		xQueueOverwrite(xQueueAngle[0], (void * ) &anglePure);
-		getComplFilterAngle(&angleComplFilter, acel, gyro);
-		xQueueOverwrite(xQueueAngle[1], (void * ) &angleComplFilter);
-		xQueueOverwrite(xQueueAngle[2], (void * ) &angleKalman);
-		
-		memset(gyro, 0, sizeof(gyro));		
+		memset(gyro, 0, sizeof(gyro));
 		getAllGyroValue(ITG_Low, gyro);
 		for (i = 0; i < NUM_AXIS; i++){
 			xQueueOverwrite(xQueueGyro[i], (void * ) &gyro[i]);
 		}
+		
+		anglePure = getPureAngle(acel);
+		xQueueOverwrite(xQueueAngle[0], (void * ) &anglePure);
+		getComplFilterAngle(&angleComplFilter, acel, gyro);
+		xQueueOverwrite(xQueueAngle[1], (void * ) &angleComplFilter);
+		angleKalman = getKalmanAngle(anglePure, gyro[Axis_Z], dt);
+		xQueueOverwrite(xQueueAngle[2], (void * ) &angleKalman);
 		
 		//Give Semaphore to UART Transfer:
 		xSemaphoreGive(xseIMUValues);
@@ -104,7 +122,7 @@ void IMUTask(void *pvParameters){
 static double getPureAngle(double *acel){
 	double angle = 0.0;
 	
-	angle = sin(acel[Axis_X]/acel[Axis_Y]) * (180.0/M_PI);
+	angle = sin(-acel[Axis_X]/acel[Axis_Y]) * (180.0/M_PI);
 	
 	return angle;
 }

@@ -109,6 +109,7 @@ SUBDIRS :=  \
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
+../src/KalmanFilter.c \
 ../src/LCD.c \
 ../src/UART_Comm.c \
 ../src/ASF/common/services/clock/sam3n/sysclk.c \
@@ -155,6 +156,7 @@ ASM_SRCS +=
 
 
 OBJS +=  \
+src/KalmanFilter.o \
 src/LCD.o \
 src/UART_Comm.o \
 src/ASF/common/services/clock/sam3n/sysclk.o \
@@ -194,6 +196,7 @@ src/IMU.o \
 src/main.o
 
 OBJS_AS_ARGS +=  \
+src/KalmanFilter.o \
 src/LCD.o \
 src/UART_Comm.o \
 src/ASF/common/services/clock/sam3n/sysclk.o \
@@ -233,6 +236,7 @@ src/IMU.o \
 src/main.o
 
 C_DEPS +=  \
+src/KalmanFilter.d \
 src/LCD.d \
 src/UART_Comm.d \
 src/ASF/common/services/clock/sam3n/sysclk.d \
@@ -272,6 +276,7 @@ src/IMU.d \
 src/main.d
 
 C_DEPS_AS_ARGS +=  \
+src/KalmanFilter.d \
 src/LCD.d \
 src/UART_Comm.d \
 src/ASF/common/services/clock/sam3n/sysclk.d \
@@ -325,6 +330,8 @@ LINKER_SCRIPT_DEP+=  \
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

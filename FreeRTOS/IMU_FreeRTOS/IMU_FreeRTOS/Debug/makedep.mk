@@ -2,6 +2,8 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+src\KalmanFilter.c
+
 src\LCD.c
 
 src\UART_Comm.c

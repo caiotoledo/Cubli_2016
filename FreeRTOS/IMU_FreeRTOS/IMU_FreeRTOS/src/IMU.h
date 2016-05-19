@@ -11,7 +11,7 @@
 
 #include <asf.h>
 
-#define TWI_TASK_DELAY		(100/portTICK_RATE_MS)
+#define TWI_TASK_DELAY		(10/portTICK_RATE_MS)
 
 #define ACEL_OFFSET_X		(350.0)
 #define ACEL_OFFSET_Y		(1050.0)
@@ -23,7 +23,7 @@
 
 #define NUM_AXIS			3
 
-#define INT_PIN				PIO_PA20
+//#define INT_PIN				PIO_PA20
 
 volatile xQueueHandle xQueueAcel[NUM_AXIS];
 volatile xQueueHandle xQueueAngle[NUM_AXIS];

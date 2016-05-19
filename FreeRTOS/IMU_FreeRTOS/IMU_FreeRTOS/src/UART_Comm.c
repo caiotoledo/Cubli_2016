@@ -74,7 +74,7 @@ void UARTTXTask (void *pvParameters){
 	double uart_acel[3];
 	double uart_angle[3];
 	double uart_gyro[3];
-	char uartBuf[200] = {0};
+	char uartBuf[250] = {0};
 	uint8_t i = 0;
 	signed portBASE_TYPE statusQueue;
 	
@@ -101,9 +101,12 @@ void UARTTXTask (void *pvParameters){
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
-		sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\nGyro:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\n", 
+		/*sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\nGyro:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\n", 
 				uart_acel[0], uart_acel[1], uart_acel[2],
 				uart_gyro[0], uart_gyro[1], uart_gyro[2],
+				uart_angle[0], uart_angle[1], uart_angle[2]);*/
+		sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\n",
+				uart_acel[0], uart_acel[1], uart_acel[2],
 				uart_angle[0], uart_angle[1], uart_angle[2]);
 		result = freertos_uart_write_packet(freertos_uart, uartBuf, strlen((char *)uartBuf), UART_WAIT);
 		if (result != STATUS_OK) LED_Toggle(LED2_GPIO);

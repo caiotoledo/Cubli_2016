@@ -664,6 +664,12 @@
     <Folder Include="src\config\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\KalmanFilter.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\KalmanFilter.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\LCD.c">
       <SubType>compile</SubType>
     </Compile>
