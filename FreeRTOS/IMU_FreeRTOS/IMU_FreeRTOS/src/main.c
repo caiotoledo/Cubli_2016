@@ -207,16 +207,19 @@ int main (void)
 	}
 	
 	if (xTaskCreate(UARTTXTask, "TX_T", TASK_UART_STACK_SIZE, NULL,
-	TASK_UART_STACK_PRIORITY, NULL) != pdPASS) {
+	TASK_UART_STACK_PRIORITY, &xTXHandler) != pdPASS) {
 		printf("Failed to create test TX_Task\r\n");
 		LED_On(LED2_GPIO);
+	} else {
+		//Starts Suspend (Commands by UART will control the resume):
+		vTaskSuspend(xTXHandler);
 	}
 	
-	/*if (xTaskCreate(UARTRXTask, "RX_T", TASK_UART_STACK_SIZE, NULL,
+	if (xTaskCreate(UARTRXTask, "RX_T", TASK_UART_STACK_SIZE, NULL,
 	TASK_UART_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test RX_Task\r\n");
 		LED_On(LED2_GPIO);
-	}*/
+	}
 	
 	/* Start the scheduler. */
 	vTaskStartScheduler();

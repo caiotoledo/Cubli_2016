@@ -9,14 +9,18 @@
 #include <asf.h>
 #include <stdarg.h>
 #include <string.h>
+#include <ctype.h>
 
 #define UART_WAIT	portMAX_DELAY
 
 xSemaphoreHandle xMux;
+xSemaphoreHandle xUARTSend;
 freertos_uart_if freertos_uart;
 
 uint8_t recBuf[50];
 uint32_t sizeRecBuf = sizeof(recBuf);
+
+uint32_t timer = (1000/portTICK_RATE_MS);
 
 void printf_mux( const char * format, ... ){
 	char buffer[128];
@@ -63,6 +67,11 @@ void configure_console(void){
 											&uart_settings, 
 											&driver_options);
 	configASSERT(freertos_uart);
+	
+	//Initialize Semaphore
+	vSemaphoreCreateBinary(xUARTSend);
+	configASSERT(xUARTSend);
+	xSemaphoreTake(xUARTSend, 0);
 }
 
 /**
@@ -78,7 +87,7 @@ void UARTTXTask (void *pvParameters){
 	uint8_t i = 0;
 	signed portBASE_TYPE statusQueue;
 	
-	status_code_t result = STATUS_ERR_TIMEOUT;
+	status_code_t result = STATUS_OK;
 	
 	for (;;){
 		xSemaphoreTake(xseIMUValues, portMAX_DELAY);
@@ -101,15 +110,51 @@ void UARTTXTask (void *pvParameters){
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
-		/*sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\nGyro:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\n", 
+		/*sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\r\nGyro:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\r\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\r\n", 
 				uart_acel[0], uart_acel[1], uart_acel[2],
 				uart_gyro[0], uart_gyro[1], uart_gyro[2],
 				uart_angle[0], uart_angle[1], uart_angle[2]);*/
-		sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\n",
+		/*sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\r\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\r\n",
 				uart_acel[0], uart_acel[1], uart_acel[2],
+				uart_angle[0], uart_angle[1], uart_angle[2]);*/
+		sprintf(uartBuf, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f\r\n", 
+				uart_acel[0], uart_acel[1], uart_acel[2],
+				uart_gyro[0], uart_gyro[1], uart_gyro[2],
 				uart_angle[0], uart_angle[1], uart_angle[2]);
 		result = freertos_uart_write_packet(freertos_uart, uartBuf, strlen((char *)uartBuf), UART_WAIT);
 		if (result != STATUS_OK) LED_Toggle(LED2_GPIO);
+	}
+}
+
+static void vTimerTX(void *pvParameters){
+	vTaskSuspend(xTXHandler);
+}
+
+static uint8_t isNumbers(char *str){
+	while(*str){
+		if ( (!isdigit(*str)) && ( (*str) != '.' ) ){
+			return false;
+		}
+		str++;
+	}
+	return true;
+}
+
+static void checkMessage(char *buf){
+	if (!strcmp(buf,"go")) {
+		if (timer){
+			xTimerChangePeriod(xTimerTX, timer, 0);
+			vTaskResume(xTXHandler);
+		} else {
+			printf_mux("Timer Error [Value %u]\r\n", timer);
+		}
+	} else if (isNumbers(buf)) {
+		timer = atof(buf)*(1000/portTICK_RATE_MS);
+		printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
+	} else if(!strcmp(buf,"t")){
+		printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
+	} else {
+		printf_mux("Wrong Command\r\n");
 	}
 }
 
@@ -118,37 +163,27 @@ void UARTRXTask(void *pvParameters){
 	UNUSED(pvParameters);
 	
 	uint8_t receive;
-	uint8_t *buf_msg = NULL;
-	uint8_t *msg = NULL;
+	char buf_msg[50] = {0};
 	uint32_t countChar = 0;
 	
-	int size = 0;
+	uint32_t size = 0;
+	
+	xTimerTX = xTimerCreate("TimerIMU", (1000/portTICK_RATE_MS) , pdFALSE, NULL, vTimerTX);
 	
 	for (;;){
 		//Receive only one character at a time
 		size = freertos_uart_serial_read_packet(freertos_uart, &receive, sizeof(receive), portMAX_DELAY);
 		if (size == sizeof(receive)){
 			//Enter is the end of message:
-			if (receive == '\n'){
-				printf_mux(msg);
+			if (receive == 13){
+				checkMessage(buf_msg);
+				memset(buf_msg, 0, sizeof(buf_msg));
 				countChar = 0;
-				free(msg);
-			} 
+			}
 			//Keep receiving characters:
 			else {
-				countChar++;
-				buf_msg = (uint8_t *) realloc(msg, (countChar+1) * sizeof(uint8_t));
-				
-				if (buf_msg != NULL) {
-					msg = buf_msg;
-					msg[countChar-1] = receive;
-					msg[countChar] = '\0';	//NULL Terminator
-				} else {
-					free(msg);
-					printf_mux("Error (re)allocating memory");
-					LED_On(LED2_GPIO);
-					vTaskDelete(NULL);
-				}
+				buf_msg[countChar++] = receive;
+				buf_msg[countChar] = '\0';
 			}
 		}
 	}
