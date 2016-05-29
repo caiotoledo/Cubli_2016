@@ -6,6 +6,7 @@
  */ 
 
 #include "UART_Comm.h"
+#include "Commands.h"
 #include <asf.h>
 #include <stdarg.h>
 #include <string.h>
@@ -158,6 +159,22 @@ static void checkMessage(char *buf){
 	}
 }
 
+void setTimerSample(float value){
+	if (value > 0){
+		timer = value*(1000/portTICK_RATE_MS);
+		printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
+	} else {
+		printf_mux("Timer Value Error [%f]\r\n", value);
+	}
+}
+
+void startSample(uint32_t val){
+	if (timer){
+		xTimerChangePeriod(xTimerTX, timer, 0);
+		vTaskResume(xTXHandler);
+	}
+}
+
 // Task to receive commands via Serial:
 void UARTRXTask(void *pvParameters){
 	UNUSED(pvParameters);
@@ -176,7 +193,8 @@ void UARTRXTask(void *pvParameters){
 		if (size == sizeof(receive)){
 			//Enter is the end of message:
 			if (receive == 13){
-				checkMessage(buf_msg);
+				//checkMessage(buf_msg);
+				receiveCMD(buf_msg);
 				memset(buf_msg, 0, sizeof(buf_msg));
 				countChar = 0;
 			}

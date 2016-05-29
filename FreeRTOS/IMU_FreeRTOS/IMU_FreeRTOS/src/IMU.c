@@ -36,6 +36,25 @@ double dt = (((double)TWI_TASK_DELAY)/ ((double)configTICK_RATE_HZ));
 
 static KalmanConst kalmanC;
 
+const rateADXL mapRate[] = {
+	{ BWrate0_10Hz, 10.0},
+	{ BWrate0_20Hz, 5.0},
+	{ BWrate0_39Hz, (1/0.39) },
+	{ BWrate0_78Hz, (1/0.78) },
+	{ BWrate1_56Hz, (1/1.56) },
+	{ BWrate3_13Hz, (1/3.13) },
+	{ BWrate6_25Hz, (1/6.25) },
+	{ BWrate12_5Hz, (1/12.5) },
+	{ BWrate25Hz,	(1/25.0) },
+	{ BWrate50Hz,	(1/50.0) },
+	{ BWrate100Hz,	(1/100.0) },
+	{ BWrate200Hz,	(1/200.0) },
+	{ BWrate400Hz,	(1/400.0) },
+	{ BWrate800Hz,	(1/800.0) },
+	{ BWrate1600Hz, (1/1600.0) },
+	{ BWrate3200Hz, (1/3200.0) },
+};
+
 static void vTimerIMU(void *pvParameters){
 	xSemaphoreGive(xSemIMUInt);
 }

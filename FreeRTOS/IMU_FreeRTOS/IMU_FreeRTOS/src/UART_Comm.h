@@ -22,6 +22,8 @@ void printf_mux( const char * format, ... );
 void configure_console(void);
 void UARTTXTask (void *pvParameters);
 void UARTRXTask(void *pvParameters);
+void setTimerSample(float value);
+void startSample(uint32_t val);
 
 static void vTimerTX(void *pvParameters);
 static uint8_t isNumbers(char *str);

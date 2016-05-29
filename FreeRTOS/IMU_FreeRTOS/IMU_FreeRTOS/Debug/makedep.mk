@@ -2,6 +2,8 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+src\Commands.c
+
 src\KalmanFilter.c
 
 src\LCD.c

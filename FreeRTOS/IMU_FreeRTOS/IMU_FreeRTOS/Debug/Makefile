@@ -109,6 +109,7 @@ SUBDIRS :=  \
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
+../src/Commands.c \
 ../src/KalmanFilter.c \
 ../src/LCD.c \
 ../src/UART_Comm.c \
@@ -156,6 +157,7 @@ ASM_SRCS +=
 
 
 OBJS +=  \
+src/Commands.o \
 src/KalmanFilter.o \
 src/LCD.o \
 src/UART_Comm.o \
@@ -196,6 +198,7 @@ src/IMU.o \
 src/main.o
 
 OBJS_AS_ARGS +=  \
+src/Commands.o \
 src/KalmanFilter.o \
 src/LCD.o \
 src/UART_Comm.o \
@@ -236,6 +239,7 @@ src/IMU.o \
 src/main.o
 
 C_DEPS +=  \
+src/Commands.d \
 src/KalmanFilter.d \
 src/LCD.d \
 src/UART_Comm.d \
@@ -276,6 +280,7 @@ src/IMU.d \
 src/main.d
 
 C_DEPS_AS_ARGS +=  \
+src/Commands.d \
 src/KalmanFilter.d \
 src/LCD.d \
 src/UART_Comm.d \
@@ -330,6 +335,8 @@ LINKER_SCRIPT_DEP+=  \
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

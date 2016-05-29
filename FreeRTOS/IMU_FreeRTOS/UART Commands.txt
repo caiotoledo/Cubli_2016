@@ -1,0 +1,25 @@
+- Inicializar amostragem reinicializando as variaveis de angulo;
+	Comando: "go;1"
+- Inicializar amostragem;
+	Comando: "go;0"
+- Configurar tempo total da amostragem;
+	Comando: "timer;sample;X"
+		X: Valor em segundos do tempo de amostragem;
+- Configurar Sample Time da Task IMU;
+	Comando: "timer;task;X"
+		X: Valor em milisegundos do tempo de amostragem da task do IMU;
+- Configurar Sample Time do sensor;
+	Comando: "timer;imu;X"
+		X: Valor em milisegundos do tempo de amostragem do sensor IMU;
+- Reinicializar Sensor IMU com valores padrão;
+	Comando: "conf;imu"
+- Configurar Constantes de Kalman (Qangle, Qbias e Rmeasure);
+	Comando: "conf;kal;X;Y;Z"
+		X: Configurar Valor de Qangle;
+		Y: Configurar Valor de Qbias;
+		Z: Configurar Valor de Rmeasure;
+- Configurar Constantes do Filtro Complementar (Alpha);
+	Comando: "conf;compl;X"
+		X: Valor da constante Alpha do Filtro Complementar;
+- Exibir configurações:
+	Comando: "conf;get"
