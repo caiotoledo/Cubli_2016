@@ -144,7 +144,7 @@ src/main.d src/main.o: ../src/main.c ../src/asf.h \
  ../src/ASF/common/services/twi/twi_slave.h \
  ../src/ASF/common/services/twi/sam_twi/twi_slave.h \
  ../src/ASF/sam/drivers/pio/pio_handler.h ../src/UART_Comm.h ../src/IMU.h \
- ../src/LCD.h
+ ../src/Commands.h ../src/LCD.h
 
 ../src/asf.h:
 
@@ -451,5 +451,7 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu
 ../src/UART_Comm.h:
 
 ../src/IMU.h:
+
+../src/Commands.h:
 
 ../src/LCD.h:

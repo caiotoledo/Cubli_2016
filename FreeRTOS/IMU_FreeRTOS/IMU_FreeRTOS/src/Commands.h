@@ -11,34 +11,30 @@
 
 #include <asf.h>
 
-typedef enum eState {
-	sUnknow,
-	sGo,
-	sTimer,
-	sConf,
-	sTask,
-	sIMU,
-	sSample,
-	sKalman,
-	sComplementary,
-	sGet,	
-} state;
+typedef void (*funcCommand)(commVar);
 
-typedef struct str2State_t {
-	char str[10];
-	state st;
-}str2State;
+typedef struct commVar_t {
+	funcCommand func;
+	uint8_t type;
+	float value;
+}commVar;
+
+typedef struct str2Func_t {
+	char str[30];
+	funcCommand func;
+}str2Func;
+
+typedef enum cType_e {
+	cGet,
+	cSet	
+} cType;
 
 void receiveCMD(char *buf);
 
-static uint32_t parseCMD(char *buf);
-static state cmdToState(char *buf);
-static bool executeCMD(void);
-static bool setTimer(uint8_t index);
-static bool setConf(uint8_t index);
-static bool setGo(uint8_t index);
+static commVar parseCMD(char *buf);
+static funcCommand cmdToFunc(char *buf);
 static uint8_t isFloat(char *str);
-void sendErrorNumber(uint8_t index);
 void sendErrorCMD(char *buf);
+void cUnknowCommand(commVar values);
 
 #endif /* COMMANDS_H_ */

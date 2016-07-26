@@ -10,160 +10,68 @@
 #include <string.h>
 #include <ctype.h>
 
-const str2State commandsMap[] = {
-	{ "go",		sGo},
-	{ "timer",	sTimer},
-	{ "conf",	sConf},
-	{ "task",	sTask},
-	{ "imu",	sIMU},
-	{ "kal",	sKalman},
-	{ "compl",	sComplementary},
-	{ "get",	sGet},
-	{ "sample",	sSample},
-	{ NULL,		sUnknow}
+const str2Func functionsMap[] = {
+	{	"go",			cStartSample},
+	{	"tTotalSample",	cTotalTimeTest},
+	{	"end",			cUnknowCommand},
 };
 
-static str2State bufferCmd[10];
-
-static uint32_t parseCMD(char *buf){
+static commVar parseCMD(char *buf){
 	uint32_t i = 0;
+	commVar cmdParse;
+	cmdParse.func = NULL;
+	cmdParse.type = 0;
+	cmdParse.value = 0;
 	char *pch;
 	
 	if (strstr(buf, ";")){
 		pch = strtok(buf, ";");
 		while( pch != NULL ){
-			strcpy(bufferCmd[i].str, pch);
-			bufferCmd[i].st = cmdToState(pch);
+			switch (i++){
+				case 0:
+					cmdParse.func = cmdToFunc(pch);
+					break;
+				case 1:
+					if (isFloat(pch)){
+						cmdParse.type = atoi(pch);
+					} else {
+						cmdParse.type = 0;
+					}					
+					break;
+				case 2:
+					if (isFloat(pch)){
+						cmdParse.value = atoff(pch);
+					} else {
+						cmdParse.value = 0;
+					}
+					break;
+			}
 			pch = strtok(NULL, ";");
 		}
 	}
 	
-	return i;
+	return cmdParse;
 }
 
-static state cmdToState(char *buf){
+static funcCommand cmdToFunc(char *buf){
 	uint32_t i;
-	for (i = 0; commandsMap[i].str != NULL; i++){
-		if (strcmp(buf, commandsMap[i].str) == 0){
-			//Comando encontrado, retornar o estado:
-			return commandsMap[i].st;
+	for (i = 0; functionsMap[i].func != cUnknowCommand; i++){
+		if (strcmp(buf, functionsMap[i].str) == 0){
+			//Comando encontrado, retornar função:
+			return functionsMap[i].func;
 		}
 	}
 	
-	//Se não encontrado, retornar Unknow
-	return sUnknow;
+	//Se não encontrado, retornar função de Command Unknow
+	return cUnknowCommand;
 }
 
 void receiveCMD(char *buf){
-	uint32_t numCmd = 0;
-	uint32_t i = 0;
+	commVar cmdVal;
 	
-	memset(bufferCmd, 0, sizeof(bufferCmd));
+	cmdVal = parseCMD(buf);
 	
-	numCmd = parseCMD(buf);
-	
-	if (!executeCMD()){
-		sendErrorCMD(buf);
-	}
-}
-
-static bool executeCMD(void){
-	bool flag = true;
-	switch (bufferCmd[0].st)
-	{
-	case sTimer:
-		flag = setTimer(1);
-		break;
-	case sConf:
-		flag = setConf(1);
-		break;
-	case sGo:
-		flag = setGo(1);
-		break;
-	default:
-		flag = false;
-		break;
-	}
-	return flag;
-}
-
-static bool setTimer(uint8_t index){
-	bool flag = true;
-	float num;
-	if (!isFloat(bufferCmd[index+1].str)){
-		sendErrorNumber(index+1);
-		flag = false;
-		return flag;
-	} else {
-		num = atoff(bufferCmd[index+1].str);
-	}
-	
-	switch (bufferCmd[index].st)
-	{
-	case sSample:
-		//Configure Total time of Sampling
-		setTimerSample(num);
-		break;
-	case sTask:
-		//Configure Task Sampling time of IMU sensor;
-		break;
-	case sIMU:
-		//Configure IMU Sampling time;
-		break;
-	default:
-		flag = false;
-		break;
-	}
-	return flag;
-}
-
-static bool setConf(uint8_t index){
-	bool flag = true;
-	if (!isFloat(bufferCmd[index+1].str)){
-		sendErrorNumber(index+1);
-		return false;
-	}
-	
-	switch (bufferCmd[index].st)
-	{
-	case sKalman:
-		if (!isFloat(bufferCmd[index+2].str) || !isFloat(bufferCmd[index+3].str)){
-			sendErrorNumber(index+2);
-			sendErrorNumber(index+3);
-			flag = false;
-			break;
-		}
-		//Configure Kalman Constants
-		break;
-	case sComplementary:
-		//Configure Complementary Filter Constant
-		break;
-	case sGet:
-		//Show All Configurations
-		break;
-	default:
-		flag = false;
-		break;
-	}
-	return flag;
-}
-
-static bool setGo(uint8_t index){
-	bool flag = true;
-	if (!isFloat(bufferCmd[index+1].str)){
-		sendErrorNumber(index+1);
-		return false;
-	}
-	
-	if (strcmp(bufferCmd[index+1].str, "1")){
-		//Execute test reseting the angle values
-	} else if (strcmp(bufferCmd[index+1].str, "0")){
-		//Execute test with the actual angle values
-		startSample(0);
-	} else {
-		flag = false;
-	}
-	return flag;
+	cmdVal.func(cmdVal);
 }
 
 static uint8_t isFloat(char *str){
@@ -176,8 +84,8 @@ static uint8_t isFloat(char *str){
 	return true;
 }
 
-void sendErrorNumber(uint8_t index){
-	printf_mux("\tERROR COMMAND: Value [%s] is not a Number\r\n", bufferCmd[index].str);
+void cUnknowCommand(commVar values){
+	printf_mux("\tCOMMAND UNKNOW\r\n");
 }
 
 void sendErrorCMD(char *buf){

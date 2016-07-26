@@ -118,7 +118,7 @@ void UARTTXTask (void *pvParameters){
 		/*sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\r\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\r\n",
 				uart_acel[0], uart_acel[1], uart_acel[2],
 				uart_angle[0], uart_angle[1], uart_angle[2]);*/
-		sprintf(uartBuf, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f\r\n", 
+		sprintf(uartBuf, "%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f\r\n", 
 				uart_acel[0], uart_acel[1], uart_acel[2],
 				uart_gyro[0], uart_gyro[1], uart_gyro[2],
 				uart_angle[0], uart_angle[1], uart_angle[2]);
@@ -169,6 +169,32 @@ void setTimerSample(float value){
 }
 
 void startSample(uint32_t val){
+	if (timer){
+		xTimerChangePeriod(xTimerTX, timer, 0);
+		vTaskResume(xTXHandler);
+	}
+}
+
+void cTotalTimeTest(commVar val){
+	float value = val.value;
+	
+	switch (val.type)
+	{
+	case cSet:
+		if (value > 0){
+			timer = value*(1000/portTICK_RATE_MS);
+			printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
+			} else {
+			printf_mux("Timer Value Error [%f]\r\n", value);
+		}
+		break;
+	case cGet:
+		printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
+		break;
+	}
+}
+
+void cStartSample(commVar val){
 	if (timer){
 		xTimerChangePeriod(xTimerTX, timer, 0);
 		vTaskResume(xTXHandler);

@@ -11,12 +11,16 @@
 
 #include <asf.h>
 #include "IMU.h"
+#include "Commands.h"
 
 xQueueHandle xQueueUARTAcel[NUM_AXIS];
 xQueueHandle xQueueUARTGyro[NUM_AXIS];
 
 xTaskHandle xTXHandler;
 xTimerHandle xTimerTX;
+
+void cStartSample(commVar val);
+void cTotalTimeTest(commVar val);
 
 void printf_mux( const char * format, ... );
 void configure_console(void);
