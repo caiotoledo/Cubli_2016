@@ -10,7 +10,6 @@
 #define LCD_H_
 
 #include <asf.h>
-#include "IMU.h"
 
 void config_lcd(void);
 void LCDTask(void *pvParameters);

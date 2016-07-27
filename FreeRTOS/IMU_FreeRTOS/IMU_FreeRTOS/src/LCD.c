@@ -5,6 +5,8 @@
  *  Author: Caio
  */ 
 #include "LCD.h"
+#include "HAL/HAL_IMU.h"
+#include "IMU.h"
 #include <string.h>
 
 #define LCD_WAIT		(portMAX_DELAY)

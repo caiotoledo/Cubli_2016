@@ -662,6 +662,8 @@
     <Folder Include="src\ASF\thirdparty\freertos\freertos-7.3.0\source\portable\gcc\sam\" />
     <Folder Include="src\ASF\thirdparty\freertos\freertos-7.3.0\source\portable\memmang\" />
     <Folder Include="src\config\" />
+    <Folder Include="src\HAL" />
+    <Folder Include="src\Filter" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\Commands.c">
@@ -670,10 +672,22 @@
     <Compile Include="src\Commands.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\KalmanFilter.c">
+    <Compile Include="src\Filter\ComplementaryFilter.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\KalmanFilter.h">
+    <Compile Include="src\Filter\ComplementaryFilter.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Filter\KalmanFilter.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Filter\KalmanFilter.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\HAL\HAL_IMU.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\HAL\HAL_IMU.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\LCD.c">

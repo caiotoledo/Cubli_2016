@@ -4,7 +4,11 @@
 
 src\Commands.c
 
-src\KalmanFilter.c
+src\Filter\ComplementaryFilter.c
+
+src\Filter\KalmanFilter.c
+
+src\HAL\HAL_IMU.c
 
 src\LCD.c
 

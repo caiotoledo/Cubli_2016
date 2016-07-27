@@ -7,6 +7,7 @@
 
 #include "UART_Comm.h"
 #include "Commands.h"
+#include "IMU.h"
 #include <asf.h>
 #include <stdarg.h>
 #include <string.h>
@@ -75,6 +76,36 @@ void configure_console(void){
 	xSemaphoreTake(xUARTSend, 0);
 }
 
+static void vTimerTX(void *pvParameters){
+	vTaskSuspend(xTXHandler);
+}
+
+void cTotalTimeTest(commVar val){
+	float value = val.value;
+	
+	switch (val.type)
+	{
+		case cSet:
+		if (value > 0){
+			timer = value*(1000/portTICK_RATE_MS);
+			printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
+			} else {
+			printf_mux("Timer Value Error [%f]\r\n", value);
+		}
+		break;
+		case cGet:
+		printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
+		break;
+	}
+}
+
+void cStartSample(commVar val){
+	if (timer){
+		xTimerChangePeriod(xTimerTX, timer, 0);
+		vTaskResume(xTXHandler);
+	}
+}
+
 /**
  * \UART TX Task
  */
@@ -111,93 +142,12 @@ void UARTTXTask (void *pvParameters){
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
-		/*sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\r\nGyro:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\r\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\r\n", 
-				uart_acel[0], uart_acel[1], uart_acel[2],
-				uart_gyro[0], uart_gyro[1], uart_gyro[2],
-				uart_angle[0], uart_angle[1], uart_angle[2]);*/
-		/*sprintf(uartBuf, "Acel:\tX = %0.3f\tY = %0.3f\tZ = %0.3f\r\nAngle:\tP = %0.3f\tC = %0.3f\tK = %0.3f\r\n",
-				uart_acel[0], uart_acel[1], uart_acel[2],
-				uart_angle[0], uart_angle[1], uart_angle[2]);*/
 		sprintf(uartBuf, "%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f\r\n", 
 				uart_acel[0], uart_acel[1], uart_acel[2],
 				uart_gyro[0], uart_gyro[1], uart_gyro[2],
 				uart_angle[0], uart_angle[1], uart_angle[2]);
 		result = freertos_uart_write_packet(freertos_uart, uartBuf, strlen((char *)uartBuf), UART_WAIT);
 		if (result != STATUS_OK) LED_Toggle(LED2_GPIO);
-	}
-}
-
-static void vTimerTX(void *pvParameters){
-	vTaskSuspend(xTXHandler);
-}
-
-static uint8_t isNumbers(char *str){
-	while(*str){
-		if ( (!isdigit(*str)) && ( (*str) != '.' ) ){
-			return false;
-		}
-		str++;
-	}
-	return true;
-}
-
-static void checkMessage(char *buf){
-	if (!strcmp(buf,"go")) {
-		if (timer){
-			xTimerChangePeriod(xTimerTX, timer, 0);
-			vTaskResume(xTXHandler);
-		} else {
-			printf_mux("Timer Error [Value %u]\r\n", timer);
-		}
-	} else if (isNumbers(buf)) {
-		timer = atof(buf)*(1000/portTICK_RATE_MS);
-		printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
-	} else if(!strcmp(buf,"t")){
-		printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
-	} else {
-		printf_mux("Wrong Command\r\n");
-	}
-}
-
-void setTimerSample(float value){
-	if (value > 0){
-		timer = value*(1000/portTICK_RATE_MS);
-		printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
-	} else {
-		printf_mux("Timer Value Error [%f]\r\n", value);
-	}
-}
-
-void startSample(uint32_t val){
-	if (timer){
-		xTimerChangePeriod(xTimerTX, timer, 0);
-		vTaskResume(xTXHandler);
-	}
-}
-
-void cTotalTimeTest(commVar val){
-	float value = val.value;
-	
-	switch (val.type)
-	{
-	case cSet:
-		if (value > 0){
-			timer = value*(1000/portTICK_RATE_MS);
-			printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
-			} else {
-			printf_mux("Timer Value Error [%f]\r\n", value);
-		}
-		break;
-	case cGet:
-		printf_mux("Timer = %0.3f seconds\r\n", ((float)timer/1000));
-		break;
-	}
-}
-
-void cStartSample(commVar val){
-	if (timer){
-		xTimerChangePeriod(xTimerTX, timer, 0);
-		vTaskResume(xTXHandler);
 	}
 }
 

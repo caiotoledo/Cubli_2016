@@ -10,7 +10,7 @@
 #define UART_COMM_H_
 
 #include <asf.h>
-#include "IMU.h"
+#include "HAL/HAL_IMU.h"
 #include "Commands.h"
 
 xQueueHandle xQueueUARTAcel[NUM_AXIS];
@@ -30,7 +30,6 @@ void setTimerSample(float value);
 void startSample(uint32_t val);
 
 static void vTimerTX(void *pvParameters);
-static uint8_t isNumbers(char *str);
 static void checkMessage(char *buf);
 
 #endif /* UART_COMM_H_ */
