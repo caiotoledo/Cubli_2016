@@ -115,6 +115,7 @@ C_SRCS +=  \
 ../src/Filter/ComplementaryFilter.c \
 ../src/Filter/KalmanFilter.c \
 ../src/HAL/HAL_IMU.c \
+../src/HAL/HAL_UART.c \
 ../src/LCD.c \
 ../src/UART_Comm.c \
 ../src/ASF/common/services/clock/sam3n/sysclk.c \
@@ -165,6 +166,7 @@ src/Commands.o \
 src/Filter/ComplementaryFilter.o \
 src/Filter/KalmanFilter.o \
 src/HAL/HAL_IMU.o \
+src/HAL/HAL_UART.o \
 src/LCD.o \
 src/UART_Comm.o \
 src/ASF/common/services/clock/sam3n/sysclk.o \
@@ -208,6 +210,7 @@ src/Commands.o \
 src/Filter/ComplementaryFilter.o \
 src/Filter/KalmanFilter.o \
 src/HAL/HAL_IMU.o \
+src/HAL/HAL_UART.o \
 src/LCD.o \
 src/UART_Comm.o \
 src/ASF/common/services/clock/sam3n/sysclk.o \
@@ -251,6 +254,7 @@ src/Commands.d \
 src/Filter/ComplementaryFilter.d \
 src/Filter/KalmanFilter.d \
 src/HAL/HAL_IMU.d \
+src/HAL/HAL_UART.d \
 src/LCD.d \
 src/UART_Comm.d \
 src/ASF/common/services/clock/sam3n/sysclk.d \
@@ -294,6 +298,7 @@ src/Commands.d \
 src/Filter/ComplementaryFilter.d \
 src/Filter/KalmanFilter.d \
 src/HAL/HAL_IMU.d \
+src/HAL/HAL_UART.d \
 src/LCD.d \
 src/UART_Comm.d \
 src/ASF/common/services/clock/sam3n/sysclk.d \
@@ -347,6 +352,8 @@ LINKER_SCRIPT_DEP+=  \
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

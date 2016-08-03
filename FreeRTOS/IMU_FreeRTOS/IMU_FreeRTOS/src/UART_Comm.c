@@ -6,75 +6,12 @@
  */ 
 
 #include "UART_Comm.h"
+#include "HAL/HAL_UART.h"
 #include "Commands.h"
 #include "IMU.h"
-#include <asf.h>
-#include <stdarg.h>
 #include <string.h>
-#include <ctype.h>
-
-#define UART_WAIT	portMAX_DELAY
-
-xSemaphoreHandle xMux;
-xSemaphoreHandle xUARTSend;
-freertos_uart_if freertos_uart;
-
-uint8_t recBuf[50];
-uint32_t sizeRecBuf = sizeof(recBuf);
 
 uint32_t timer = (1000/portTICK_RATE_MS);
-
-void printf_mux( const char * format, ... ){
-	char buffer[128];
-	uint32_t n = 0;
-	va_list(args);
-	va_start(args, format);
-	n = vsprintf(buffer, format, args);
-	freertos_uart_write_packet(freertos_uart, buffer, n, UART_WAIT);
-	va_end(args);
-}
-
-/**
- * \brief Configure the console UART.
- */
-void configure_console(void){
-	const usart_serial_options_t uart_serial_options = {
-		.baudrate = CONF_UART_BAUDRATE,
-		.charlength = CONF_UART_CHAR_LENGTH,
-		.stopbits = CONF_UART_STOP_BITS,
-		.paritytype = CONF_UART_PARITY,
-	};
-	
-	freertos_peripheral_options_t driver_options = {
-		recBuf,
-		sizeRecBuf,
-		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY,
-		UART_RS232,
-		(USE_TX_ACCESS_MUTEX | USE_RX_ACCESS_MUTEX)
-	};
-	
-	sam_uart_opt_t uart_settings;
-	uart_settings.ul_mck = sysclk_get_peripheral_hz();
-	uart_settings.ul_baudrate = CONF_UART_BAUDRATE;
-	uart_settings.ul_mode = UART_MR_PAR_NO;
-
-	/* Configure console UART. */
-	stdio_base = (void *)CONF_UART;
-	ptr_put = (int (*)(void volatile*,char))&usart_serial_putchar;
-	ptr_get = (void (*)(void volatile*,char*))&usart_serial_getchar;
-	setbuf(stdout, NULL);
-	setbuf(stdin, NULL);
-	
-	freertos_uart = freertos_uart_serial_init(UART0, 
-											&uart_settings, 
-											&driver_options);
-	configASSERT(freertos_uart);
-	
-	//Initialize Semaphore
-	vSemaphoreCreateBinary(xUARTSend);
-	configASSERT(xUARTSend);
-	xSemaphoreTake(xUARTSend, 0);
-}
 
 static void vTimerTX(void *pvParameters){
 	vTaskSuspend(xTXHandler);
@@ -111,7 +48,7 @@ void cStartSample(commVar val){
  */
 void UARTTXTask (void *pvParameters){
 	UNUSED(pvParameters);
-	
+		
 	double uart_acel[3];
 	double uart_angle[3];
 	double uart_gyro[3];
@@ -126,19 +63,19 @@ void UARTTXTask (void *pvParameters){
 		
 		memset(uart_acel, 0, sizeof(uart_acel));
 		for (i = 0; i < NUM_AXIS; i++){
-			statusQueue = xQueuePeek(xQueueAcel[i], &(uart_acel[i]),UART_WAIT);
+			statusQueue = xQueuePeek(xQueueAcel[i], &(uart_acel[i]),portMAX_DELAY);
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
 		memset(uart_angle, 0, sizeof(uart_angle));
 		for (i = 0; i < NUM_AXIS; i++){
-			statusQueue = xQueuePeek(xQueueAngle[i], &(uart_angle[i]),UART_WAIT);
+			statusQueue = xQueuePeek(xQueueAngle[i], &(uart_angle[i]),portMAX_DELAY);
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
 		memset(uart_gyro, 0, sizeof(uart_gyro));
 		for (i = 0; i < NUM_AXIS; i++){
-			statusQueue = xQueuePeek(xQueueGyro[i], &(uart_gyro[i]),UART_WAIT);
+			statusQueue = xQueuePeek(xQueueGyro[i], &(uart_gyro[i]),portMAX_DELAY);
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
@@ -146,7 +83,7 @@ void UARTTXTask (void *pvParameters){
 				uart_acel[0], uart_acel[1], uart_acel[2],
 				uart_gyro[0], uart_gyro[1], uart_gyro[2],
 				uart_angle[0], uart_angle[1], uart_angle[2]);
-		result = freertos_uart_write_packet(freertos_uart, uartBuf, strlen((char *)uartBuf), UART_WAIT);
+		result = send_uart(uartBuf, strlen((char *)uartBuf));
 		if (result != STATUS_OK) LED_Toggle(LED2_GPIO);
 	}
 }
@@ -165,7 +102,7 @@ void UARTRXTask(void *pvParameters){
 	
 	for (;;){
 		//Receive only one character at a time
-		size = freertos_uart_serial_read_packet(freertos_uart, &receive, sizeof(receive), portMAX_DELAY);
+		size = read_uart(&receive, sizeof(receive));
 		if (size == sizeof(receive)){
 			//Enter is the end of message:
 			if (receive == 13){

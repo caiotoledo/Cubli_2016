@@ -690,6 +690,12 @@
     <Compile Include="src\HAL\HAL_IMU.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\HAL\HAL_UART.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\HAL\HAL_UART.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\LCD.c">
       <SubType>compile</SubType>
     </Compile>

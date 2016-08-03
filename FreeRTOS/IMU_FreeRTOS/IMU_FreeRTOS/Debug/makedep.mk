@@ -10,6 +10,8 @@ src\Filter\KalmanFilter.c
 
 src\HAL\HAL_IMU.c
 
+src\HAL\HAL_UART.c
+
 src\LCD.c
 
 src\UART_Comm.c
