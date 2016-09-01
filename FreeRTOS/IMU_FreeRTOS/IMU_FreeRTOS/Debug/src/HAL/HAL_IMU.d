@@ -148,8 +148,7 @@ src/HAL/HAL_IMU.d src/HAL/HAL_IMU.o: ../src/HAL/HAL_IMU.c ../src/asf.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu-toolchain\lib\gcc\arm-none-eabi\4.8.4\include-fixed\sys\cdefs.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu-toolchain\arm-none-eabi\include\sys\string.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu-toolchain\arm-none-eabi\include\math.h \
- ../src/HAL/HAL_IMU.h ../src/UART_Comm.h ../src/HAL/HAL_IMU.h \
- ../src/Commands.h
+ ../src/HAL/HAL_IMU.h ../src/HAL/HAL_UART.h
 
 ../src/asf.h:
 
@@ -463,8 +462,4 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1443\arm-gnu
 
 ../src/HAL/HAL_IMU.h:
 
-../src/UART_Comm.h:
-
-../src/HAL/HAL_IMU.h:
-
-../src/Commands.h:
+../src/HAL/HAL_UART.h:

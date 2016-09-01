@@ -105,10 +105,10 @@ void LCDTask(void *pvParameters){
 		
 		ili9225_set_foreground_color(COLOR_BLACK);
 		sprintf(lcd_buf, "Acel:\nX=%0.3f mG\nY=%0.3f mG\nGyro:\n%0.3f Graus/s", lcd_acel[0], lcd_acel[1],lcd_gyro[2]);
-		ili9225_draw_string(5,30, lcd_buf);
+		ili9225_draw_string(5,30, (uint8_t *)lcd_buf);
 		sprintf(lcd_buf, "Angle Pure:\n%0.3f Graus\nAngle Comp.:\n%0.3f Graus\nAngle Kalman:\n%0.3f Graus", lcd_angle[0], lcd_angle[1],lcd_angle[2]);
-		ili9225_draw_string(5,110, lcd_buf);
+		ili9225_draw_string(5,110, (uint8_t *)lcd_buf);
 		/*sprintf(lcd_buf,"%u bytes Free", (uint32_t)xPortGetFreeHeapSize());
-		ili9225_draw_string(5,200, lcd_buf);*/
+		ili9225_draw_string(5,200, (uint8_t *)lcd_buf);*/
 	}
 }

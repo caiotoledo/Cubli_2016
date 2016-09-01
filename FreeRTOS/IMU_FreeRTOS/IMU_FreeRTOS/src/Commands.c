@@ -7,21 +7,30 @@
 
 #include "Commands.h"
 #include "UART_Comm.h"
+#include "HAL/HAL_UART.h"
+#include "IMU.h"
 #include <string.h>
 #include <ctype.h>
+
+static void parseCMD(char *buf, commVar *cmdParse);
+static funcCommand cmdToFunc(char *buf);
+static uint8_t isFloat(char *str);
 
 const str2Func functionsMap[] = {
 	{	"go",			cStartSample},
 	{	"tTotalSample",	cTotalTimeTest},
+	{	"tTaskSample",	cTaskSample},
+	{	"kalQAngle",	cKalQAngle},
+	{	"kalQBias",		cKalQBias},
+	{	"kalRMeasure",	cKalRMeasure},
 	{	"end",			cUnknowCommand},
 };
 
-static commVar parseCMD(char *buf){
+static void parseCMD(char *buf, commVar *cmdParse){
 	uint32_t i = 0;
-	commVar cmdParse;
-	cmdParse.func = NULL;
-	cmdParse.type = 0;
-	cmdParse.value = 0;
+	cmdParse->func = NULL;
+	cmdParse->type = 0;
+	cmdParse->value = 0;
 	char *pch;
 	
 	if (strstr(buf, ";")){
@@ -29,28 +38,26 @@ static commVar parseCMD(char *buf){
 		while( pch != NULL ){
 			switch (i++){
 				case 0:
-					cmdParse.func = cmdToFunc(pch);
+					cmdParse->func = cmdToFunc(pch);
 					break;
 				case 1:
 					if (isFloat(pch)){
-						cmdParse.type = atoi(pch);
+						cmdParse->type = atoi(pch);
 					} else {
-						cmdParse.type = 0;
+						cmdParse->type = 0;
 					}					
 					break;
 				case 2:
 					if (isFloat(pch)){
-						cmdParse.value = atoff(pch);
+						cmdParse->value = atoff(pch);
 					} else {
-						cmdParse.value = 0;
+						cmdParse->value = 0;
 					}
 					break;
 			}
 			pch = strtok(NULL, ";");
 		}
 	}
-	
-	return cmdParse;
 }
 
 static funcCommand cmdToFunc(char *buf){
@@ -69,14 +76,14 @@ static funcCommand cmdToFunc(char *buf){
 void receiveCMD(char *buf){
 	commVar cmdVal;
 	
-	cmdVal = parseCMD(buf);
+	parseCMD(buf, &cmdVal);
 	
 	cmdVal.func(cmdVal);
 }
 
 static uint8_t isFloat(char *str){
 	while(*str){
-		if ( (!isdigit(*str)) && ( (*str) != '.' ) ){
+		if ( (!isdigit((unsigned char)*str)) && ( (*str) != '.' ) ){
 			return false;
 		}
 		str++;

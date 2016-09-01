@@ -9,7 +9,7 @@
 #include <string.h>
 #include <math.h>
 #include "HAL_IMU.h"
-#include "UART_Comm.h"
+#include "HAL/HAL_UART.h"
 
 #define TWI_SPEED		400000	//400KHz Fast-Speed
 #define TWI_BLOCK_TIME	(portMAX_DELAY)
@@ -25,7 +25,7 @@
 #define CONST_ADXL		(3.9)
 #define CONST_ITG		(14.375)
 
-static uint8_t twi_init();
+static uint8_t twi_init(void);
 static status_code_t itg_init(ITG_Addr_Dev ITG_Dev);
 static status_code_t adxl_init(ADXL_Addr_Dev ADXL_Dev);
 status_code_t itg_write(ITG_Addr_Dev itg_addr, uint8_t value, ITG_Addr_Reg itg_reg);
@@ -169,8 +169,6 @@ float get_acel_value(Axis_Op axis, ADXL_Addr_Dev dev){
 	uint8_t b[2];
 	memset(b, 0, sizeof(b));
 	
-	signed portBASE_TYPE resultSem;
-	
 	switch (axis) {
 		case Axis_X:
 		result = adxl_read(dev, b, ADXL_DataX0, sizeof(b));
@@ -199,7 +197,7 @@ float get_acel_value(Axis_Op axis, ADXL_Addr_Dev dev){
 	return acel_value;
 }
 
-status_code_t configIMU(){
+status_code_t configIMU(void){
 	status_code_t status;
 	
 	if (twi_init() != TWI_SUCCESS){
@@ -222,7 +220,7 @@ status_code_t configIMU(){
 	return status;
 }
 
-static uint8_t twi_init(){
+static uint8_t twi_init(void){
 	freertos_peripheral_options_t driver_options = {
 		//Receiver Buffer
 		NULL,

@@ -22,14 +22,9 @@ xTimerHandle xTimerTX;
 void cStartSample(commVar val);
 void cTotalTimeTest(commVar val);
 
-void printf_mux( const char * format, ... );
-void configure_console(void);
 void UARTTXTask (void *pvParameters);
 void UARTRXTask(void *pvParameters);
 void setTimerSample(float value);
 void startSample(uint32_t val);
-
-static void vTimerTX(void *pvParameters);
-static void checkMessage(char *buf);
 
 #endif /* UART_COMM_H_ */

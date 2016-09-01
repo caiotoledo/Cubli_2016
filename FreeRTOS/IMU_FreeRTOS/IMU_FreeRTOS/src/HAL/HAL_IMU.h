@@ -99,7 +99,7 @@ typedef enum ITG_Addr_Reg_t		ITG_Addr_Reg;
 typedef enum ITG_Addr_Dev_t		ITG_Addr_Dev;
 
 // STANDARD IMU FUNCTIONS:
-status_code_t configIMU();
+status_code_t configIMU(void);
 
 // HIGH LEVEL FUNCITONS:
 double getPureAngle(double *acel);

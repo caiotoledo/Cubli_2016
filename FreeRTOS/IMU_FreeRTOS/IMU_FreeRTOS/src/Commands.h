@@ -30,10 +30,6 @@ typedef enum cType_e {
 } cType;
 
 void receiveCMD(char *buf);
-
-static commVar parseCMD(char *buf);
-static funcCommand cmdToFunc(char *buf);
-static uint8_t isFloat(char *str);
 void sendErrorCMD(char *buf);
 void cUnknowCommand(commVar values);
 

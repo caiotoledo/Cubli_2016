@@ -29,6 +29,7 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 #include <asf.h>
+#include "HAL/HAL_UART.h"
 #include "UART_Comm.h"
 #include "IMU.h"
 #include "LCD.h"
