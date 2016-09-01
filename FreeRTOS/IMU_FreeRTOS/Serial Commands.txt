@@ -1,0 +1,17 @@
+Commands Syntax:
+"Command;Type;Value"
+
+Commands:
+- "go": Start the sample test;
+- "tTotalSample": Test Time;
+- "tTaskSample": Sample Time for Task IMU;
+- "kalQAngle": Qangle constant for Kalman Filter;
+- "kalQBias": QBias constant for Kalman Filter;
+- "kalRMeasure": RMeasure constant for Kalman Filter;
+
+Type:
+- "0": Get Value;
+- "1": Set Value;
+
+Value:
+- "##.###": Float Value
