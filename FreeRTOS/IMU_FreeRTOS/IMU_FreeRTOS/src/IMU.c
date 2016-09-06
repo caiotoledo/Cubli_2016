@@ -12,6 +12,7 @@
 #include "LCD.h"
 #include "Filter/KalmanFilter.h"
 #include "Filter/ComplementaryFilter.h"
+#include "UART_Comm.h"
 #include <string.h>
 
 #define xQueueOverwrite(xQueue,pvItemToQueue)	xQueueReset(xQueue);xQueueSendToFront(xQueue,pvItemToQueue,(0))
@@ -32,6 +33,7 @@ uint8_t configBWRate = BWrate100Hz;
 uint32_t lastTickCounter = 0;
 double dt = (((double)TWI_TASK_DELAY)/ ((double)configTICK_RATE_HZ));
 
+//Initial Sample Timer
 uint32_t timerIMU = (TWI_TASK_DELAY);
 
 /* ANGLE MEASUREMENT VARIABLES */
@@ -47,7 +49,6 @@ static void vTimerIMU(void *pvParameters){
 }
 
 void intpin_handler(uint32_t id, uint32_t mask){
-	//dt = (double)(g_tickCounter - lastTickCounter)/configTICK_RATE_HZ;
 	lastTickCounter = g_tickCounter;
 	xSemaphoreGiveFromISR(xSemIMUInt, NULL);
 }
@@ -88,6 +89,22 @@ static void initializeIMUVariables(){
 	kalmanC.P[1][1]		=	0;
 	
 	initKalman(&kalmanC);
+}
+
+void cStartSampleReset(commVar val){
+	uint32_t value = val.value;
+	
+	//Stop timer Sample for IMU
+	xTimerStop(xTimerIMU, portMAX_DELAY);
+	
+	//Restart all Variables:
+	initializeIMUVariables();
+	
+	//Start Serial Task
+	cStartSample(val);
+	
+	//Start time Sample for IMU
+	xTimerStart(xTimerIMU, portMAX_DELAY);
 }
 
 void IMUTask(void *pvParameters){
@@ -152,7 +169,7 @@ void IMUTask(void *pvParameters){
 }
 
 void cKalQAngle(commVar val){
-	float *kalmanVar = NULL;
+	double *kalmanVar = NULL;
 	float value = val.value;
 	//Variables to make it easier to copy the same function:
 	const char *str = "QAngle";
@@ -162,7 +179,7 @@ void cKalQAngle(commVar val){
 	{
 		case cSet:
 			if (value > 0){
-				(*kalmanVar) = (uint32_t)value;
+				(*kalmanVar) = value;
 				printf_mux("%s = %0.5f\r\n",str ,(*kalmanVar));
 			} else {
 				printf_mux("%s Value Error [%f]\r\n", str, value);
@@ -175,7 +192,7 @@ void cKalQAngle(commVar val){
 }
 
 void cKalQBias(commVar val){
-	float *kalmanVar = NULL;
+	double *kalmanVar = NULL;
 	float value = val.value;
 	const char *str = "QBias";
 	kalmanVar = &kalmanC.Qbias;
@@ -184,7 +201,7 @@ void cKalQBias(commVar val){
 	{
 		case cSet:
 		if (value > 0){
-			(*kalmanVar) = (uint32_t)value;
+			(*kalmanVar) = value;
 			printf_mux("%s = %0.5f\r\n",str ,(*kalmanVar));
 			} else {
 			printf_mux("%s Value Error [%f]\r\n", str, value);
@@ -197,7 +214,7 @@ void cKalQBias(commVar val){
 }
 
 void cKalRMeasure(commVar val){
-	float *kalmanVar = NULL;
+	double *kalmanVar = NULL;
 	float value = val.value;
 	const char *str = "RMeasure";
 	kalmanVar = &kalmanC.Rmeasure;
@@ -206,9 +223,9 @@ void cKalRMeasure(commVar val){
 	{
 		case cSet:
 		if (value > 0){
-			(*kalmanVar) = (uint32_t)value;
+			(*kalmanVar) = value;
 			printf_mux("%s = %0.5f\r\n",str ,(*kalmanVar));
-			} else {
+		} else {
 			printf_mux("%s Value Error [%f]\r\n", str, value);
 		}
 		break;

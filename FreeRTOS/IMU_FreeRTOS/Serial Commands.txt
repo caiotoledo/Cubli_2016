@@ -3,6 +3,7 @@ Commands Syntax:
 
 Commands:
 - "go": Start the sample test;
+- "goReset": Reset all Sample Variables and start the sample test;
 - "tTotalSample": Test Time;
 - "tTaskSample": Sample Time for Task IMU;
 - "kalQAngle": Qangle constant for Kalman Filter;

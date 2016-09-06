@@ -15,6 +15,8 @@ uint32_t timer = (1000/portTICK_RATE_MS);
 
 static void vTimerTX(void *pvParameters){
 	vTaskSuspend(xTXHandler);
+	/*vTaskDelay(100/portTICK_RATE_MS);
+	printf_mux("STOP\r");*/
 }
 
 void cTotalTimeTest(commVar val){
@@ -38,7 +40,7 @@ void cTotalTimeTest(commVar val){
 
 void cStartSample(commVar val){
 	if (timer){
-		xTimerChangePeriod(xTimerTX, timer, 0);
+		xTimerChangePeriod(xTimerTX, timer, portMAX_DELAY);
 		vTaskResume(xTXHandler);
 	}
 }
@@ -52,7 +54,7 @@ void UARTTXTask (void *pvParameters){
 	double uart_acel[3];
 	double uart_angle[3];
 	double uart_gyro[3];
-	char uartBuf[250] = {0};
+	char uartBuf[100] = {0};
 	uint8_t i = 0;
 	signed portBASE_TYPE statusQueue;
 	
@@ -79,7 +81,7 @@ void UARTTXTask (void *pvParameters){
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
-		sprintf(uartBuf, "%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f\r\n", 
+		sprintf(uartBuf, "%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;\r\n", 
 				uart_acel[0], uart_acel[1], uart_acel[2],
 				uart_gyro[0], uart_gyro[1], uart_gyro[2],
 				uart_angle[0], uart_angle[1], uart_angle[2]);

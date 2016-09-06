@@ -16,8 +16,13 @@ static void parseCMD(char *buf, commVar *cmdParse);
 static funcCommand cmdToFunc(char *buf);
 static uint8_t isFloat(char *str);
 
+/*
+	Mapping all commands, it should follow this Syntax:
+	"Command;Type;Value"
+*/
 const str2Func functionsMap[] = {
 	{	"go",			cStartSample},
+	{	"goReset",		cStartSampleReset},
 	{	"tTotalSample",	cTotalTimeTest},
 	{	"tTaskSample",	cTaskSample},
 	{	"kalQAngle",	cKalQAngle},
@@ -57,6 +62,8 @@ static void parseCMD(char *buf, commVar *cmdParse){
 			}
 			pch = strtok(NULL, ";");
 		}
+	} else {
+		cmdParse->func = cmdToFunc(buf);
 	}
 }
 
@@ -78,7 +85,11 @@ void receiveCMD(char *buf){
 	
 	parseCMD(buf, &cmdVal);
 	
-	cmdVal.func(cmdVal);
+	if (cmdVal.func){
+		cmdVal.func(cmdVal);
+	} else {
+		sendErrorCMD(buf);
+	}
 }
 
 static uint8_t isFloat(char *str){

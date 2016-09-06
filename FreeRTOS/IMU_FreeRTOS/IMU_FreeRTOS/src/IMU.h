@@ -11,7 +11,7 @@
 
 #include "Commands.h"
 
-#define TWI_TASK_DELAY		(10/portTICK_RATE_MS)
+#define TWI_TASK_DELAY		(20/portTICK_RATE_MS)
 
 //#define INT_PIN				PIO_PA20
 
@@ -27,6 +27,7 @@ void IMUTask(void *pvParameters);
 
 void intpin_handler(uint32_t id, uint32_t mask);
 
+void cStartSampleReset(commVar val);
 void cTaskSample(commVar val);
 void cKalQAngle(commVar val);
 void cKalQBias(commVar val);
