@@ -17,6 +17,8 @@
 
 #define xQueueOverwrite(xQueue,pvItemToQueue)	xQueueReset(xQueue);xQueueSendToFront(xQueue,pvItemToQueue,(0))
 
+static void cmdHandler(commVar val, double *Kvalue, const char *valName);
+
 freertos_twi_if freertos_twi;
 char buffer[50];
 
@@ -43,6 +45,28 @@ double gyro[3] = { 0 };
 double anglePure = 0;
 double angleComplFilter = 0;
 double angleKalman = 0;
+
+void initIMUQueue(){
+	/* Queue FreeRTOS Initialization */
+	uint8_t i;
+	for (i = 0; i < NUM_AXIS; i++){
+		xQueueAcel[i] = xQueueCreate(1, sizeof(double));
+		if (xQueueAcel[i] == NULL){
+			LED_On(LED2_GPIO);
+			while(1);
+		}
+		xQueueAngle[i] = xQueueCreate(1, sizeof(double));
+		if (xQueueAngle[i] == NULL){
+			LED_On(LED2_GPIO);
+			while(1);
+		}
+		xQueueGyro[i] = xQueueCreate(1, sizeof(double));
+		if (xQueueGyro[i] == NULL){
+			LED_On(LED2_GPIO);
+			while(1);
+		}
+	}
+}
 
 static void vTimerIMU(void *pvParameters){
 	xSemaphoreGive(xSemIMUInt);
@@ -111,6 +135,9 @@ void IMUTask(void *pvParameters){
 	UNUSED(pvParameters);
 	status_code_t status;
 	
+	//Starting Queues:
+	initIMUQueue();
+	
 	vSemaphoreCreateBinary(xseIMUValues);
 	configASSERT(xseIMUValues);
 	xSemaphoreTake(xseIMUValues, 0);
@@ -168,69 +195,51 @@ void IMUTask(void *pvParameters){
 	}
 }
 
-void cKalQAngle(commVar val){
-	double *kalmanVar = NULL;
-	float value = val.value;
-	//Variables to make it easier to copy the same function:
-	const char *str = "QAngle";
-	kalmanVar = &kalmanC.Qangle;
+void cAlphaComplFilter(commVar val){
+	const char *str = "Alpha Compl. Filter";	
 	
-	switch (val.type)
-	{
+	switch (val.type){
 		case cSet:
-			if (value > 0){
-				(*kalmanVar) = value;
-				printf_mux("%s = %0.5f\r\n",str ,(*kalmanVar));
+			if (setAlpha(val.value)) {
+				printf_mux("%s = %0.5f\r\n", str, val.value);
 			} else {
-				printf_mux("%s Value Error [%f]\r\n", str, value);
+				printf_mux("%s Value Error [%f]\r\n", str, val.value);
 			}
 		break;
 		case cGet:
-			printf_mux("%s = %0.5f\r\n", str, (*kalmanVar));
+			printf_mux("%s = %0.5f\r\n", str, getAlpha());
 		break;
 	}
 }
 
-void cKalQBias(commVar val){
-	double *kalmanVar = NULL;
+void cKalQAngle(commVar val){	
+	cmdHandler(val, &kalmanC.Qangle, "QAngle");
+}
+
+void cKalQBias(commVar val){	
+	cmdHandler(val, &kalmanC.Qbias, "QBias");
+}
+
+void cKalRMeasure(commVar val){	
+	cmdHandler(val, &kalmanC.Rmeasure, "RMeasure");
+}
+
+static void cmdHandler(commVar val, double *Kvalue, const char *valName){
 	float value = val.value;
-	const char *str = "QBias";
-	kalmanVar = &kalmanC.Qbias;
 	
 	switch (val.type)
 	{
 		case cSet:
 		if (value > 0){
-			(*kalmanVar) = value;
-			printf_mux("%s = %0.5f\r\n",str ,(*kalmanVar));
-			} else {
-			printf_mux("%s Value Error [%f]\r\n", str, value);
-		}
-		break;
-		case cGet:
-		printf_mux("%s = %0.5f\r\n", str, (*kalmanVar));
-		break;
-	}
-}
-
-void cKalRMeasure(commVar val){
-	double *kalmanVar = NULL;
-	float value = val.value;
-	const char *str = "RMeasure";
-	kalmanVar = &kalmanC.Rmeasure;
-	
-	switch (val.type)
-	{
-		case cSet:
-		if (value > 0){
-			(*kalmanVar) = value;
-			printf_mux("%s = %0.5f\r\n",str ,(*kalmanVar));
+			(*Kvalue) = value;
+			printf_mux("%s = %0.5f\r\n",valName ,(*Kvalue));
 		} else {
-			printf_mux("%s Value Error [%f]\r\n", str, value);
+			printf_mux("%s Value Error [%f]\r\n", valName, value);
 		}
 		break;
 		case cGet:
-		printf_mux("%s = %0.5f\r\n", str, (*kalmanVar));
+		printf_mux("%s = %0.5f\r\n", valName, (*Kvalue));
 		break;
 	}
+	
 }

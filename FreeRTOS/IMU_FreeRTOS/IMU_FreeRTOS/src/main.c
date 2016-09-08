@@ -50,6 +50,7 @@
 #define DELAY_5S						(5000/portTICK_RATE_MS)
 #define DELAY_1S						(1000/portTICK_RATE_MS)
 #define DELAY_500MS						(500/portTICK_RATE_MS)
+#define DELAY_100MS						(100/portTICK_RATE_MS)
 
 extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 		signed char *pcTaskName);
@@ -102,6 +103,7 @@ void vApplicationMallocFailedHook(void)
 	provide information on how the remaining heap might be fragmented). */
 	taskDISABLE_INTERRUPTS();
 	for (;;) {
+		LED_On(LED2_GPIO);
 	}
 }
 
@@ -137,6 +139,7 @@ static void task_led0(void *pvParameters)
 }
 
 void button_handler(uint32_t id, uint32_t mask){
+	LED_Toggle(LED2_GPIO);
 	xSemaphoreGiveFromISR(xseMonitor, NULL);
 }
 
@@ -176,8 +179,6 @@ int main (void)
 	configure_console();
 	printf("Console OK!\n");
 	
-	config_lcd();
-	
 	config_interrupt();
 	
 #ifdef TASK_MONITOR
@@ -186,6 +187,8 @@ int main (void)
 	TASK_MONITOR_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create Monitor task\r\n");
 		LED_On(LED2_GPIO);
+	} else {
+		printf("Task Monitor Created!\n");
 	}
 #endif
 	
@@ -193,18 +196,24 @@ int main (void)
 	TASK_LED_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test led task\r\n");
 		LED_On(LED2_GPIO);
+	} else {
+		printf("Task Led0 Created!\n");
 	}
 	
 	if (xTaskCreate(IMUTask, "IMU_T", TASK_IMU_STACK_SIZE, NULL,
 	TASK_IMU_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test IMUTask\r\n");
 		LED_On(LED2_GPIO);
+	} else {
+		printf("Task IMU_T Created!\n");
 	}
 
 	if (xTaskCreate(LCDTask, "LCD_T", TASK_LCD_STACK_SIZE, NULL,
 	TASK_LCD_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test LCDTask\r\n");
 		LED_On(LED2_GPIO);
+	} else {
+		printf("Task LCD_T Created!\n");
 	}
 	
 	if (xTaskCreate(UARTTXTask, "TX_T", TASK_UART_STACK_SIZE, NULL,
@@ -214,12 +223,15 @@ int main (void)
 	} else {
 		//Starts Suspend (Commands by UART will control the resume):
 		vTaskSuspend(xTXHandler);
+		printf("Task TX_T Created!\n");
 	}
 	
 	if (xTaskCreate(UARTRXTask, "RX_T", TASK_UART_STACK_SIZE, NULL,
 	TASK_UART_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test RX_Task\r\n");
 		LED_On(LED2_GPIO);
+	} else {
+		printf("Task RX_T Created!\n");
 	}
 	
 	/* Start the scheduler. */

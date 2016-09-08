@@ -29,6 +29,7 @@ void intpin_handler(uint32_t id, uint32_t mask);
 
 void cStartSampleReset(commVar val);
 void cTaskSample(commVar val);
+void cAlphaComplFilter(commVar val);
 void cKalQAngle(commVar val);
 void cKalQBias(commVar val);
 void cKalRMeasure(commVar val);
