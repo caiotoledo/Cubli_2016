@@ -11,8 +11,6 @@
 
 #include "HAL/HAL_IMU.h"
 
-Bool setAlpha(double val);
-double getAlpha();
 double initComplFilter(ADXL_Addr_Dev dev);
 void getComplFilterAngle(double *angle, double *acel, double *gyro, double dt);
 

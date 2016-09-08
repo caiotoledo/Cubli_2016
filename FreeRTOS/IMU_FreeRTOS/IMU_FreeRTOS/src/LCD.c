@@ -44,12 +44,30 @@ void config_lcd(void){
 	
 	/* Draw filled rectangle with white color */
 	ili9225_fill( (ili9225_color_t) COLOR_WHITE);
+	
+	/* Queue FreeRTOS Initialization */
+	uint8_t i;
+	for (i = 0; i < NUM_AXIS; i++){
+		xQueueAcel[i] = xQueueCreate(1, sizeof(double));
+		if (xQueueAcel[i] == NULL){
+			LED_On(LED2_GPIO);
+			while(1);
+		}
+		xQueueAngle[i] = xQueueCreate(1, sizeof(double));
+		if (xQueueAngle[i] == NULL){
+			LED_On(LED2_GPIO);
+			while(1);
+		}
+		xQueueGyro[i] = xQueueCreate(1, sizeof(double));
+		if (xQueueGyro[i] == NULL){
+			LED_On(LED2_GPIO);
+			while(1);
+		}
+	}
 }
 
 void LCDTask(void *pvParameters){
 	UNUSED(pvParameters);
-	
-	config_lcd();
 	
 	double lcd_acel[3];
 	double lcd_angle[3];

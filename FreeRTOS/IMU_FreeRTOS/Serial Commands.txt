@@ -9,7 +9,6 @@ Commands:
 - "kalQAngle": Qangle constant for Kalman Filter;
 - "kalQBias": QBias constant for Kalman Filter;
 - "kalRMeasure": RMeasure constant for Kalman Filter;
-- "alphaCFilter": Alpha constant for Complementary Filter;
 
 Type:
 - "0": Get Value;
