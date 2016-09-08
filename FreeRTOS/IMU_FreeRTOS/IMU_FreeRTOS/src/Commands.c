@@ -28,6 +28,7 @@ const str2Func functionsMap[] = {
 	{	"kalQAngle",	cKalQAngle},
 	{	"kalQBias",		cKalQBias},
 	{	"kalRMeasure",	cKalRMeasure},
+	{	"alphaCFilter",	cAlphaComplFilter},
 	{	"end",			cUnknowCommand},
 };
 
