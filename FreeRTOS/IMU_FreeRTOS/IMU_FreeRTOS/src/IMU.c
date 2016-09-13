@@ -13,6 +13,7 @@
 #include "Filter/KalmanFilter.h"
 #include "Filter/ComplementaryFilter.h"
 #include "UART_Comm.h"
+#include "HAL/HAL_Encoder.h"
 #include <string.h>
 
 #define xQueueOverwrite(xQueue,pvItemToQueue)	xQueueReset(xQueue);xQueueSendToFront(xQueue,pvItemToQueue,(0))
@@ -123,6 +124,9 @@ void cStartSampleReset(commVar val){
 	
 	//Restart all Variables:
 	initializeIMUVariables();
+	
+	//Reset Encoder:
+	resetCounterEncoder();
 	
 	//Start Serial Task
 	cStartSample(val);

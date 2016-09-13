@@ -14,4 +14,6 @@
 void config_lcd(void);
 void LCDTask(void *pvParameters);
 
+extern xTaskHandle xLCDHandler;
+
 #endif /* LCD_H_ */

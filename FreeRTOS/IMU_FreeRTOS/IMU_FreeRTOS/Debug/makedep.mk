@@ -8,6 +8,8 @@ src\Filter\ComplementaryFilter.c
 
 src\Filter\KalmanFilter.c
 
+src\HAL\HAL_Encoder.c
+
 src\HAL\HAL_IMU.c
 
 src\HAL\HAL_UART.c

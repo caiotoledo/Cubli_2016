@@ -15,6 +15,7 @@ sample = (tTest*1000)/tTaskSample;
 acel = zeros(sample,3);
 gyro = zeros(sample,3);
 angle = zeros(sample,3);
+encoder = zeros(sample,1);
 
 %Open Serial Port:
 s = serial('COM3','BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
@@ -70,6 +71,9 @@ for i = 1:sample
     angle(i,2) = str2double(strVal(k));
     k= k+1;
     angle(i,3) = str2double(strVal(k));
+    
+    k= k+1;
+    encoder(i) = str2double(strVal(k));
 end
 
 fclose(s);
@@ -84,6 +88,24 @@ plot(Tempo, angle(:,2), 'r');
 hold on;
 plot(Tempo, angle(:,3), 'k');
 hold on;
-legend('Pure Angle', 'Compl. Angle', 'Kalman Angle');
+plot(Tempo, encoder, 'm');
+hold on;
+legend('Pure Angle', 'Compl. Angle', 'Kalman Angle', 'Encoder');
 title('Angle');
+grid on;
+
+figure;
+plot(Tempo, acel(:,1));
+hold on;
+plot(Tempo, acel(:,2), 'r');
+hold on;
+legend('X', 'Y');
+title('Acel (mG)');
+grid on;
+
+figure;
+plot(Tempo, gyro(:,3), 'k');
+hold on;
+legend('Z');
+title('Gyro (º/s)');
 grid on;

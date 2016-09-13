@@ -33,8 +33,9 @@
 #include "UART_Comm.h"
 #include "IMU.h"
 #include "LCD.h"
+#include "HAL/HAL_Encoder.h"
 
-//#define TASK_MONITOR
+#define TASK_MONITOR
 
 #define TASK_LCD_STACK_SIZE				(1024/sizeof(portSTACK_TYPE))
 #define TASK_LCD_STACK_PRIORITY			(tskIDLE_PRIORITY+2)
@@ -42,7 +43,7 @@
 #define TASK_IMU_STACK_PRIORITY			(configTIMER_TASK_PRIORITY - 1)
 #define TASK_UART_STACK_SIZE			(2048/sizeof(portSTACK_TYPE))
 #define TASK_UART_STACK_PRIORITY		(tskIDLE_PRIORITY+3)
-#define TASK_MONITOR_STACK_SIZE         (512)	//Bytes
+#define TASK_MONITOR_STACK_SIZE         (1024/sizeof(portSTACK_TYPE))
 #define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY)
 #define TASK_LED_STACK_SIZE             configMINIMAL_STACK_SIZE
 #define TASK_LED_STACK_PRIORITY         (tskIDLE_PRIORITY+1)
@@ -113,7 +114,7 @@ void vApplicationMallocFailedHook(void)
  */
 static void task_monitor(void *pvParameters)
 {
-	static portCHAR szList[256];
+	static portCHAR szList[128];
 	static uint32_t freeHeap;
 	UNUSED(pvParameters);
 
@@ -139,7 +140,6 @@ static void task_led0(void *pvParameters)
 }
 
 void button_handler(uint32_t id, uint32_t mask){
-	LED_Toggle(LED2_GPIO);
 	xSemaphoreGiveFromISR(xseMonitor, NULL);
 }
 
@@ -155,6 +155,8 @@ void config_interrupt(){
 		pio_handler_set(PIOA, ID_PIOA, INT_PIN, PIO_IT_RISE_EDGE, intpin_handler);
 		pio_enable_interrupt(PIOA,INT_PIN);
 	#endif
+	
+	configEncoderPin();
 	
 	NVIC_DisableIRQ(PIOA_IRQn);
 	NVIC_ClearPendingIRQ(PIOA_IRQn);
@@ -209,7 +211,7 @@ int main (void)
 	}
 
 	if (xTaskCreate(LCDTask, "LCD_T", TASK_LCD_STACK_SIZE, NULL,
-	TASK_LCD_STACK_PRIORITY, NULL) != pdPASS) {
+	TASK_LCD_STACK_PRIORITY, &xLCDHandler) != pdPASS) {
 		printf("Failed to create test LCDTask\r\n");
 		LED_On(LED2_GPIO);
 	} else {

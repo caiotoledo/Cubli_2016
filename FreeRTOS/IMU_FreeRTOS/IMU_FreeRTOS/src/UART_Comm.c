@@ -9,6 +9,8 @@
 #include "HAL/HAL_UART.h"
 #include "Commands.h"
 #include "IMU.h"
+#include "LCD.h"
+#include "HAL/HAL_Encoder.h"
 #include <string.h>
 
 uint32_t timer = (1000/portTICK_RATE_MS);
@@ -16,6 +18,7 @@ uint32_t timer = (1000/portTICK_RATE_MS);
 static void vTimerTX(void *pvParameters){
 	LED_Off(LED1_GPIO);
 	vTaskSuspend(xTXHandler);
+	//vTaskResume(xLCDHandler);
 	//printf_mux("STOP\r");
 }
 
@@ -40,6 +43,7 @@ void cTotalTimeTest(commVar val){
 
 void cStartSample(commVar val){
 	if (timer){
+		//vTaskSuspend(xLCDHandler);
 		LED_On(LED1_GPIO);
 		xTimerChangePeriod(xTimerTX, timer, portMAX_DELAY);
 		vTaskResume(xTXHandler);
@@ -82,10 +86,11 @@ void UARTTXTask (void *pvParameters){
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
-		sprintf(uartBuf, "%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;\r\n", 
+		sprintf(uartBuf, "%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;\r\n", 
 				uart_acel[0], uart_acel[1], uart_acel[2],
 				uart_gyro[0], uart_gyro[1], uart_gyro[2],
-				uart_angle[0], uart_angle[1], uart_angle[2]);
+				uart_angle[0], uart_angle[1], uart_angle[2],
+				getAngleEncoder(true));
 		result = send_uart(uartBuf, strlen((char *)uartBuf));
 		if (result != STATUS_OK) LED_Toggle(LED2_GPIO);
 	}

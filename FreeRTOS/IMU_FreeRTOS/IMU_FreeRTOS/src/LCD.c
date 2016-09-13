@@ -13,6 +13,8 @@
 
 #define TASK_DELAY		(500/portTICK_RATE_MS)
 
+xTaskHandle xLCDHandler;
+
 struct ili9225_opt_t g_ili9225_display_opt;
 /**
  * \brief Override SPI handler.

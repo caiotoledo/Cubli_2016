@@ -286,15 +286,15 @@
     <PercepioTrace>
       <TargetOS>FreeRTOS</TargetOS>
       <Frequency>48000000</Frequency>
-      <EnableTraceInterrupts>True</EnableTraceInterrupts>
-      <EnableNonintrusive>True</EnableNonintrusive>
+      <EnableTraceInterrupts>False</EnableTraceInterrupts>
+      <EnableNonintrusive>False</EnableNonintrusive>
       <EnableTargetOS>True</EnableTargetOS>
-      <EnableApplicationOutput>True</EnableApplicationOutput>
-      <EnableDataWatchPoints>True</EnableDataWatchPoints>
+      <EnableApplicationOutput>False</EnableApplicationOutput>
+      <EnableDataWatchPoints>False</EnableDataWatchPoints>
       <EnablePC>False</EnablePC>
-      <EnablePCPolled>False</EnablePCPolled>
+      <EnablePCPolled>True</EnablePCPolled>
       <PolledFrequency>1000</PolledFrequency>
-      <EnableMcu>True</EnableMcu>
+      <EnableMcu>False</EnableMcu>
       <EnableOsAwareness>False</EnableOsAwareness>
       <HWApplicationOutput>False</HWApplicationOutput>
       <HWInterrupt>False</HWInterrupt>
@@ -682,6 +682,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\Filter\KalmanFilter.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\HAL\HAL_Encoder.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\HAL\HAL_Encoder.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\HAL\HAL_IMU.c">

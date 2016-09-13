@@ -114,6 +114,7 @@ C_SRCS +=  \
 ../src/Commands.c \
 ../src/Filter/ComplementaryFilter.c \
 ../src/Filter/KalmanFilter.c \
+../src/HAL/HAL_Encoder.c \
 ../src/HAL/HAL_IMU.c \
 ../src/HAL/HAL_UART.c \
 ../src/LCD.c \
@@ -165,6 +166,7 @@ OBJS +=  \
 src/Commands.o \
 src/Filter/ComplementaryFilter.o \
 src/Filter/KalmanFilter.o \
+src/HAL/HAL_Encoder.o \
 src/HAL/HAL_IMU.o \
 src/HAL/HAL_UART.o \
 src/LCD.o \
@@ -209,6 +211,7 @@ OBJS_AS_ARGS +=  \
 src/Commands.o \
 src/Filter/ComplementaryFilter.o \
 src/Filter/KalmanFilter.o \
+src/HAL/HAL_Encoder.o \
 src/HAL/HAL_IMU.o \
 src/HAL/HAL_UART.o \
 src/LCD.o \
@@ -253,6 +256,7 @@ C_DEPS +=  \
 src/Commands.d \
 src/Filter/ComplementaryFilter.d \
 src/Filter/KalmanFilter.d \
+src/HAL/HAL_Encoder.d \
 src/HAL/HAL_IMU.d \
 src/HAL/HAL_UART.d \
 src/LCD.d \
@@ -297,6 +301,7 @@ C_DEPS_AS_ARGS +=  \
 src/Commands.d \
 src/Filter/ComplementaryFilter.d \
 src/Filter/KalmanFilter.d \
+src/HAL/HAL_Encoder.d \
 src/HAL/HAL_IMU.d \
 src/HAL/HAL_UART.d \
 src/LCD.d \
@@ -352,6 +357,8 @@ LINKER_SCRIPT_DEP+=  \
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 
