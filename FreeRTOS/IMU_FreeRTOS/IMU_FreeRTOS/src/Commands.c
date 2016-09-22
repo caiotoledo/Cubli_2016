@@ -29,6 +29,12 @@ const str2Func functionsMap[] = {
 	{	"kalQBias",		cKalQBias},
 	{	"kalRMeasure",	cKalRMeasure},
 	{	"alphaCFilter",	cAlphaComplFilter},
+	{	"offsetAccelX",	cOffsetAccelX},
+	{	"offsetAccelY",	cOffsetAccelY},
+	{	"offsetAccelZ",	cOffsetAccelZ},
+	{	"offsetGyroX",	cOffsetGyroX},
+	{	"offsetGyroY",	cOffsetGyroY},
+	{	"offsetGyroZ",	cOffsetGyroZ},
 	{	"end",			cUnknowCommand},
 };
 

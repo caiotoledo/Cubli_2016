@@ -29,9 +29,21 @@ void intpin_handler(uint32_t id, uint32_t mask);
 
 void cStartSampleReset(commVar val);
 void cTaskSample(commVar val);
+
+//Complementary Filter Constant:
 void cAlphaComplFilter(commVar val);
+
+//Kalman Filter Constants:
 void cKalQAngle(commVar val);
 void cKalQBias(commVar val);
 void cKalRMeasure(commVar val);
+
+//IMU Offset:
+void cOffsetAccelX(commVar val);
+void cOffsetAccelY(commVar val);
+void cOffsetAccelZ(commVar val);
+void cOffsetGyroX(commVar val);
+void cOffsetGyroY(commVar val);
+void cOffsetGyroZ(commVar val);
 
 #endif /* IMU_H_ */

@@ -18,7 +18,8 @@
 
 #define xQueueOverwrite(xQueue,pvItemToQueue)	xQueueReset(xQueue);xQueueSendToFront(xQueue,pvItemToQueue,(0))
 
-static void cmdHandler(commVar val, double *Kvalue, const char *valName);
+static void cmdHandlerKalman(commVar val, double *Kvalue, const char *valName);
+static void cmdHandlerOffset(commVar val, Axis_Op ax, const char *axName);
 
 freertos_twi_if freertos_twi;
 char buffer[50];
@@ -86,6 +87,7 @@ void cTaskSample(commVar val){
 		case cSet:
 			if (value > 0){
 				timerIMU = (uint32_t)value;
+				dt = (((double)timerIMU)/ ((double)configTICK_RATE_HZ));
 				xTimerChangePeriod(xTimerIMU, timerIMU, 0);
 				printf_mux("IMUSample = %u ms\r\n", (timerIMU));
 			} else {
@@ -126,7 +128,10 @@ void cStartSampleReset(commVar val){
 	initializeIMUVariables();
 	
 	//Reset Encoder:
-	resetCounterEncoder();
+	//resetCounterEncoder();
+	
+	//Set Initial Angle Encoder:
+	setCounterEncoder(true, angleKalman);
 	
 	//Start Serial Task
 	cStartSample(val);
@@ -216,19 +221,83 @@ void cAlphaComplFilter(commVar val){
 	}
 }
 
+void cOffsetAccelX(commVar val){
+	cmdHandlerOffset(val, Axis_X, "AccelOffsetX");
+}
+
+void cOffsetAccelY(commVar val){
+	cmdHandlerOffset(val, Axis_Y, "AccelOffsetY");
+}
+
+void cOffsetAccelZ(commVar val){
+	cmdHandlerOffset(val, Axis_Z, "AccelOffsetZ");
+}
+
+void cOffsetGyroX(commVar val){
+	cmdHandlerOffset(val, Axis_X, "GyroOffsetX");
+}
+
+void cOffsetGyroY(commVar val){
+	cmdHandlerOffset(val, Axis_Y, "GyroOffsetY");
+}
+
+void cOffsetGyroZ(commVar val){
+	cmdHandlerOffset(val, Axis_Z, "GyroOffsetZ");
+}
+
+/* Threat all commands about Offset Gyro and Accel (both set and get) */
+static void cmdHandlerOffset(commVar val, Axis_Op ax, const char *axName){
+	Bool ret;
+	float offset = val.value;
+	Bool offsetType = true;
+	
+	if (strstr(axName,"Accel")) {
+		offsetType = true;
+	} else if (strstr(axName,"Gyro")) {
+		offsetType = false;
+	} else {
+		printf_mux("Wrong use cmdHandlerOffset\r\n");
+		return;
+	}
+	
+	switch (val.type)
+	{
+		case cSet:
+			if (offsetType) {
+				ret = setOffsetAccel(ax,offset);
+			} else {
+				ret = setOffsetGyro(ax,offset);
+			}
+			if (ret){
+				printf_mux("%s = %0.5f\r\n",axName , offset);
+			} else {
+				printf_mux("%s Value Error [%f]\r\n", axName, offset);
+			}
+			break;
+		case cGet:
+			if (offsetType) {
+				offset = getOffsetAccel(ax);
+			} else {
+				offset = getOffsetGyro(ax);
+			}
+			printf_mux("%s = %0.5f\r\n", axName, offset);
+			break;
+	}	
+}
+
 void cKalQAngle(commVar val){	
-	cmdHandler(val, &kalmanC.Qangle, "QAngle");
+	cmdHandlerKalman(val, &kalmanC.Qangle, "QAngle");
 }
 
 void cKalQBias(commVar val){	
-	cmdHandler(val, &kalmanC.Qbias, "QBias");
+	cmdHandlerKalman(val, &kalmanC.Qbias, "QBias");
 }
 
 void cKalRMeasure(commVar val){	
-	cmdHandler(val, &kalmanC.Rmeasure, "RMeasure");
+	cmdHandlerKalman(val, &kalmanC.Rmeasure, "RMeasure");
 }
 
-static void cmdHandler(commVar val, double *Kvalue, const char *valName){
+static void cmdHandlerKalman(commVar val, double *Kvalue, const char *valName){
 	float value = val.value;
 	
 	switch (val.type)

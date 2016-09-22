@@ -101,6 +101,12 @@ typedef enum ITG_Addr_Dev_t		ITG_Addr_Dev;
 // STANDARD IMU FUNCTIONS:
 status_code_t configIMU(void);
 
+//OFFSET FUNCTIONS:
+Bool setOffsetAccel(Axis_Op ax, float offset);
+float getOffsetAccel(Axis_Op ax);
+Bool setOffsetGyro(Axis_Op ax, float offset);
+float getOffsetGyro(Axis_Op ax);
+
 // HIGH LEVEL FUNCITONS:
 double getPureAngle(double *acel);
 void getAllAcelValue(ADXL_Addr_Dev dev, double *acel);

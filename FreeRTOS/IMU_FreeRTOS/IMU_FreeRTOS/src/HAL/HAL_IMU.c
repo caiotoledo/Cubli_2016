@@ -14,11 +14,11 @@
 #define TWI_SPEED		400000	//400KHz Fast-Speed
 #define TWI_BLOCK_TIME	(portMAX_DELAY)
 
-#define ACEL_OFFSET_X		(350.0)
-#define ACEL_OFFSET_Y		(1050.0)
+#define ACEL_OFFSET_X		(465.0)//(350.0)
+#define ACEL_OFFSET_Y		(1156.0)//(1050.0)
 #define ACEL_OFFSET_Z		(0.0)
 
-#define GYRO_OFFSET_X		(5.0)
+#define GYRO_OFFSET_X		(0.18)//(5.0)
 #define GYRO_OFFSET_Y		(0.0)
 #define GYRO_OFFSET_Z		(0.0)
 
@@ -33,13 +33,13 @@ status_code_t itg_read (ITG_Addr_Dev itg_addr, uint8_t *value, ITG_Addr_Reg itg_
 status_code_t adxl_write(ADXL_Addr_Dev adxl_addr, uint8_t value, ADXL_Addr_Reg adxl_reg);
 status_code_t adxl_read (ADXL_Addr_Dev adxl_addr, uint8_t *value, ADXL_Addr_Reg adxl_reg, uint8_t len);
 
-static const float offsetAcel[] = {
+static float offsetAcel[] = {
 	ACEL_OFFSET_X,
 	ACEL_OFFSET_Y,
 	ACEL_OFFSET_Z
 };
 
-static const float offsetGyro[] = {
+static float offsetGyro[] = {
 	GYRO_OFFSET_X,
 	GYRO_OFFSET_Y,
 	GYRO_OFFSET_Z
@@ -65,6 +65,32 @@ const rateADXL mapRate[] = {
 };
 
 freertos_twi_if freertos_twi;
+
+Bool setOffsetAccel(Axis_Op ax, float offset){
+	Bool flag = false;
+	if ( (offset > (-2000.0)) && (offset < (2000.0)) ) {
+		offsetAcel[ax] = offset;
+		flag = true;
+	}
+	return flag;
+}
+
+float getOffsetAccel(Axis_Op ax){
+	return offsetAcel[ax];
+}
+
+Bool setOffsetGyro(Axis_Op ax, float offset){
+	Bool flag = false;
+	if ( (offset > (-2000.0)) && (offset < (2000.0)) ) {
+		offsetGyro[ax] = offset;
+		flag = true;
+	}
+	return flag;
+}
+
+float getOffsetGyro(Axis_Op ax){
+	return offsetGyro[ax];
+}
 
 double getPureAngle(double *acel){
 	double angle = 0.0;

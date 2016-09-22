@@ -8,7 +8,7 @@ tTaskSample = 20; %ms
 QAngle      = 0.001;
 QBias       = 0.003;
 RMeasure    = 0.03;
-alpha       = 0.7143;
+alpha       = 0.98; %0.7143;
 
 %Initialize Variables for Sample:
 sample = (tTest*1000)/tTaskSample;
@@ -19,6 +19,7 @@ encoder = zeros(sample,1);
 
 %Open Serial Port:
 s = serial('COM3','BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
+fclose(s);
 fopen(s);
 
 %Parse command strings:
@@ -86,8 +87,6 @@ plot(Tempo, angle(:,1));
 hold on;
 plot(Tempo, angle(:,2), 'r');
 hold on;
-plot(Tempo, angle(:,3), 'k');
-hold on;
 plot(Tempo, encoder, 'm');
 hold on;
 legend('Pure Angle', 'Compl. Angle', 'Kalman Angle', 'Encoder');
@@ -109,3 +108,7 @@ hold on;
 legend('Z');
 title('Gyro (º/s)');
 grid on;
+
+X_mean = mean(acel(:,1))
+Y_mean = mean(acel(:,2))
+Zgyro_mean = mean(gyro(:,3))

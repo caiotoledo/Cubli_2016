@@ -26,6 +26,14 @@ void resetCounterEncoder(){
 	bFlag = 0;
 }
 
+void setCounterEncoder(Bool degrees, double value){
+	if (degrees){
+		roundEncoder = (value/VOLTA_COMP)*ENC_RES;
+	} else {
+		roundEncoder = (value/M_TWOPI)*ENC_RES;
+	}
+}
+
 double getAngleEncoder(Bool degrees){
 	double val = -400;
 	

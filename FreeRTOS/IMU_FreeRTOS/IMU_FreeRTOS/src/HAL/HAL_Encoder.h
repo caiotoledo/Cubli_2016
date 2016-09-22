@@ -10,6 +10,7 @@
 #define HAL_ENCODER_H_
 
 void resetCounterEncoder();
+void setCounterEncoder(Bool degrees, double value);
 double getAngleEncoder(Bool degrees);
 void configEncoderPin();
 
