@@ -17,23 +17,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   6 .comment      0000005b  00000000  00000000  00020a35  2**0
                   CONTENTS, READONLY
-  7 .debug_info   000184d7  00000000  00000000  00020a90  2**0
+  7 .debug_info   000184da  00000000  00000000  00020a90  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 0000454f  00000000  00000000  00038f67  2**0
+  8 .debug_abbrev 00004555  00000000  00000000  00038f6a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_loc    0000771e  00000000  00000000  0003d4b6  2**0
+  9 .debug_loc    0000771e  00000000  00000000  0003d4bf  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_aranges 00001540  00000000  00000000  00044bd4  2**0
+ 10 .debug_aranges 00001540  00000000  00000000  00044bdd  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 000012d0  00000000  00000000  00046114  2**0
+ 11 .debug_ranges 000012d0  00000000  00000000  0004611d  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_macro  0001858b  00000000  00000000  000473e4  2**0
+ 12 .debug_macro  0001858b  00000000  00000000  000473ed  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_line   0001d8c1  00000000  00000000  0005f96f  2**0
+ 13 .debug_line   0001d8c1  00000000  00000000  0005f978  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_str    0004b1d9  00000000  00000000  0007d230  2**0
+ 14 .debug_str    0004b1d9  00000000  00000000  0007d239  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_frame  00005810  00000000  00000000  000c840c  2**2
+ 15 .debug_frame  00005810  00000000  00000000  000c8414  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -562,7 +562,7 @@ Bool setAlpha(double val){
 
 0040039c <getAlpha>:
 
-double getAlpha(){
+double getAlpha(void){
   40039c:	b480      	push	{r7}
   40039e:	af00      	add	r7, sp, #0
 	return alpha;
@@ -693,7 +693,7 @@ void getComplFilterAngle(double *angle, double *acel, double *gyro, double dt){
 double angle = 0;
 double bias = 0;
 
-double P[2][2] = {0};
+double P[2][2] = {{0}};
 
 void initKalman(KalmanConst *kalmanInit){
   40049c:	b480      	push	{r7}
@@ -1137,7 +1137,7 @@ uint32_t bFlag;
 
 int32_t roundEncoder;
 
-void resetCounterEncoder(){
+void resetCounterEncoder(void){
   40085c:	b480      	push	{r7}
   40085e:	af00      	add	r7, sp, #0
 	roundEncoder = 0;
@@ -1432,7 +1432,7 @@ void pin_handler(uint32_t id, uint32_t mask){
 
 00400a70 <configEncoderPin>:
 
-void configEncoderPin(){
+void configEncoderPin(void){
   400a70:	b590      	push	{r4, r7, lr}
   400a72:	b083      	sub	sp, #12
   400a74:	af02      	add	r7, sp, #8
@@ -2167,7 +2167,7 @@ void getAllGyroValue(ITG_Addr_Dev dev, double *gyro){
   400f76:	b29b      	uxth	r3, r3
   400f78:	f3c3 030e 	ubfx	r3, r3, #0, #15
   400f7c:	82bb      	strh	r3, [r7, #20]
-			gyro[i] = -( ((float) itg) / CONST_ITG );
+			gyro[i] = -( ((float) itg) / CONST_ITG);
   400f7e:	7dfb      	ldrb	r3, [r7, #23]
   400f80:	00db      	lsls	r3, r3, #3
   400f82:	683a      	ldr	r2, [r7, #0]
@@ -2232,7 +2232,7 @@ void getAllGyroValue(ITG_Addr_Dev dev, double *gyro){
   400ff8:	2b02      	cmp	r3, #2
   400ffa:	d987      	bls.n	400f0c <getAllGyroValue+0x4c>
 			itg = ( ( (~itg) +1 ) & 0x7FFF);
-			gyro[i] = -( ((float) itg) / CONST_ITG );
+			gyro[i] = -( ((float) itg) / CONST_ITG);
 		}
 		gyro[i] += offsetGyro[i];	//Apply Offset
 	}

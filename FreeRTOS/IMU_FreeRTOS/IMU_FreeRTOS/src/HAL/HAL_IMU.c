@@ -147,7 +147,7 @@ void getAllGyroValue(ITG_Addr_Dev dev, double *gyro){
 			gyro[i] = ((float) itg) / CONST_ITG;
 			} else {
 			itg = ( ( (~itg) +1 ) & 0x7FFF);
-			gyro[i] = -( ((float) itg) / CONST_ITG );
+			gyro[i] = -( ((float) itg) / CONST_ITG);
 		}
 		gyro[i] += offsetGyro[i];	//Apply Offset
 	}

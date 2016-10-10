@@ -10277,9 +10277,9 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/arm gcc/native/4.8.1443/arm-gn
  .bss.angleKalman
                 0x20004490        0x8 src/IMU.o
                 0x20004490                angleKalman
- .bss.szList.8528
+ .bss.szList.8530
                 0x20004498       0x80 src/main.o
- .bss.freeHeap.8529
+ .bss.freeHeap.8531
                 0x20004518        0x4 src/main.o
  .bss.__malloc_max_total_mem
                 0x2000451c        0x4 c:/program files (x86)/atmel/atmel toolchain/arm gcc/native/4.8.1443/arm-gnu-toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7-m\libc.a(lib_a-mallocr.o)
@@ -10657,87 +10657,87 @@ OUTPUT(IMU_FreeRTOS.elf elf32-littlearm)
  .comment       0x00000000       0x5c src/IMU.o
  .comment       0x00000000       0x5c src/main.o
 
-.debug_info     0x00000000    0x184d7
+.debug_info     0x00000000    0x184da
  .debug_info    0x00000000      0xd17 src/Commands.o
- .debug_info    0x00000d17      0xbaa src/Filter/ComplementaryFilter.o
- .debug_info    0x000018c1      0x207 src/Filter/KalmanFilter.o
- .debug_info    0x00001ac8      0xfb2 src/HAL/HAL_Encoder.o
- .debug_info    0x00002a7a     0x16cc src/HAL/HAL_IMU.o
- .debug_info    0x00004146     0x12be src/HAL/HAL_UART.o
- .debug_info    0x00005404      0xc46 src/LCD.o
- .debug_info    0x0000604a      0xe19 src/UART_Comm.o
- .debug_info    0x00006e63      0x637 src/ASF/common/services/clock/sam3n/sysclk.o
- .debug_info    0x0000749a      0xbdb src/ASF/common/services/freertos/sam/freertos_peripheral_control.o
- .debug_info    0x00008075      0xaa6 src/ASF/common/services/freertos/sam/freertos_twi_master.o
- .debug_info    0x00008b1b      0xa7c src/ASF/common/services/freertos/sam/freertos_uart_serial.o
- .debug_info    0x00009597      0x976 src/ASF/common/services/spi/sam_spi/spi_master.o
- .debug_info    0x00009f0d      0x1ae src/ASF/common/utils/stdio/read.o
- .debug_info    0x0000a0bb      0x1bc src/ASF/common/utils/stdio/write.o
- .debug_info    0x0000a277      0x66c src/ASF/sam/boards/sam3n_ek/init.o
- .debug_info    0x0000a8e3      0x1d4 src/ASF/sam/boards/sam3n_ek/led.o
- .debug_info    0x0000aab7      0x7bf src/ASF/sam/components/display/aat31xx/aat31xx.o
- .debug_info    0x0000b276     0x1379 src/ASF/sam/components/display/ili9225/ili9225.o
- .debug_info    0x0000c5ef      0x4d9 src/ASF/sam/drivers/pdc/pdc.o
- .debug_info    0x0000cac8     0x1004 src/ASF/sam/drivers/pio/pio.o
- .debug_info    0x0000dacc      0xca2 src/ASF/sam/drivers/pio/pio_handler.o
- .debug_info    0x0000e76e      0xebe src/ASF/sam/drivers/pmc/pmc.o
- .debug_info    0x0000f62c      0x862 src/ASF/sam/drivers/spi/spi.o
- .debug_info    0x0000fe8e      0xa29 src/ASF/sam/drivers/twi/twi.o
- .debug_info    0x000108b7      0x8a6 src/ASF/sam/drivers/uart/uart.o
- .debug_info    0x0001115d     0x1256 src/ASF/sam/drivers/usart/usart.o
- .debug_info    0x000123b3      0x125 src/ASF/sam/utils/cmsis/sam3n/source/templates/exceptions.o
- .debug_info    0x000124d8      0x3b1 src/ASF/sam/utils/cmsis/sam3n/source/templates/gcc/startup_sam3n.o
- .debug_info    0x00012889      0x468 src/ASF/sam/utils/cmsis/sam3n/source/templates/system_sam3n.o
- .debug_info    0x00012cf1      0x434 src/ASF/sam/utils/syscalls/gcc/syscalls.o
- .debug_info    0x00013125      0x2be src/ASF/thirdparty/freertos/freertos-7.3.0/source/list.o
- .debug_info    0x000133e3      0x363 src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/gcc/sam/port.o
- .debug_info    0x00013746      0x2e2 src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/heap_4.o
- .debug_info    0x00013a28      0xa81 src/ASF/thirdparty/freertos/freertos-7.3.0/source/queue.o
- .debug_info    0x000144a9     0x1044 src/ASF/thirdparty/freertos/freertos-7.3.0/source/tasks.o
- .debug_info    0x000154ed      0x76e src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.o
- .debug_info    0x00015c5b     0x12a5 src/IMU.o
- .debug_info    0x00016f00     0x15d7 src/main.o
+ .debug_info    0x00000d17      0xbab src/Filter/ComplementaryFilter.o
+ .debug_info    0x000018c2      0x207 src/Filter/KalmanFilter.o
+ .debug_info    0x00001ac9      0xfb4 src/HAL/HAL_Encoder.o
+ .debug_info    0x00002a7d     0x16cc src/HAL/HAL_IMU.o
+ .debug_info    0x00004149     0x12be src/HAL/HAL_UART.o
+ .debug_info    0x00005407      0xc46 src/LCD.o
+ .debug_info    0x0000604d      0xe19 src/UART_Comm.o
+ .debug_info    0x00006e66      0x637 src/ASF/common/services/clock/sam3n/sysclk.o
+ .debug_info    0x0000749d      0xbdb src/ASF/common/services/freertos/sam/freertos_peripheral_control.o
+ .debug_info    0x00008078      0xaa6 src/ASF/common/services/freertos/sam/freertos_twi_master.o
+ .debug_info    0x00008b1e      0xa7c src/ASF/common/services/freertos/sam/freertos_uart_serial.o
+ .debug_info    0x0000959a      0x976 src/ASF/common/services/spi/sam_spi/spi_master.o
+ .debug_info    0x00009f10      0x1ae src/ASF/common/utils/stdio/read.o
+ .debug_info    0x0000a0be      0x1bc src/ASF/common/utils/stdio/write.o
+ .debug_info    0x0000a27a      0x66c src/ASF/sam/boards/sam3n_ek/init.o
+ .debug_info    0x0000a8e6      0x1d4 src/ASF/sam/boards/sam3n_ek/led.o
+ .debug_info    0x0000aaba      0x7bf src/ASF/sam/components/display/aat31xx/aat31xx.o
+ .debug_info    0x0000b279     0x1379 src/ASF/sam/components/display/ili9225/ili9225.o
+ .debug_info    0x0000c5f2      0x4d9 src/ASF/sam/drivers/pdc/pdc.o
+ .debug_info    0x0000cacb     0x1004 src/ASF/sam/drivers/pio/pio.o
+ .debug_info    0x0000dacf      0xca2 src/ASF/sam/drivers/pio/pio_handler.o
+ .debug_info    0x0000e771      0xebe src/ASF/sam/drivers/pmc/pmc.o
+ .debug_info    0x0000f62f      0x862 src/ASF/sam/drivers/spi/spi.o
+ .debug_info    0x0000fe91      0xa29 src/ASF/sam/drivers/twi/twi.o
+ .debug_info    0x000108ba      0x8a6 src/ASF/sam/drivers/uart/uart.o
+ .debug_info    0x00011160     0x1256 src/ASF/sam/drivers/usart/usart.o
+ .debug_info    0x000123b6      0x125 src/ASF/sam/utils/cmsis/sam3n/source/templates/exceptions.o
+ .debug_info    0x000124db      0x3b1 src/ASF/sam/utils/cmsis/sam3n/source/templates/gcc/startup_sam3n.o
+ .debug_info    0x0001288c      0x468 src/ASF/sam/utils/cmsis/sam3n/source/templates/system_sam3n.o
+ .debug_info    0x00012cf4      0x434 src/ASF/sam/utils/syscalls/gcc/syscalls.o
+ .debug_info    0x00013128      0x2be src/ASF/thirdparty/freertos/freertos-7.3.0/source/list.o
+ .debug_info    0x000133e6      0x363 src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/gcc/sam/port.o
+ .debug_info    0x00013749      0x2e2 src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/heap_4.o
+ .debug_info    0x00013a2b      0xa81 src/ASF/thirdparty/freertos/freertos-7.3.0/source/queue.o
+ .debug_info    0x000144ac     0x1044 src/ASF/thirdparty/freertos/freertos-7.3.0/source/tasks.o
+ .debug_info    0x000154f0      0x76e src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.o
+ .debug_info    0x00015c5e     0x12a5 src/IMU.o
+ .debug_info    0x00016f03     0x15d7 src/main.o
 
-.debug_abbrev   0x00000000     0x454f
+.debug_abbrev   0x00000000     0x4555
  .debug_abbrev  0x00000000      0x238 src/Commands.o
- .debug_abbrev  0x00000238      0x21d src/Filter/ComplementaryFilter.o
- .debug_abbrev  0x00000455      0x10d src/Filter/KalmanFilter.o
- .debug_abbrev  0x00000562      0x25c src/HAL/HAL_Encoder.o
- .debug_abbrev  0x000007be      0x33a src/HAL/HAL_IMU.o
- .debug_abbrev  0x00000af8      0x2dc src/HAL/HAL_UART.o
- .debug_abbrev  0x00000dd4      0x1ee src/LCD.o
- .debug_abbrev  0x00000fc2      0x221 src/UART_Comm.o
- .debug_abbrev  0x000011e3      0x1cc src/ASF/common/services/clock/sam3n/sysclk.o
- .debug_abbrev  0x000013af      0x235 src/ASF/common/services/freertos/sam/freertos_peripheral_control.o
- .debug_abbrev  0x000015e4      0x1ce src/ASF/common/services/freertos/sam/freertos_twi_master.o
- .debug_abbrev  0x000017b2      0x1ba src/ASF/common/services/freertos/sam/freertos_uart_serial.o
- .debug_abbrev  0x0000196c      0x213 src/ASF/common/services/spi/sam_spi/spi_master.o
- .debug_abbrev  0x00001b7f       0xdd src/ASF/common/utils/stdio/read.o
- .debug_abbrev  0x00001c5c       0xe6 src/ASF/common/utils/stdio/write.o
- .debug_abbrev  0x00001d42      0x150 src/ASF/sam/boards/sam3n_ek/init.o
- .debug_abbrev  0x00001e92       0xe1 src/ASF/sam/boards/sam3n_ek/led.o
- .debug_abbrev  0x00001f73      0x205 src/ASF/sam/components/display/aat31xx/aat31xx.o
- .debug_abbrev  0x00002178      0x28e src/ASF/sam/components/display/ili9225/ili9225.o
- .debug_abbrev  0x00002406      0x12c src/ASF/sam/drivers/pdc/pdc.o
- .debug_abbrev  0x00002532      0x1a6 src/ASF/sam/drivers/pio/pio.o
- .debug_abbrev  0x000026d8      0x20f src/ASF/sam/drivers/pio/pio_handler.o
- .debug_abbrev  0x000028e7      0x200 src/ASF/sam/drivers/pmc/pmc.o
- .debug_abbrev  0x00002ae7      0x1f4 src/ASF/sam/drivers/spi/spi.o
- .debug_abbrev  0x00002cdb      0x214 src/ASF/sam/drivers/twi/twi.o
- .debug_abbrev  0x00002eef      0x183 src/ASF/sam/drivers/uart/uart.o
- .debug_abbrev  0x00003072      0x214 src/ASF/sam/drivers/usart/usart.o
- .debug_abbrev  0x00003286       0x8c src/ASF/sam/utils/cmsis/sam3n/source/templates/exceptions.o
- .debug_abbrev  0x00003312      0x100 src/ASF/sam/utils/cmsis/sam3n/source/templates/gcc/startup_sam3n.o
- .debug_abbrev  0x00003412      0x108 src/ASF/sam/utils/cmsis/sam3n/source/templates/system_sam3n.o
- .debug_abbrev  0x0000351a      0x11d src/ASF/sam/utils/syscalls/gcc/syscalls.o
- .debug_abbrev  0x00003637       0xc3 src/ASF/thirdparty/freertos/freertos-7.3.0/source/list.o
- .debug_abbrev  0x000036fa      0x224 src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/gcc/sam/port.o
- .debug_abbrev  0x0000391e      0x1a7 src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/heap_4.o
- .debug_abbrev  0x00003ac5      0x183 src/ASF/thirdparty/freertos/freertos-7.3.0/source/queue.o
- .debug_abbrev  0x00003c48      0x1ff src/ASF/thirdparty/freertos/freertos-7.3.0/source/tasks.o
- .debug_abbrev  0x00003e47      0x17a src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.o
- .debug_abbrev  0x00003fc1      0x2b8 src/IMU.o
- .debug_abbrev  0x00004279      0x2d6 src/main.o
+ .debug_abbrev  0x00000238      0x21f src/Filter/ComplementaryFilter.o
+ .debug_abbrev  0x00000457      0x10d src/Filter/KalmanFilter.o
+ .debug_abbrev  0x00000564      0x260 src/HAL/HAL_Encoder.o
+ .debug_abbrev  0x000007c4      0x33a src/HAL/HAL_IMU.o
+ .debug_abbrev  0x00000afe      0x2dc src/HAL/HAL_UART.o
+ .debug_abbrev  0x00000dda      0x1ee src/LCD.o
+ .debug_abbrev  0x00000fc8      0x221 src/UART_Comm.o
+ .debug_abbrev  0x000011e9      0x1cc src/ASF/common/services/clock/sam3n/sysclk.o
+ .debug_abbrev  0x000013b5      0x235 src/ASF/common/services/freertos/sam/freertos_peripheral_control.o
+ .debug_abbrev  0x000015ea      0x1ce src/ASF/common/services/freertos/sam/freertos_twi_master.o
+ .debug_abbrev  0x000017b8      0x1ba src/ASF/common/services/freertos/sam/freertos_uart_serial.o
+ .debug_abbrev  0x00001972      0x213 src/ASF/common/services/spi/sam_spi/spi_master.o
+ .debug_abbrev  0x00001b85       0xdd src/ASF/common/utils/stdio/read.o
+ .debug_abbrev  0x00001c62       0xe6 src/ASF/common/utils/stdio/write.o
+ .debug_abbrev  0x00001d48      0x150 src/ASF/sam/boards/sam3n_ek/init.o
+ .debug_abbrev  0x00001e98       0xe1 src/ASF/sam/boards/sam3n_ek/led.o
+ .debug_abbrev  0x00001f79      0x205 src/ASF/sam/components/display/aat31xx/aat31xx.o
+ .debug_abbrev  0x0000217e      0x28e src/ASF/sam/components/display/ili9225/ili9225.o
+ .debug_abbrev  0x0000240c      0x12c src/ASF/sam/drivers/pdc/pdc.o
+ .debug_abbrev  0x00002538      0x1a6 src/ASF/sam/drivers/pio/pio.o
+ .debug_abbrev  0x000026de      0x20f src/ASF/sam/drivers/pio/pio_handler.o
+ .debug_abbrev  0x000028ed      0x200 src/ASF/sam/drivers/pmc/pmc.o
+ .debug_abbrev  0x00002aed      0x1f4 src/ASF/sam/drivers/spi/spi.o
+ .debug_abbrev  0x00002ce1      0x214 src/ASF/sam/drivers/twi/twi.o
+ .debug_abbrev  0x00002ef5      0x183 src/ASF/sam/drivers/uart/uart.o
+ .debug_abbrev  0x00003078      0x214 src/ASF/sam/drivers/usart/usart.o
+ .debug_abbrev  0x0000328c       0x8c src/ASF/sam/utils/cmsis/sam3n/source/templates/exceptions.o
+ .debug_abbrev  0x00003318      0x100 src/ASF/sam/utils/cmsis/sam3n/source/templates/gcc/startup_sam3n.o
+ .debug_abbrev  0x00003418      0x108 src/ASF/sam/utils/cmsis/sam3n/source/templates/system_sam3n.o
+ .debug_abbrev  0x00003520      0x11d src/ASF/sam/utils/syscalls/gcc/syscalls.o
+ .debug_abbrev  0x0000363d       0xc3 src/ASF/thirdparty/freertos/freertos-7.3.0/source/list.o
+ .debug_abbrev  0x00003700      0x224 src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/gcc/sam/port.o
+ .debug_abbrev  0x00003924      0x1a7 src/ASF/thirdparty/freertos/freertos-7.3.0/source/portable/memmang/heap_4.o
+ .debug_abbrev  0x00003acb      0x183 src/ASF/thirdparty/freertos/freertos-7.3.0/source/queue.o
+ .debug_abbrev  0x00003c4e      0x1ff src/ASF/thirdparty/freertos/freertos-7.3.0/source/tasks.o
+ .debug_abbrev  0x00003e4d      0x17a src/ASF/thirdparty/freertos/freertos-7.3.0/source/timers.o
+ .debug_abbrev  0x00003fc7      0x2b8 src/IMU.o
+ .debug_abbrev  0x0000427f      0x2d6 src/main.o
 
 .debug_loc      0x00000000     0x771e
  .debug_loc     0x00000000      0x150 src/Commands.o

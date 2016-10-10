@@ -13,7 +13,7 @@ double Rmeasure = 0;
 double angle = 0;
 double bias = 0;
 
-double P[2][2] = {0};
+double P[2][2] = {{0}};
 
 void initKalman(KalmanConst *kalmanInit){
 	Qangle		=	kalmanInit->Qangle;

@@ -20,7 +20,7 @@ uint32_t bFlag;
 
 int32_t roundEncoder;
 
-void resetCounterEncoder(){
+void resetCounterEncoder(void){
 	roundEncoder = 0;
 	aFlag = 0;
 	bFlag = 0;
@@ -71,7 +71,7 @@ void pin_handler(uint32_t id, uint32_t mask){
 	}
 }
 
-void configEncoderPin(){
+void configEncoderPin(void){
 	//Interrupt for A:
 	pio_set_input(PIOA, GPIO_A, PIO_DEFAULT);
 	pio_pull_down(PIOA, GPIO_A, ENABLE);

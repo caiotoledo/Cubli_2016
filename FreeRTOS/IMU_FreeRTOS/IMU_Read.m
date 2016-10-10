@@ -87,6 +87,8 @@ plot(Tempo, angle(:,1));
 hold on;
 plot(Tempo, angle(:,2), 'r');
 hold on;
+plot(Tempo, angle(:,3), 'k');
+hold on;
 plot(Tempo, encoder, 'm');
 hold on;
 legend('Pure Angle', 'Compl. Angle', 'Kalman Angle', 'Encoder');

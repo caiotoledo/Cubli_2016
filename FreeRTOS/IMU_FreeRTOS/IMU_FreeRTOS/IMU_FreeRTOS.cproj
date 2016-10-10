@@ -696,6 +696,12 @@
     <Compile Include="src\HAL\HAL_IMU.h">
       <SubType>compile</SubType>
     </Compile>
+    <None Include="src\HAL\HAL_IMU_MPU6050.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\HAL\HAL_IMU_MPU6050.h">
+      <SubType>compile</SubType>
+    </None>
     <Compile Include="src\HAL\HAL_UART.c">
       <SubType>compile</SubType>
     </Compile>

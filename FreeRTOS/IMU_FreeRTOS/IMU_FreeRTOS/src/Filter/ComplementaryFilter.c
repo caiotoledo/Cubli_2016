@@ -21,7 +21,7 @@ Bool setAlpha(double val){
 	return resp;
 }
 
-double getAlpha(){
+double getAlpha(void){
 	return alpha;
 }
 

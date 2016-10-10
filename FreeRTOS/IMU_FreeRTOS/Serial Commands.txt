@@ -10,6 +10,12 @@ Commands:
 - "kalQBias": QBias constant for Kalman Filter;
 - "kalRMeasure": RMeasure constant for Kalman Filter;
 - "alphaCFilter": Alpha constant for Complementary Filter;
+- "offsetAccelX": Configure offset for Accelerometer Axis X;
+- "offsetAccelY": Configure offset for Accelerometer Axis Y;
+- "offsetAccelZ": Configure offset for Accelerometer Axis Z;
+- "offsetGyroX": Configure offset for Gyroscope Axis X;
+- "offsetGyroY": Configure offset for Gyroscope Axis Y;
+- "offsetGyroZ": Configure offset for Gyroscope Axis Z;
 
 Type:
 - "0": Get Value;
