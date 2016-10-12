@@ -199,8 +199,12 @@ void IMUTask(void *pvParameters){
 		angleKalman = getKalmanAngle(anglePure, gyro[Axis_Z], dt);
 		xQueueOverwrite(xQueueAngle[2], (void * ) &angleKalman);
 		
-		//Give Semaphore to UART Transfer:
-		xSemaphoreGive(xseIMUValues);
+		//Check if TX is actived:
+		if (enableTX) {
+			//Give Semaphore to UART Transfer:
+			xSemaphoreGive(xseIMUValues);
+		}
+		
 	}
 }
 

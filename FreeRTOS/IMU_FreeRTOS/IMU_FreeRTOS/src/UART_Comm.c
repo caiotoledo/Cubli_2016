@@ -15,11 +15,14 @@
 
 uint32_t timer = (1000/portTICK_RATE_MS);
 
+Bool enableTX = false;
+
 static void vTimerTX(void *pvParameters){
 	LED_Off(LED1_GPIO);
-	vTaskSuspend(xTXHandler);
+	//vTaskSuspend(xTXHandler);
+	enableTX = false;
 	vTaskResume(xLCDHandler);
-	//printf_mux("STOP\r");
+	printf_mux("STOP\r");
 }
 
 void cTotalTimeTest(commVar val){
@@ -46,7 +49,8 @@ void cStartSample(commVar val){
 		vTaskSuspend(xLCDHandler);
 		LED_On(LED1_GPIO);
 		xTimerChangePeriod(xTimerTX, timer, portMAX_DELAY);
-		vTaskResume(xTXHandler);
+		enableTX = true;
+		//vTaskResume(xTXHandler);
 	}
 }
 
