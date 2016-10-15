@@ -2,6 +2,10 @@
 clear all;
 close all;
 
+%Define Serial Ports:
+IMU_Port = 'COM3';
+PanTilt_Port = 'COM5';
+
 %Configure constants for test:
 tTest       = 10; %segundos
 tTaskSample = 20; %ms
@@ -17,43 +21,60 @@ gyro = zeros(sample,3);
 angle = zeros(sample,3);
 encoder = zeros(sample,1);
 
-%Open Serial Port:
-s = serial('COM3','BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
-fclose(s);
-fopen(s);
-disp('Serial Port Opened');
+%Variable for PanTilt:
+Tp = 2;
+Ts = tTaskSample/1000;
+Iteration = tTest/Tp;
+[tilt_steps, angle_steps, Tempo] = SineTiltGenerate(Ts,Tp,Iteration);
 
-%Parse command strings:
+%OPEN SERIAL PORTS:
+s_IMU = serial(IMU_Port,'BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
+fclose(s_IMU);
+fopen(s_IMU);
+s_PAN = serial(PanTilt_Port,'BaudRate', 9600, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
+fclose(s_PAN);
+fopen(s_PAN);
+disp('Serial Ports Opened');
+
+%Parse command strings for IMU:
 str_tTest       = sprintf('tTotalSample;1;%.3f',tTest);
 str_tTaskSample = sprintf('tTaskSample;1;%.3f',tTaskSample);
 str_QAngle      = sprintf('kalQAngle;1;%.3f',QAngle);
 str_QBias       = sprintf('kalQBias;1;%.3f',QBias);
 str_RMeasure    = sprintf('kalRMeasure;1;%.3f',RMeasure);
 str_Alpha       = sprintf('alphaCFilter;1;%.3f',alpha);
+%Parse command strings for PAN:
+str_Tiltpos     = sprintf('TP%.0f',tilt_steps(1));
 
 %Send commands:
 disp('Sending Configuration Commands');
-fprintf(s,'%s\r',str_tTest);
-out = fscanf(s);
-fprintf(s,'%s\r',str_tTaskSample);
-out = fscanf(s);
-fprintf(s,'%s\r',str_QAngle);
-out = fscanf(s);
-fprintf(s,'%s\r',str_QBias);
-out = fscanf(s);
-fprintf(s,'%s\r',str_RMeasure);
-out = fscanf(s);
-fprintf(s,'%s\r',str_Alpha);
-out = fscanf(s);
+fprintf(s_IMU,'%s\r',str_tTest);
+fscanf(s_IMU);
+fprintf(s_IMU,'%s\r',str_tTaskSample);
+fscanf(s_IMU);
+fprintf(s_IMU,'%s\r',str_QAngle);
+fscanf(s_IMU);
+fprintf(s_IMU,'%s\r',str_QBias);
+fscanf(s_IMU);
+fprintf(s_IMU,'%s\r',str_RMeasure);
+fscanf(s_IMU);
+fprintf(s_IMU,'%s\r',str_Alpha);
+fscanf(s_IMU);
+
+%Send initial position:
+fprintf(s_PAN,'%s\r',str_Tiltpos);
+fscanf(s_PAN);
+fprintf(s_IMU,'%s\r','resetVar');
+fscanf(s_IMU);
+pause(2);   %Time to IMU initialize its variables again
 
 %Start Command:
-fprintf(s,'%s\r','goReset');
-
+fprintf(s_IMU,'%s\r','go');
 disp('IMU Read Started!');
 
-%Sample Values:
 for i = 1:sample
-    out = fscanf(s);
+    %READ IMU DATA
+    out = fscanf(s_IMU);
     strVal = strsplit(out, ';');
     
     k = 1;
@@ -79,14 +100,19 @@ for i = 1:sample
     
     k= k+1;
     encoder(i) = str2double(strVal(k));
+    
+    %UPDATE PANTILT POSITION:
+    str_Tiltpos = sprintf('TP%.0f',tilt_steps(i));
+    fprintf(s_PAN,'%s\r',str_Tiltpos);
+    fscanf(s_PAN);
 end
 
-fclose(s);
-delete(s);
+fclose(s_IMU);
+delete(s_IMU);
+fclose(s_PAN);
+delete(s_PAN);
 
-disp('IMU Read Finished');
-
-Tempo = (0:tTaskSample/1000:(tTest-tTaskSample/1000))';
+disp('Serial Finished');
 
 figure;
 plot(Tempo, angle(:,1));
@@ -95,9 +121,9 @@ plot(Tempo, angle(:,2), 'r');
 hold on;
 plot(Tempo, angle(:,3), 'k');
 hold on;
-plot(Tempo, encoder, 'm');
+plot(Tempo, angle_steps, 'm');
 hold on;
-legend('Pure Angle', 'Compl. Angle', 'Kalman Angle', 'Encoder');
+legend('Pure Angle', 'Compl. Angle', 'Kalman Angle', 'Tilt Angle');
 title('Angle');
 grid on;
 
@@ -110,13 +136,13 @@ legend('X', 'Y');
 title('Acel (mG)');
 grid on;
 
+gyro_steps = diff(angle_steps);
+gyro_steps = horzcat(gyro_steps(1),gyro_steps);
 figure;
 plot(Tempo, gyro(:,3), 'k');
 hold on;
-legend('Z');
+plot(Tempo, gyro_steps, 'b');
+hold on;
+legend('Z', 'Pantilt');
 title('Gyro (º/s)');
 grid on;
-
-X_mean = mean(acel(:,1));
-Y_mean = mean(acel(:,2));
-Zgyro_mean = mean(gyro(:,3));

@@ -27,6 +27,7 @@ void IMUTask(void *pvParameters);
 
 void intpin_handler(uint32_t id, uint32_t mask);
 
+void cResetVariables(commVar val);
 void cStartSampleReset(commVar val);
 void cTaskSample(commVar val);
 

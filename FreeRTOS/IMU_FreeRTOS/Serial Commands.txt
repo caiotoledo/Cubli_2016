@@ -2,6 +2,7 @@ Commands Syntax:
 "Command;Type;Value"
 
 Commands:
+- "resetVar": Reset all Sample Variables;
 - "go": Start the sample test;
 - "goReset": Reset all Sample Variables and start the sample test;
 - "tTotalSample": Test Time;

@@ -22,6 +22,7 @@ static uint8_t isFloat(char *str);
 */
 const str2Func functionsMap[] = {
 	{	"go",			cStartSample},
+	{	"resetVar",		cResetVariables},
 	{	"goReset",		cStartSampleReset},
 	{	"tTotalSample",	cTotalTimeTest},
 	{	"tTaskSample",	cTaskSample},

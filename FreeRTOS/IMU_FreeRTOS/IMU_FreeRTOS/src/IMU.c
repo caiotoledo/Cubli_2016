@@ -118,9 +118,7 @@ static void initializeIMUVariables(){
 	initKalman(&kalmanC);
 }
 
-void cStartSampleReset(commVar val){
-	uint32_t value = val.value;
-	
+void cResetVariables(commVar val){
 	//Stop timer Sample for IMU
 	xTimerStop(xTimerIMU, portMAX_DELAY);
 	
@@ -133,11 +131,18 @@ void cStartSampleReset(commVar val){
 	//Set Initial Angle Encoder:
 	setCounterEncoder(true, angleKalman);
 	
-	//Start Serial Task
-	cStartSample(val);
-	
 	//Start time Sample for IMU
 	xTimerStart(xTimerIMU, portMAX_DELAY);
+}
+
+void cStartSampleReset(commVar val){
+	uint32_t value = val.value;
+	
+	//Reset Variables:
+	cResetVariables(val);
+	
+	//Start Serial Task
+	cStartSample(val);
 }
 
 void IMUTask(void *pvParameters){

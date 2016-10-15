@@ -224,7 +224,7 @@ int main (void)
 		LED_On(LED2_GPIO);
 	} else {
 		//Starts Suspend (Commands by UART will control the resume):
-		vTaskSuspend(xTXHandler);
+		//vTaskSuspend(xTXHandler);
 		printf("Task TX_T Created!\n");
 	}
 	

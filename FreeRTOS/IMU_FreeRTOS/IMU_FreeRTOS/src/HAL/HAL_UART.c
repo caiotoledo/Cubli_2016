@@ -10,6 +10,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define BUFFER_SIZE	(128)
+
 #define UART_WAIT	portMAX_DELAY
 
 freertos_uart_if freertos_uart;
@@ -20,7 +22,7 @@ uint32_t sizeRecBuf = sizeof(recBuf);
 status_code_t send_uart(char * buf, size_t len){
 	status_code_t status = ERR_ABORTED;
 	
-	status = freertos_uart_write_packet(freertos_uart, buf, len, UART_WAIT);
+	status = freertos_uart_write_packet(freertos_uart, (const uint8_t *) buf, len, UART_WAIT);
 	
 	return status;
 }
@@ -29,33 +31,38 @@ uint32_t read_uart(char *buf, uint32_t len){
 	uint32_t size = 0;
 	
 	size = freertos_uart_serial_read_packet(freertos_uart,
-											buf,
+											(uint8_t *) buf,
 											len,
 											UART_WAIT);
 
 	return size;
 }
 
-void printf_mux( const char * format, ... ){
-	char buffer[128];
+status_code_t printf_mux( const char * format, ... ){
+	status_code_t status = ERR_ABORTED;
+	//char buffer[128];
+	char *buffer = (char *)pvPortMalloc( sizeof(char) * BUFFER_SIZE );
 	uint32_t n = 0;
 	va_list(args);
 	va_start(args, format);
 	n = vsprintf(buffer, format, args);
-	freertos_uart_write_packet(freertos_uart, buffer, n, UART_WAIT);
+	status = send_uart(buffer, n);
+	//status = freertos_uart_write_packet(freertos_uart, buffer, n, UART_WAIT);
 	va_end(args);
+	vPortFree(buffer);
+	return status;
 }
 
 /**
  * \brief Configure the console UART.
  */
 void configure_console(void){
-	const usart_serial_options_t uart_serial_options = {
+	/*const usart_serial_options_t uart_serial_options = {
 		.baudrate = CONF_UART_BAUDRATE,
 		.charlength = CONF_UART_CHAR_LENGTH,
 		.stopbits = CONF_UART_STOP_BITS,
 		.paritytype = CONF_UART_PARITY,
-	};
+	};*/
 	
 	freertos_peripheral_options_t driver_options = {
 		recBuf,
