@@ -15,12 +15,12 @@
 
 uint32_t timer = (1000/portTICK_RATE_MS);
 
-Bool enableTX = false;
+uint8_t enableTX = 0;
 
 static void vTimerTX(void *pvParameters){
 	LED_Off(LED1_GPIO);
 	//vTaskSuspend(xTXHandler);
-	enableTX = false;
+	enableTX = 1;
 	vTaskResume(xLCDHandler);
 	//printf_mux("STOP\r");
 }
@@ -49,7 +49,7 @@ void cStartSample(commVar val){
 		vTaskSuspend(xLCDHandler);
 		LED_On(LED1_GPIO);
 		xTimerChangePeriod(xTimerTX, timer, portMAX_DELAY);
-		enableTX = true;
+		enableTX = 2;
 		//vTaskResume(xTXHandler);
 	}
 }
@@ -70,10 +70,12 @@ void UARTTXTask (void *pvParameters){
 	status_code_t result = STATUS_OK;
 	
 	for (;;){
-		if (!enableTX) {
+		if (enableTX == 1) {
 			/*Identify that the task did stop by vTimerTX.
-			  Sends a message to notify MATLAB: */
-			printf_mux("STOP\r");
+			  Sends a message to notify MATLAB:*/
+			xSemaphoreTake(xseIMUValues, portMAX_DELAY);
+			enableTX = 0;
+			printf_mux("STOP\r\n");
 		}
 		xSemaphoreTake(xseIMUValues, portMAX_DELAY);
 		

@@ -8,7 +8,7 @@ tTaskSample = 20; %ms
 QAngle      = 0.001;
 QBias       = 0.003;
 RMeasure    = 0.03;
-alpha       = 0.98; %0.7143;
+alpha       = 0.7143; %0.98;
 
 %Initialize Variables for Sample:
 sample = (tTest*1000)/tTaskSample;
@@ -34,17 +34,17 @@ str_Alpha       = sprintf('alphaCFilter;1;%.3f',alpha);
 %Send commands:
 disp('Sending Configuration Commands');
 fprintf(s,'%s\r',str_tTest);
-out = fscanf(s);
+fscanf(s);
 fprintf(s,'%s\r',str_tTaskSample);
-out = fscanf(s);
+fscanf(s);
 fprintf(s,'%s\r',str_QAngle);
-out = fscanf(s);
+fscanf(s);
 fprintf(s,'%s\r',str_QBias);
-out = fscanf(s);
+fscanf(s);
 fprintf(s,'%s\r',str_RMeasure);
-out = fscanf(s);
+fscanf(s);
 fprintf(s,'%s\r',str_Alpha);
-out = fscanf(s);
+fscanf(s);
 
 %Start Command:
 fprintf(s,'%s\r','goReset');
@@ -52,9 +52,16 @@ fprintf(s,'%s\r','goReset');
 disp('IMU Read Started!');
 
 %Sample Values:
-for i = 1:sample
+i = 0;
+while true
     out = fscanf(s);
+    t = strcmp(out(1:4),'STOP');
+    if t == 1
+        break;
+    end
     strVal = strsplit(out, ';');
+    
+    i = i+1;
     
     k = 1;
     acel(i,1) = str2double(strVal(k));
@@ -86,37 +93,42 @@ delete(s);
 
 disp('IMU Read Finished');
 
-Tempo = (0:tTaskSample/1000:(tTest-tTaskSample/1000))';
+%Tempo = (0:tTaskSample/1000:tTest)';
+Tempo = linspace(tTaskSample/1000,tTest,i);
 
 figure;
-plot(Tempo, angle(:,1));
+plot(Tempo, angle(:,1), '-*');
 hold on;
-plot(Tempo, angle(:,2), 'r');
+plot(Tempo, angle(:,2), '-*r');
 hold on;
-plot(Tempo, angle(:,3), 'k');
+plot(Tempo, angle(:,3), '-*k');
 hold on;
-plot(Tempo, encoder, 'm');
-hold on;
-legend('Pure Angle', 'Compl. Angle', 'Kalman Angle', 'Encoder');
+legend('Pure Angle', 'Compl. Angle', 'Kalman Angle');
 title('Angle');
 grid on;
 
 figure;
-plot(Tempo, acel(:,1));
+plot(Tempo, acel(:,1), '-*');
 hold on;
-plot(Tempo, acel(:,2), 'r');
+plot(Tempo, acel(:,2), '-*r');
 hold on;
 legend('X', 'Y');
 title('Acel (mG)');
 grid on;
 
 figure;
-plot(Tempo, gyro(:,3), 'k');
+plot(Tempo, gyro(:,3), '-*k');
 hold on;
 legend('Z');
 title('Gyro (º/s)');
 grid on;
 
 X_mean = mean(acel(:,1));
+disp('X_mean:');
+disp(X_mean);
 Y_mean = mean(acel(:,2));
+disp('Y_mean:');
+disp(Y_mean);
 Zgyro_mean = mean(gyro(:,3));
+disp('Zgyro_mean:');
+disp(Zgyro_mean);

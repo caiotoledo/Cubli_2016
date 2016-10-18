@@ -2,11 +2,12 @@ clear;
 close all;
 
 %Set Sine Period
-Tp =    3;
 Ts =    0.02;
-Iteration = 4;
+Tp =    2;
+Iteration = 10;
+max_angle = 40;
 
-[tilt_steps, angle_steps, Tempo] = SineTiltGenerate(Ts,Tp,Iteration);
+[tilt_steps, angle_steps, Tempo] = SineTiltGenerate(max_angle,Ts,Tp,Iteration);
 
 figure;
 plot(Tempo, angle_steps, '-*');

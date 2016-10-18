@@ -2,8 +2,9 @@
 Tp =    3;
 Ts =    0.02;
 iteration = 5;
+max_angle = 30;
 
-[tilt_steps, angle_steps, Tempo] = SineTiltGenerate(Ts,Tp,iteration);
+[tilt_steps, angle_steps, Tempo] = SineTiltGenerate(max_angle,Ts,Tp,iteration);
 
 %Open Serial Port:
 s = serial('COM3','BaudRate', 9600, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');

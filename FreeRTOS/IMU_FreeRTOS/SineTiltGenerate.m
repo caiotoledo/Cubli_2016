@@ -1,7 +1,12 @@
-function [tilt_steps, angle_steps, Tempo] = SineTiltGenerate (Ts, Tp, iteration)
+function [tilt_steps, angle_steps, Tempo] = SineTiltGenerate (maxAngle, Ts, Tp, iteration)
 
 pos2angle =  0.05143;
-max_pos =   596;
+
+max_pos = maxAngle/pos2angle;
+
+if max_pos > 596
+    max_pos = 596;
+end
 
 len =       Tp/Ts;
 lenTotal =  iteration*len;

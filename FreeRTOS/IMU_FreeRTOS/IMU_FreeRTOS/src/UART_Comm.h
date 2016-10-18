@@ -19,7 +19,7 @@ xQueueHandle xQueueUARTGyro[NUM_AXIS];
 xTaskHandle xTXHandler;
 xTimerHandle xTimerTX;
 
-extern Bool enableTX;
+extern uint8_t enableTX;
 
 void cStartSample(commVar val);
 void cTotalTimeTest(commVar val);

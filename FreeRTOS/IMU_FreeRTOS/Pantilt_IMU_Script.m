@@ -25,7 +25,8 @@ encoder = zeros(sample,1);
 Tp = 2;
 Ts = tTaskSample/1000;
 Iteration = tTest/Tp;
-[tilt_steps, angle_steps, Tempo] = SineTiltGenerate(Ts,Tp,Iteration);
+max_angle = 30;
+[tilt_steps, angle_steps, Tempo] = SineTiltGenerate(max_angle,Ts,Tp,Iteration);
 
 %OPEN SERIAL PORTS:
 s_IMU = serial(IMU_Port,'BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
@@ -69,7 +70,7 @@ fscanf(s_IMU);
 pause(2);   %Time to IMU initialize its variables again
 
 %Start Command:
-fprintf(s_IMU,'%s\r','go');
+fprintf(s_IMU,'%s\r','goReset');
 disp('IMU Read Started!');
 
 for i = 1:sample
@@ -143,6 +144,6 @@ plot(Tempo, gyro(:,3), 'k');
 hold on;
 plot(Tempo, gyro_steps, 'b');
 hold on;
-legend('Z', 'Pantilt');
+legend('Gyro IMU', 'Pantilt');
 title('Gyro (º/s)');
 grid on;
