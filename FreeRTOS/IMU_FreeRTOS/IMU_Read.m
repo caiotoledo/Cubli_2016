@@ -1,6 +1,7 @@
 %Script IMU_FreeRTOS
 clear all;
 close all;
+delete(instrfindall);
 
 %Configure constants for test:
 tTest       = 10; %segundos

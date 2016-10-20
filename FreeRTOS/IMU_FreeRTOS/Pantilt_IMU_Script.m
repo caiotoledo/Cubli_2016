@@ -1,6 +1,7 @@
 %Script IMU_FreeRTOS
 clear all;
 close all;
+delete(instrfindall);
 
 %Define Serial Ports:
 IMU_Port = 'COM3';
@@ -26,7 +27,8 @@ Tp = 2;
 Ts = tTaskSample/1000;
 Iteration = tTest/Tp;
 max_angle = 30;
-[tilt_steps, angle_steps, Tempo] = SineTiltGenerate(max_angle,Ts,Tp,Iteration);
+resolution = 4;
+[tilt_steps, angle_steps, Tempo, tilt_index] = SineTiltGenerate(max_angle,Ts,Tp,Iteration, resolution);
 
 %OPEN SERIAL PORTS:
 s_IMU = serial(IMU_Port,'BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
@@ -73,6 +75,7 @@ pause(2);   %Time to IMU initialize its variables again
 fprintf(s_IMU,'%s\r','goReset');
 disp('IMU Read Started!');
 
+j = 1;
 for i = 1:sample
     %READ IMU DATA
     out = fscanf(s_IMU);
@@ -103,10 +106,16 @@ for i = 1:sample
     encoder(i) = str2double(strVal(k));
     
     %UPDATE PANTILT POSITION:
-    str_Tiltpos = sprintf('TP%.0f',tilt_steps(i));
-    fprintf(s_PAN,'%s\r',str_Tiltpos);
-    fscanf(s_PAN);
+    str_tiltpos = sprintf('TP%.0f',tilt_steps(i));
+    if Tempo_send(j) == Tempo(i)
+        fprintf(s_PAN,'%s\r',str_tiltpos);
+        fscanf(s_PAN);
+        j = j + 1;
+    end
 end
+
+fprintf(s_PAN,'%s\r',str_tiltpos);
+fscanf(s_PAN);
 
 fclose(s_IMU);
 delete(s_IMU);
