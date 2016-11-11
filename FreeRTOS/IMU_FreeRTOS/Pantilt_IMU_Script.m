@@ -4,8 +4,8 @@ close all;
 delete(instrfindall);
 
 %Define Serial Ports:
-IMU_Port = 'COM3';
-PanTilt_Port = 'COM5';
+IMU_Port = 'COM6';
+PanTilt_Port = 'COM4';
 
 %Configure constants for test:
 tTest       = 10; %segundos
@@ -13,7 +13,7 @@ tTaskSample = 20; %ms
 QAngle      = 0.001;
 QBias       = 0.003;
 RMeasure    = 0.03;
-alpha       = 0.98; %0.7143;
+alpha       = 0.98; %0.7143
 
 %Initialize Variables for Sample:
 sample = (tTest*1000)/tTaskSample;
@@ -24,11 +24,16 @@ encoder = zeros(sample,1);
 
 %Variable for PanTilt:
 Tp = 2;
+max_angle = 35;
+vel = (4*max_angle)/Tp; %Graus/Seg
 Ts = tTaskSample/1000;
 Iteration = tTest/Tp;
-max_angle = 30;
-resolution = 4;
+resolution = 1;
 [tilt_steps, angle_steps, Tempo, tilt_index] = SineTiltGenerate(max_angle,Ts,Tp,Iteration, resolution);
+
+tilt_send = tilt_steps(tilt_index);
+angle_send = angle_steps(tilt_index);
+Tempo_send = Tempo(tilt_index);
 
 %OPEN SERIAL PORTS:
 s_IMU = serial(IMU_Port,'BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
@@ -48,6 +53,7 @@ str_RMeasure    = sprintf('kalRMeasure;1;%.3f',RMeasure);
 str_Alpha       = sprintf('alphaCFilter;1;%.3f',alpha);
 %Parse command strings for PAN:
 str_Tiltpos     = sprintf('TP%.0f',tilt_steps(1));
+str_Tiltvel     = sprintf('TS%.0f',round(vel/0.0514));
 
 %Send commands:
 disp('Sending Configuration Commands');
@@ -65,6 +71,8 @@ fprintf(s_IMU,'%s\r',str_Alpha);
 fscanf(s_IMU);
 
 %Send initial position:
+fprintf(s_PAN,'%s\r',str_Tiltvel);
+fscanf(s_PAN);
 fprintf(s_PAN,'%s\r',str_Tiltpos);
 fscanf(s_PAN);
 fprintf(s_IMU,'%s\r','resetVar');
@@ -122,18 +130,23 @@ delete(s_IMU);
 fclose(s_PAN);
 delete(s_PAN);
 
+%%
 disp('Serial Finished');
 
+angle = vertcat(angle(1,:),angle);
+acel = vertcat(acel(1,:),acel);
+gyro = vertcat(gyro(1,:),gyro);
+
 figure;
-plot(Tempo, angle(:,1));
+% plot(Tempo, angle(:,1));
+% hold on;
+plot(Tempo, angle(:,2), '*-r');
 hold on;
-plot(Tempo, angle(:,2), 'r');
+plot(Tempo, angle(:,3), '*-k');
 hold on;
-plot(Tempo, angle(:,3), 'k');
+plot(Tempo, angle_steps, '*-m');
 hold on;
-plot(Tempo, angle_steps, 'm');
-hold on;
-legend('Pure Angle', 'Compl. Angle', 'Kalman Angle', 'Tilt Angle');
+legend('Compl. Angle', 'Kalman Angle', 'Tilt Angle');
 title('Angle');
 grid on;
 

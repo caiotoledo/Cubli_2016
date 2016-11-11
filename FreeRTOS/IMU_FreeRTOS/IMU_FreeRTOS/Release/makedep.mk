@@ -2,6 +2,18 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+src\Commands.c
+
+src\Filter\ComplementaryFilter.c
+
+src\Filter\KalmanFilter.c
+
+src\HAL\HAL_Encoder.c
+
+src\HAL\HAL_IMU.c
+
+src\HAL\HAL_UART.c
+
 src\LCD.c
 
 src\UART_Comm.c

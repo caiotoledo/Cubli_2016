@@ -19,10 +19,8 @@ uint8_t enableTX = 0;
 
 static void vTimerTX(void *pvParameters){
 	LED_Off(LED1_GPIO);
-	//vTaskSuspend(xTXHandler);
 	enableTX = 1;
 	vTaskResume(xLCDHandler);
-	//printf_mux("STOP\r");
 }
 
 void cTotalTimeTest(commVar val){
@@ -50,7 +48,6 @@ void cStartSample(commVar val){
 		LED_On(LED1_GPIO);
 		xTimerChangePeriod(xTimerTX, timer, portMAX_DELAY);
 		enableTX = 2;
-		//vTaskResume(xTXHandler);
 	}
 }
 
@@ -63,7 +60,7 @@ void UARTTXTask (void *pvParameters){
 	double uart_acel[3];
 	double uart_angle[3];
 	double uart_gyro[3];
-	//char uartBuf[100] = {0};
+	char uartBuf[100] = {0};
 	uint8_t i = 0;
 	signed portBASE_TYPE statusQueue;
 	
@@ -97,12 +94,6 @@ void UARTTXTask (void *pvParameters){
 			if (statusQueue != pdPASS) LED_Toggle(LED2_GPIO);
 		}
 		
-		/*sprintf(uartBuf, "%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;\r\n", 
-				uart_acel[0], uart_acel[1], uart_acel[2],
-				uart_gyro[0], uart_gyro[1], uart_gyro[2],
-				uart_angle[0], uart_angle[1], uart_angle[2],
-				getAngleEncoder(true));
-		result = send_uart(uartBuf, strlen((char *)uartBuf));*/
 		result = printf_mux("%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;\r\n",
 							uart_acel[0], uart_acel[1], uart_acel[2],
 							uart_gyro[0], uart_gyro[1], uart_gyro[2],
@@ -130,7 +121,6 @@ void UARTRXTask(void *pvParameters){
 		if (size == sizeof(receive)){
 			//Enter is the end of message:
 			if (receive == 13){
-				//checkMessage(buf_msg);
 				receiveCMD(buf_msg);
 				memset(buf_msg, 0, sizeof(buf_msg));
 				countChar = 0;

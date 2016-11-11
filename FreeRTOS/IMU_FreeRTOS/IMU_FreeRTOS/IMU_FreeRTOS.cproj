@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectVersion>6.2</ProjectVersion>
+    <ProjectVersion>7.0</ProjectVersion>
     <ToolchainName>com.Atmel.ARMGCC.C</ToolchainName>
     <ProjectGuid>{2b9fcd37-7791-42ac-bd54-315652556b79}</ProjectGuid>
     <avrdevice>ATSAM3N4C</avrdevice>
@@ -264,7 +264,7 @@
     <com_atmel_avrdbg_tool_samice>
       <ToolOptions>
         <InterfaceProperties>
-          <JtagDbgClock>0</JtagDbgClock>
+          <JtagDbgClock>4000000</JtagDbgClock>
           <JtagEnableExtResetOnStartSession>true</JtagEnableExtResetOnStartSession>
           <JtagInChain>false</JtagInChain>
           <JtagDevicesBefore>0</JtagDevicesBefore>
@@ -337,6 +337,9 @@
       <ApplicationOutput30>String</ApplicationOutput30>
       <ApplicationOutput31>String</ApplicationOutput31>
     </PercepioTrace>
+    <avrtoolserialnumber>28010143</avrtoolserialnumber>
+    <avrdeviceexpectedsignature>0x29540960</avrdeviceexpectedsignature>
+    <avrtoolinterfaceclock>4000000</avrtoolinterfaceclock>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -694,6 +697,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\HAL\HAL_IMU.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\utils.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\utils.h">
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\HAL\HAL_IMU_MPU6050.c">

@@ -10,7 +10,7 @@ end
 
 len =       Tp/Ts;
 pi_steps = -pi*iteration:2*pi/len:pi*iteration;
-seno =      sin(pi_steps);
+seno =      cos(pi_steps);
 
 tilt_steps = round(max_pos*seno);
 angle_steps = tilt_steps*pos2angle;

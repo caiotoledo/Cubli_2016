@@ -2,12 +2,12 @@ clear;
 close all;
 
 %Set Sine Period
-Tp =    1;
+Tp =    2;
 Ts =    0.02;
 Iteration = 5;
-max_angle = 10;
+max_angle = 5;
 
-resolution = 4;
+resolution = 1;
 
 [tilt_steps, angle_steps, Tempo, tilt_index] = SineTiltGenerate(max_angle,Ts,Tp,Iteration,resolution);
 

@@ -29,10 +29,12 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 #include <asf.h>
+#include <string.h>
 #include "HAL/HAL_UART.h"
 #include "UART_Comm.h"
 #include "IMU.h"
 #include "LCD.h"
+#include "utils.h"
 #include "HAL/HAL_Encoder.h"
 
 #define TASK_MONITOR
@@ -179,6 +181,10 @@ int main (void)
 
 	/* Initialize the console uart */
 	configure_console();
+	printf("IMU_FreeRTOS\n");
+	char buildVer[50] = { 0 };
+	formatVersion(buildVer);
+	printf("Version: %s\n", buildVer);
 	printf("Console OK!\n");
 	
 	config_interrupt();

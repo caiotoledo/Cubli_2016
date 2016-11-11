@@ -96,7 +96,7 @@ double getPureAngle(double *acel){
 	double angle = 0.0;
 	
 	//angle = sin(-acel[Axis_X]/acel[Axis_Y]) * (180.0/M_PI);
-	angle = sin(acel[Axis_Y]/acel[Axis_X]) * (180.0/M_PI);
+	angle = (sin( acel[Axis_Y]/ acel[Axis_X] ) * (180.0/M_PI));
 	//angle = sin(-acel[Axis_X]/acel[Axis_Y]);
 	
 	return angle;

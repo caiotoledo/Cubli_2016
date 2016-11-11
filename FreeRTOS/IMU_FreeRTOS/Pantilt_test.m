@@ -16,7 +16,7 @@ angle_send = angle_steps(tilt_index);
 Tempo_send = Tempo(tilt_index);
 
 %Open Serial Port:
-s = serial('COM3','BaudRate', 9600, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
+s = serial('COM5','BaudRate', 9600, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
 fclose(s);
 fopen(s);
 

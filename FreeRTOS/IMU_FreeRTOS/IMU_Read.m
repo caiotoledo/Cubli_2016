@@ -19,7 +19,7 @@ angle = zeros(sample,3);
 encoder = zeros(sample,1);
 
 %Open Serial Port:
-s = serial('COM3','BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
+s = serial('COM6','BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
 fclose(s);
 fopen(s);
 disp('Serial Port Opened');

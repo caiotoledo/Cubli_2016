@@ -12,6 +12,8 @@ src\HAL\HAL_Encoder.c
 
 src\HAL\HAL_IMU.c
 
+src\utils.c
+
 src\HAL\HAL_UART.c
 
 src\LCD.c
