@@ -25,7 +25,7 @@ double getAlpha(void){
 	return alpha;
 }
 
-double initComplFilter(ADXL_Addr_Dev dev){
+double initComplFilter(IMU_Addr_Dev dev){
 	double acelInit[3];
 	getAllAcelValue(dev, acelInit);
 	return getPureAngle(acelInit);

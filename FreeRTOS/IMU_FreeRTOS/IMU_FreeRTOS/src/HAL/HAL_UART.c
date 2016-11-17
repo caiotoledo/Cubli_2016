@@ -10,7 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define BUFFER_SIZE	(128)
+#define BUFFER_SIZE	(1028)
 
 #define UART_WAIT	portMAX_DELAY
 

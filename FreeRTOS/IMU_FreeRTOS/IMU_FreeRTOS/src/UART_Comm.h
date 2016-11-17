@@ -10,7 +10,7 @@
 #define UART_COMM_H_
 
 #include <asf.h>
-#include "HAL/HAL_IMU.h"
+#include "HAL/HAL_IMU_MPU6050.h"
 #include "Commands.h"
 
 xQueueHandle xQueueUARTAcel[NUM_AXIS];

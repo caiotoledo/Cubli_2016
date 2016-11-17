@@ -8,6 +8,7 @@ Ts =    0.02;
 waveIteration = 5;
 tilt_res = 4;
 max_angle = 30;
+vel = (4*max_angle)/Tp; %Graus/Seg
 
 [tilt_steps, angle_steps, Tempo, tilt_index] = SineTiltGenerate(max_angle,Ts,Tp,waveIteration,4);
 
@@ -22,9 +23,12 @@ fopen(s);
 
 %Send initial position:
 disp('Set Initial Tilt Position');
+str_Tiltvel = sprintf('TS%.0f',round(vel/0.0514));
+fprintf(s_PAN,'%s\r',str_Tiltvel);
+fscanf(s_PAN);
 str_tiltpos = sprintf('TP%.0f',tilt_steps(1));
 fprintf(s,'%s\r',str_tiltpos);
-out = fscanf(s);
+fscanf(s);
 pause(1);
 
 disp('Sending Tilt Positions');

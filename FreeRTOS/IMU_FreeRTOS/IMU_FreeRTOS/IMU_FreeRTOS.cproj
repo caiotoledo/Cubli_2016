@@ -271,8 +271,7 @@
           <JtagDevicesAfter>0</JtagDevicesAfter>
           <JtagInstrBitsBefore>0</JtagInstrBitsBefore>
           <JtagInstrBitsAfter>0</JtagInstrBitsAfter>
-          <JtagSelectedDeviceIndexInChain>
-          </JtagSelectedDeviceIndexInChain>
+          <JtagSelectedDeviceIndexInChain>0</JtagSelectedDeviceIndexInChain>
           <JtagDaisyChainDevices>
           </JtagDaisyChainDevices>
         </InterfaceProperties>
@@ -693,24 +692,24 @@
     <Compile Include="src\HAL\HAL_Encoder.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\HAL\HAL_IMU.c">
+    <None Include="src\HAL\HAL_IMU.c">
       <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\HAL\HAL_IMU.h">
+    </None>
+    <None Include="src\HAL\HAL_IMU.h">
       <SubType>compile</SubType>
-    </Compile>
+    </None>
     <Compile Include="src\utils.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\utils.h">
       <SubType>compile</SubType>
     </Compile>
-    <None Include="src\HAL\HAL_IMU_MPU6050.c">
+    <Compile Include="src\HAL\HAL_IMU_MPU6050.c">
       <SubType>compile</SubType>
-    </None>
-    <None Include="src\HAL\HAL_IMU_MPU6050.h">
+    </Compile>
+    <Compile Include="src\HAL\HAL_IMU_MPU6050.h">
       <SubType>compile</SubType>
-    </None>
+    </Compile>
     <Compile Include="src\HAL\HAL_UART.c">
       <SubType>compile</SubType>
     </Compile>

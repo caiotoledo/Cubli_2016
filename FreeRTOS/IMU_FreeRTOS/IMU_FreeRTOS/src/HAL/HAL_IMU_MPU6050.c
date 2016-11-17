@@ -14,15 +14,15 @@
 #define TWI_SPEED		400000	//400KHz Fast-Speed
 #define TWI_BLOCK_TIME	(portMAX_DELAY)
 
-#define ACEL_OFFSET_X		(465.0)//(350.0)
-#define ACEL_OFFSET_Y		(1156.0)//(1050.0)
-#define ACEL_OFFSET_Z		(0.0)
+#define ACEL_OFFSET_X		(-37.0)
+#define ACEL_OFFSET_Y		(0.0)
+#define ACEL_OFFSET_Z		(-26.0)
 
-#define GYRO_OFFSET_X		(0.18)//(5.0)
+#define GYRO_OFFSET_X		(0.0)
 #define GYRO_OFFSET_Y		(0.0)
-#define GYRO_OFFSET_Z		(0.0)
+#define GYRO_OFFSET_Z		(1.0)
 
-#define CONST_ACCEL		(16384)
+#define CONST_ACCEL		(16.384)
 #define CONST_GYRO		(131)
 
 static uint8_t twi_init(void);
@@ -72,9 +72,12 @@ float getOffsetGyro(Axis_Op ax){
 
 double getPureAngle(double *acel){
 	double angle = 0.0;
+		
+	angle = acos( (acel[Axis_X]) / sqrt(acel[Axis_Y]*acel[Axis_Y] + acel[Axis_Z]*acel[Axis_Z] + acel[Axis_X]*acel[Axis_X] ) ) * (180.0/M_PI);
 	
-	angle = sin(-acel[Axis_X]/acel[Axis_Y]) * (180.0/M_PI);
-	//angle = sin(-acel[Axis_X]/acel[Axis_Y]);
+	if (acel[Axis_Y] < 0){
+		angle = - angle;
+	}
 	
 	return angle;
 }
@@ -210,6 +213,11 @@ status_code_t configIMU(void){
 		return -1;
 	}
 	
+	status = (status_code_t) twi_probe(TWI0, IMU_Low);
+	if (status != TWI_SUCCESS) {
+		return status;
+	}
+	
 	status = imu_init(IMU_Low);
 	if (status != STATUS_OK){
 		printf_mux("MPU6050 Init Error!");
@@ -288,7 +296,8 @@ static uint8_t imu_init(IMU_Addr_Dev IMU_Dev){
 	*		PLL with Z axis gyroscope reference
 	*		Enable IMU
 	*/
-	result = imu_write(IMU_Dev, 0x0B, IMU_PWR_MGMT_1);
+	//result = imu_write(IMU_Dev, 0x0B, IMU_PWR_MGMT_1);
+	result = imu_write(IMU_Dev, 0, IMU_PWR_MGMT_1);
 	if (result != STATUS_OK) return result;
 }
 

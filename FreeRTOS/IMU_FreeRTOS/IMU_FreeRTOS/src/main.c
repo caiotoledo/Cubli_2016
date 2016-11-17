@@ -229,8 +229,6 @@ int main (void)
 		printf("Failed to create test TX_Task\r\n");
 		LED_On(LED2_GPIO);
 	} else {
-		//Starts Suspend (Commands by UART will control the resume):
-		//vTaskSuspend(xTXHandler);
 		printf("Task TX_T Created!\n");
 	}
 	

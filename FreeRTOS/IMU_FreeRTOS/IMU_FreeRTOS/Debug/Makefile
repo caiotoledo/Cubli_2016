@@ -115,8 +115,8 @@ C_SRCS +=  \
 ../src/Filter/ComplementaryFilter.c \
 ../src/Filter/KalmanFilter.c \
 ../src/HAL/HAL_Encoder.c \
-../src/HAL/HAL_IMU.c \
 ../src/utils.c \
+../src/HAL/HAL_IMU_MPU6050.c \
 ../src/HAL/HAL_UART.c \
 ../src/LCD.c \
 ../src/UART_Comm.c \
@@ -168,8 +168,8 @@ src/Commands.o \
 src/Filter/ComplementaryFilter.o \
 src/Filter/KalmanFilter.o \
 src/HAL/HAL_Encoder.o \
-src/HAL/HAL_IMU.o \
 src/utils.o \
+src/HAL/HAL_IMU_MPU6050.o \
 src/HAL/HAL_UART.o \
 src/LCD.o \
 src/UART_Comm.o \
@@ -214,8 +214,8 @@ src/Commands.o \
 src/Filter/ComplementaryFilter.o \
 src/Filter/KalmanFilter.o \
 src/HAL/HAL_Encoder.o \
-src/HAL/HAL_IMU.o \
 src/utils.o \
+src/HAL/HAL_IMU_MPU6050.o \
 src/HAL/HAL_UART.o \
 src/LCD.o \
 src/UART_Comm.o \
@@ -260,8 +260,8 @@ src/Commands.d \
 src/Filter/ComplementaryFilter.d \
 src/Filter/KalmanFilter.d \
 src/HAL/HAL_Encoder.d \
-src/HAL/HAL_IMU.d \
 src/utils.d \
+src/HAL/HAL_IMU_MPU6050.d \
 src/HAL/HAL_UART.d \
 src/LCD.d \
 src/UART_Comm.d \
@@ -306,8 +306,8 @@ src/Commands.d \
 src/Filter/ComplementaryFilter.d \
 src/Filter/KalmanFilter.d \
 src/HAL/HAL_Encoder.d \
-src/HAL/HAL_IMU.d \
 src/utils.d \
+src/HAL/HAL_IMU_MPU6050.d \
 src/HAL/HAL_UART.d \
 src/LCD.d \
 src/UART_Comm.d \

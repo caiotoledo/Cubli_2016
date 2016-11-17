@@ -33,7 +33,7 @@ xSemaphoreHandle xSemIMUInt;
 xTimerHandle xTimerIMU;
 
 //uint8_t configBWRate = BWrate6_25Hz;
-uint8_t configBWRate = BWrate100Hz;
+//uint8_t configBWRate = BWrate100Hz;
 uint32_t lastTickCounter = 0;
 double dt = (((double)TWI_TASK_DELAY)/ ((double)configTICK_RATE_HZ));
 
@@ -104,7 +104,7 @@ static void initializeIMUVariables(){
 	memset(acel, 0, sizeof(acel));
 	memset(gyro, 0, sizeof(gyro));
 	anglePure = 0;
-	angleComplFilter = initComplFilter(ADXL_Low);
+	angleComplFilter = initComplFilter(IMU_Low);
 	angleKalman = angleComplFilter;
 	
 	//Init Kalman Constants:
@@ -166,6 +166,10 @@ void IMUTask(void *pvParameters){
 	xTimerStart(xTimerIMU, 0);
 #endif
 	
+	/*
+	*	PA3 - Data
+	*	PA4 - Clock
+	*/
 	status = configIMU();
 	lastTickCounter = g_tickCounter;
 	if (status != STATUS_OK){
@@ -186,13 +190,13 @@ void IMUTask(void *pvParameters){
 		xSemaphoreTake(xSemIMUInt, portMAX_DELAY);
 		
 		memset(acel, 0, sizeof(acel));
-		getAllAcelValue(ADXL_Low, acel);
+		getAllAcelValue(IMU_Low, acel);
 		for (i = 0; i < NUM_AXIS; i++){
 			xQueueOverwrite(xQueueAcel[i], (void * ) &acel[i]);
 		}
 		
 		memset(gyro, 0, sizeof(gyro));
-		getAllGyroValue(ITG_Low, gyro);
+		getAllGyroValue(IMU_Low, gyro);
 		for (i = 0; i < NUM_AXIS; i++){
 			xQueueOverwrite(xQueueGyro[i], (void * ) &gyro[i]);
 		}

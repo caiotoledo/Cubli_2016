@@ -8,7 +8,7 @@ tTest       = 10; %segundos
 tTaskSample = 20; %ms
 QAngle      = 0.001;
 QBias       = 0.003;
-RMeasure    = 0.03;
+RMeasure    = 0.001;
 alpha       = 0.7143; %0.98;
 
 %Initialize Variables for Sample:
@@ -19,7 +19,7 @@ angle = zeros(sample,3);
 encoder = zeros(sample,1);
 
 %Open Serial Port:
-s = serial('COM6','BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
+s = serial('COM3','BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
 fclose(s);
 fopen(s);
 disp('Serial Port Opened');
@@ -113,7 +113,9 @@ plot(Tempo, acel(:,1), '-*');
 hold on;
 plot(Tempo, acel(:,2), '-*r');
 hold on;
-legend('X', 'Y');
+plot(Tempo, acel(:,3), '-*k');
+hold on;
+legend('X', 'Y', 'Z');
 title('Acel (mG)');
 grid on;
 
@@ -130,6 +132,13 @@ disp(X_mean);
 Y_mean = mean(acel(:,2));
 disp('Y_mean:');
 disp(Y_mean);
+Z_mean = mean(acel(:,3));
+disp('Z_mean:');
+disp(Z_mean);
+finalVetor = sqrt(X_mean^2 + Y_mean^2 + Z_mean^2);
+disp('Result Vector:');
+disp(finalVetor);
+
 Zgyro_mean = mean(gyro(:,3));
 disp('Zgyro_mean:');
 disp(Zgyro_mean);

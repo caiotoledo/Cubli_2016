@@ -155,7 +155,7 @@ src/main.d src/main.o: ../src/main.c ../src/asf.h \
  ../src/ASF/sam/drivers/pio/pio_handler.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-none-eabi\include\string.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-none-eabi\include\sys\string.h \
- ../src/HAL/HAL_UART.h ../src/UART_Comm.h ../src/HAL/HAL_IMU.h \
+ ../src/HAL/HAL_UART.h ../src/UART_Comm.h ../src/HAL/HAL_IMU_MPU6050.h \
  ../src/Commands.h ../src/IMU.h ../src/LCD.h ../src/utils.h \
  ../src/HAL/HAL_Encoder.h
 
@@ -487,7 +487,7 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-no
 
 ../src/UART_Comm.h:
 
-../src/HAL/HAL_IMU.h:
+../src/HAL/HAL_IMU_MPU6050.h:
 
 ../src/Commands.h:
 

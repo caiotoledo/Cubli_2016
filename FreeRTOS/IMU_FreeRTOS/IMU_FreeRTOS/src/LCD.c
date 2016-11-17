@@ -5,7 +5,7 @@
  *  Author: Caio
  */ 
 #include "LCD.h"
-#include "HAL/HAL_IMU.h"
+#include "HAL/HAL_IMU_MPU6050.h"
 #include "IMU.h"
 #include <string.h>
 

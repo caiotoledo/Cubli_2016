@@ -10,9 +10,9 @@ src\Filter\KalmanFilter.c
 
 src\HAL\HAL_Encoder.c
 
-src\HAL\HAL_IMU.c
-
 src\utils.c
+
+src\HAL\HAL_IMU_MPU6050.c
 
 src\HAL\HAL_UART.c
 

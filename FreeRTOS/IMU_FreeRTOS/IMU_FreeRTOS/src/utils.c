@@ -11,58 +11,16 @@
 
 #define MAJOR_VERSION					0
 #define MINOR_VERSION					0
-#define RELEASE_VERSION					1
+#define RELEASE_VERSION					2
 
-const char mon2num[][20] = {
-	"Jan",
-	"Fev",
-	"Mar",
-	"Abr",
-	"Mai",
-	"Jun",
-	"Jul",
-	"Ago",
-	"Set",
-	"Out",
-	"Nov",
-	"Dez",
-	" "
-};
-
-static uint32_t month2num(char * month){
-	
-	uint32_t i = 0;
-	for (i = 0; strcmp(mon2num[i], " "); i++){
-		if (strcmp(mon2num[i], month) == 0){
-			return (i+1);
-		}
-	}
-	return i;
-}
+#define __YEAR__ ((((__DATE__ [7] - '0') * 10 + (__DATE__ [8] - '0')) * 10 + (__DATE__ [9] - '0')) * 10 + (__DATE__ [10] - '0'))
+#define __MONTH__ ( __DATE__ [2] == 'n' ? (__DATE__ [1] == 'a' ? 1 : 6) : __DATE__ [2] == 'b' ? 2 : __DATE__ [2] == 'r' ? (__DATE__ [0] == 'M' ? 3 : 4) : __DATE__ [2] == 'y' ? 5 : __DATE__ [2] == 'l' ? 7 : __DATE__ [2] == 'g' ? 8 : __DATE__ [2] == 'p' ? 9 : __DATE__ [2] == 't' ? 10 : __DATE__ [2] == 'v' ? 11 : 12)
+#define __DAY__ ((__DATE__ [4] == ' ' ? 0 : __DATE__ [4] - '0') * 10 + (__DATE__ [5] - '0'))
+#define __HOUR__ ((__TIME__ [0] - '0') * 10 + (__TIME__ [1] - '0'))
+#define __MINUTE__ ((__TIME__ [3] - '0') * 10 + (__TIME__ [4] - '0'))
+#define __INT_TIMESTAMP__ ( (__YEAR__ - 2000) * 100000000 + __MONTH__ * 1000000 + __DAY__ * 10000 + __HOUR__ * 100 + __MINUTE__)
 
 /* Show the current Version */
 void formatVersion(char *buildVersion){
-	
-	const char *dateNum = __DATE__;
-	const char *timeNum = __TIME__;
-	
-	uint16_t seconds, minutes, hours, month, day, year;
-	
-	char buf[10] = { 0 };
-	
-	strncpy(buf, timeNum, 2);
-	hours = atoi(buf);
-	strncpy(buf, &timeNum[3], 2);
-	minutes = atoi(buf);
-	strncpy(buf, &timeNum[6], 4);
-	seconds = atoi(buf);
-	
-	strncpy(buf, dateNum, 3);
-	month = month2num(buf);
-	strncpy(buf, &dateNum[4], 2);
-	day = atoi(buf);
-	strncpy(buf, &dateNum[7], 4);
-	year = atoi(buf)-2000;
-	
-	sprintf(buildVersion, "%u.%u.%u.%02u%02u%02u%02u%02u%02u", MAJOR_VERSION, MINOR_VERSION, RELEASE_VERSION, year, month, day, hours, minutes, seconds);
+	sprintf(buildVersion, "%u.%u.%u.%d", MAJOR_VERSION, MINOR_VERSION, RELEASE_VERSION, __INT_TIMESTAMP__);
 }

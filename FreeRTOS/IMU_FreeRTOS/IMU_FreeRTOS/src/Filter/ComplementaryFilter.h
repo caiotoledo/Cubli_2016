@@ -9,11 +9,11 @@
 #ifndef COMPLEMENTARYFILTER_H_
 #define COMPLEMENTARYFILTER_H_
 
-#include "HAL/HAL_IMU.h"
+#include "HAL/HAL_IMU_MPU6050.h"
 
 Bool setAlpha(double val);
 double getAlpha(void);
-double initComplFilter(ADXL_Addr_Dev dev);
+double initComplFilter(IMU_Addr_Dev dev);
 void getComplFilterAngle(double *angle, double *acel, double *gyro, double dt);
 
 #endif /* COMPLEMENTARYFILTER_H_ */
