@@ -10,22 +10,22 @@ tilt_res = 4;
 max_angle = 30;
 vel = (4*max_angle)/Tp; %Graus/Seg
 
-[tilt_steps, angle_steps, Tempo, tilt_index] = SineTiltGenerate(max_angle,Ts,Tp,waveIteration,4);
+[tilt_steps, angle_steps, Tempo, tilt_index] = SineTiltGenerate(max_angle,Ts,Tp,waveIteration,1);
 
 tilt_send = tilt_steps(tilt_index);
 angle_send = angle_steps(tilt_index);
 Tempo_send = Tempo(tilt_index);
 
 %Open Serial Port:
-s = serial('COM5','BaudRate', 9600, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
+s = serial('COM6','BaudRate', 9600, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
 fclose(s);
 fopen(s);
 
 %Send initial position:
 disp('Set Initial Tilt Position');
 str_Tiltvel = sprintf('TS%.0f',round(vel/0.0514));
-fprintf(s_PAN,'%s\r',str_Tiltvel);
-fscanf(s_PAN);
+fprintf(s,'%s\r',str_Tiltvel);
+fscanf(s);
 str_tiltpos = sprintf('TP%.0f',tilt_steps(1));
 fprintf(s,'%s\r',str_tiltpos);
 fscanf(s);

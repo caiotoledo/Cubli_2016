@@ -14,13 +14,13 @@
 #define TWI_SPEED		400000	//400KHz Fast-Speed
 #define TWI_BLOCK_TIME	(portMAX_DELAY)
 
-#define ACEL_OFFSET_X		(-37.0)
-#define ACEL_OFFSET_Y		(0.0)
-#define ACEL_OFFSET_Z		(-26.0)
+#define ACEL_OFFSET_X		(-57.4)//(-37.0)
+#define ACEL_OFFSET_Y		(7.0)
+#define ACEL_OFFSET_Z		(-5.0)//(-26.0)
 
 #define GYRO_OFFSET_X		(0.0)
 #define GYRO_OFFSET_Y		(0.0)
-#define GYRO_OFFSET_Z		(1.0)
+#define GYRO_OFFSET_Z		(1.25)//(1.0)
 
 #define CONST_ACCEL		(16.384)
 #define CONST_GYRO		(131)
@@ -73,11 +73,13 @@ float getOffsetGyro(Axis_Op ax){
 double getPureAngle(double *acel){
 	double angle = 0.0;
 		
-	angle = acos( (acel[Axis_X]) / sqrt(acel[Axis_Y]*acel[Axis_Y] + acel[Axis_Z]*acel[Axis_Z] + acel[Axis_X]*acel[Axis_X] ) ) * (180.0/M_PI);
+	/*angle = acos( (acel[Axis_X]) / sqrt(acel[Axis_Y]*acel[Axis_Y] + acel[Axis_Z]*acel[Axis_Z] + acel[Axis_X]*acel[Axis_X] ) ) * (180.0/M_PI);
 	
 	if (acel[Axis_Y] < 0){
 		angle = - angle;
-	}
+	}*/
+	
+	angle = (sin( acel[Axis_Y]/ acel[Axis_X] ) * (180.0/M_PI));
 	
 	return angle;
 }
@@ -206,22 +208,36 @@ float get_acel_value(Axis_Op axis, IMU_Addr_Dev dev){
 }
 
 status_code_t configIMU(void){
-	status_code_t status;
+	status_code_t status = ERR_IO_ERROR;
+	uint32_t probeState = TWI_NO_CHIP_FOUND;
 	
 	if (twi_init() != TWI_SUCCESS){
 		printf_mux("TWI Init Error!");
-		return -1;
+		return ERR_IO_ERROR;
 	}
 	
-	status = (status_code_t) twi_probe(TWI0, IMU_Low);
-	if (status != TWI_SUCCESS) {
-		return status;
+	probeState = twi_probe(TWI0, IMU_Low);
+	if (probeState == TWI_SUCCESS) {
+		
+		status = imu_init(IMU_Low);
+		if (status != STATUS_OK){
+			printf_mux("MPU6050 Low Init Error!");
+		}
+		
+	} else {
+		printf_mux("IMU Low not Found!");
 	}
 	
-	status = imu_init(IMU_Low);
-	if (status != STATUS_OK){
-		printf_mux("MPU6050 Init Error!");
-		return status;
+	probeState = twi_probe(TWI0, IMU_High);
+	if (probeState == TWI_SUCCESS) {
+		
+		status = imu_init(IMU_High);
+		if (status != STATUS_OK){
+			printf_mux("MPU6050 High Init Error!");
+		}
+		
+	} else {
+		printf_mux("IMU High not Found!");
 	}
 	
 	return status;
@@ -247,7 +263,7 @@ static uint8_t twi_init(void){
 }
 
 static uint8_t imu_init(IMU_Addr_Dev IMU_Dev){
-	status_code_t result;	
+	status_code_t result = STATUS_OK;	
 	
 	/*
 	*	Define Sample Rate:
@@ -299,6 +315,8 @@ static uint8_t imu_init(IMU_Addr_Dev IMU_Dev){
 	//result = imu_write(IMU_Dev, 0x0B, IMU_PWR_MGMT_1);
 	result = imu_write(IMU_Dev, 0, IMU_PWR_MGMT_1);
 	if (result != STATUS_OK) return result;
+	
+	return result;
 }
 
 static status_code_t imu_write(IMU_Addr_Dev imu_addr, uint8_t value, IMU_Addr_Reg imu_reg){

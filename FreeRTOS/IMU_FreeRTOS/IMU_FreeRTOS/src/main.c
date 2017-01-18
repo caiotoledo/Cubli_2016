@@ -60,6 +60,9 @@ extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 extern void vApplicationIdleHook(void);
 extern void vApplicationTickHook(void);
 
+void config_interrupt(void);
+void button_handler(uint32_t id, uint32_t mask);
+
 xSemaphoreHandle xseMonitor;
 
 /**
@@ -68,7 +71,7 @@ xSemaphoreHandle xseMonitor;
 extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 		signed char *pcTaskName)
 {
-	printf("stack overflow %x %s\r\n", pxTask, (portCHAR *)pcTaskName);
+	printf("stack overflow %x %s\r\n", (unsigned int) pxTask, (portCHAR *)pcTaskName);
 	/* If the parameters have been corrupted then inspect pxCurrentTCB to
 	 * identify which task has overflowed its stack.
 	 */
@@ -128,7 +131,7 @@ static void task_monitor(void *pvParameters)
 		vTaskList((signed portCHAR *)szList);
 		printf_mux(szList);
 		freeHeap = (uint32_t)xPortGetFreeHeapSize();
-		printf_mux("Free Heap: %u\n", freeHeap);
+		printf_mux("Free Heap: %lu\n", freeHeap);
 	}
 }
 
@@ -145,7 +148,7 @@ void button_handler(uint32_t id, uint32_t mask){
 	xSemaphoreGiveFromISR(xseMonitor, NULL);
 }
 
-void config_interrupt(){
+void config_interrupt(void){
 	//The GPIO was already configured by board_init().
 	pio_handler_set(PIOA, ID_PIOA, PIN_PUSHBUTTON_1_MASK, PIO_IT_FALL_EDGE, button_handler);
 	pio_enable_interrupt(PIOA, PIN_PUSHBUTTON_1_MASK);
@@ -181,17 +184,16 @@ int main (void)
 
 	/* Initialize the console uart */
 	configure_console();
-	printf("IMU_FreeRTOS\n");
+	printf("%s\n", PROJECT_NAME);
 	char buildVer[50] = { 0 };
 	formatVersion(buildVer);
 	printf("Version: %s\n", buildVer);
-	printf("Console OK!\n");
 	
 	config_interrupt();
 	
 #ifdef TASK_MONITOR
 	/* Create task to monitor processor activity */
-	if (xTaskCreate(task_monitor, "Monitor", TASK_MONITOR_STACK_SIZE, NULL,
+	if (xTaskCreate(task_monitor, (const signed char *) "Monitor", TASK_MONITOR_STACK_SIZE, NULL,
 	TASK_MONITOR_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create Monitor task\r\n");
 		LED_On(LED2_GPIO);
@@ -200,7 +202,7 @@ int main (void)
 	}
 #endif
 	
-	if (xTaskCreate(task_led0, "Led0", TASK_LED_STACK_SIZE, NULL,
+	if (xTaskCreate(task_led0, (const signed char *) "Led0", TASK_LED_STACK_SIZE, NULL,
 	TASK_LED_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test led task\r\n");
 		LED_On(LED2_GPIO);
@@ -208,7 +210,7 @@ int main (void)
 		printf("Task Led0 Created!\n");
 	}
 	
-	if (xTaskCreate(IMUTask, "IMU_T", TASK_IMU_STACK_SIZE, NULL,
+	if (xTaskCreate(IMUTask, (const signed char *) "IMU_T", TASK_IMU_STACK_SIZE, NULL,
 	TASK_IMU_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test IMUTask\r\n");
 		LED_On(LED2_GPIO);
@@ -216,7 +218,7 @@ int main (void)
 		printf("Task IMU_T Created!\n");
 	}
 
-	if (xTaskCreate(LCDTask, "LCD_T", TASK_LCD_STACK_SIZE, NULL,
+	if (xTaskCreate(LCDTask, (const signed char *) "LCD_T", TASK_LCD_STACK_SIZE, NULL,
 	TASK_LCD_STACK_PRIORITY, &xLCDHandler) != pdPASS) {
 		printf("Failed to create test LCDTask\r\n");
 		LED_On(LED2_GPIO);
@@ -224,7 +226,7 @@ int main (void)
 		printf("Task LCD_T Created!\n");
 	}
 	
-	if (xTaskCreate(UARTTXTask, "TX_T", TASK_UART_STACK_SIZE, NULL,
+	if (xTaskCreate(UARTTXTask, (const signed char *) "TX_T", TASK_UART_STACK_SIZE, NULL,
 	TASK_UART_STACK_PRIORITY, &xTXHandler) != pdPASS) {
 		printf("Failed to create test TX_Task\r\n");
 		LED_On(LED2_GPIO);
@@ -232,7 +234,7 @@ int main (void)
 		printf("Task TX_T Created!\n");
 	}
 	
-	if (xTaskCreate(UARTRXTask, "RX_T", TASK_UART_STACK_SIZE, NULL,
+	if (xTaskCreate(UARTRXTask, (const signed char *) "RX_T", TASK_UART_STACK_SIZE, NULL,
 	TASK_UART_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create test RX_Task\r\n");
 		LED_On(LED2_GPIO);

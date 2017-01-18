@@ -60,7 +60,7 @@ void UARTTXTask (void *pvParameters){
 	double uart_acel[3];
 	double uart_angle[3];
 	double uart_gyro[3];
-	char uartBuf[100] = {0};
+	//char uartBuf[100] = {0};
 	uint8_t i = 0;
 	signed portBASE_TYPE statusQueue;
 	
@@ -107,13 +107,13 @@ void UARTTXTask (void *pvParameters){
 void UARTRXTask(void *pvParameters){
 	UNUSED(pvParameters);
 	
-	uint8_t receive;
+	char receive;
 	char buf_msg[50] = {0};
 	uint32_t countChar = 0;
 	
 	uint32_t size = 0;
 	
-	xTimerTX = xTimerCreate("TimerIMU", (1000/portTICK_RATE_MS) , pdFALSE, NULL, vTimerTX);
+	xTimerTX = xTimerCreate( (const signed char *) "TimerIMU", (1000/portTICK_RATE_MS) , pdFALSE, NULL, vTimerTX);
 	
 	for (;;){
 		//Receive only one character at a time

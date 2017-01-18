@@ -7,6 +7,8 @@
 #include <asf.h>
 #include <math.h>
 
+#include "HAL_Encoder.h"
+
 #define ID_ENC		ID_PIOA
 #define GPIO_A		PIO_PA16
 #define GPIO_B		PIO_PA17
@@ -14,6 +16,8 @@
 
 #define ENC_RES		1024
 #define VOLTA_COMP	360
+
+static void pin_handler(uint32_t id, uint32_t mask);
 
 uint32_t aFlag;
 uint32_t bFlag;
@@ -46,7 +50,7 @@ double getAngleEncoder(Bool degrees){
 	return val;
 }
 
-void pin_handler(uint32_t id, uint32_t mask){
+static void pin_handler(uint32_t id, uint32_t mask){
 	if (id == ID_ENC){
 		switch (mask){
 			case GPIO_A:

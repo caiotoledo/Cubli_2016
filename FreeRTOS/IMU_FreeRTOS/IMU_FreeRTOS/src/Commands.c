@@ -12,6 +12,11 @@
 #include <string.h>
 #include <ctype.h>
 
+typedef struct str2Func_t {
+	char str[30];
+	funcCommand func;
+}str2Func;
+
 static void parseCMD(char *buf, commVar *cmdParse);
 static funcCommand cmdToFunc(char *buf);
 static uint8_t isFloat(char *str);

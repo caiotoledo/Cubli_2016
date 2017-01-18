@@ -13,18 +13,13 @@
 
 typedef void (*funcCommand)(commVar);
 
-typedef struct commVar_t {
+typedef struct {
 	funcCommand func;
 	uint8_t type;
 	float value;
 }commVar;
 
-typedef struct str2Func_t {
-	char str[30];
-	funcCommand func;
-}str2Func;
-
-typedef enum cType_e {
+typedef enum {
 	cGet,
 	cSet	
 } cType;

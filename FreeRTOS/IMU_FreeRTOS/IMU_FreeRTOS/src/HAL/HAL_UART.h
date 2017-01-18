@@ -13,7 +13,7 @@
 
 status_code_t send_uart(char * buf, size_t len);
 uint32_t read_uart(char *buf, uint32_t len);
-status_code_t printf_mux( const char * format, ... );
+status_code_t printf_mux( const char * format, ... ) __attribute__ ((format(gnu_printf, 1, 2)));
 void configure_console(void);
 
 #endif /* HAL_UART_H_ */

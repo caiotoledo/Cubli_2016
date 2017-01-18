@@ -4,11 +4,11 @@ close all;
 delete(instrfindall);
 
 %Define Serial Ports:
-IMU_Port = 'COM6';
-PanTilt_Port = 'COM4';
+IMU_Port = 'COM7';
+PanTilt_Port = 'COM6';
 
 %Configure constants for test:
-tTest       = 10; %segundos
+tTest       = 16; %segundos
 tTaskSample = 20; %ms
 QAngle      = 0.001;
 QBias       = 0.003;
@@ -138,15 +138,15 @@ acel = vertcat(acel(1,:),acel);
 gyro = vertcat(gyro(1,:),gyro);
 
 figure;
-% plot(Tempo, angle(:,1));
-% hold on;
+plot(Tempo, angle(:,1), '*-b');
+hold on;
 plot(Tempo, angle(:,2), '*-r');
 hold on;
 plot(Tempo, angle(:,3), '*-k');
 hold on;
 plot(Tempo, angle_steps, '*-m');
 hold on;
-legend('Compl. Angle', 'Kalman Angle', 'Tilt Angle');
+legend('Pure Angle','Compl. Angle', 'Kalman Angle', 'Tilt Angle');
 title('Angle');
 grid on;
 
@@ -155,7 +155,9 @@ plot(Tempo, acel(:,1));
 hold on;
 plot(Tempo, acel(:,2), 'r');
 hold on;
-legend('X', 'Y');
+plot(Tempo, acel(:,3), 'K');
+hold on;
+legend('X', 'Y', 'z');
 title('Acel (mG)');
 grid on;
 

@@ -18,6 +18,9 @@
 
 #define xQueueOverwrite(xQueue,pvItemToQueue)	xQueueReset(xQueue);xQueueSendToFront(xQueue,pvItemToQueue,(0))
 
+static void initIMUQueue(void);
+static void initializeIMUVariables(void);
+
 static void cmdHandlerKalman(commVar val, double *Kvalue, const char *valName);
 static void cmdHandlerOffset(commVar val, Axis_Op ax, const char *axName);
 
@@ -48,7 +51,7 @@ double anglePure = 0;
 double angleComplFilter = 0;
 double angleKalman = 0;
 
-void initIMUQueue(){
+static void initIMUQueue(void){
 	/* Queue FreeRTOS Initialization */
 	uint8_t i;
 	for (i = 0; i < NUM_AXIS; i++){
@@ -89,18 +92,18 @@ void cTaskSample(commVar val){
 				timerIMU = (uint32_t)value;
 				dt = (((double)timerIMU)/ ((double)configTICK_RATE_HZ));
 				xTimerChangePeriod(xTimerIMU, timerIMU, 0);
-				printf_mux("IMUSample = %u ms\r\n", (timerIMU));
+				printf_mux("IMUSample = %lu ms\r\n", (timerIMU));
 			} else {
 				printf_mux("IMUSample Value Error [%f]\r\n", value);
 			}
 		break;
 		case cGet:
-			printf_mux("IMUSample = %u ms\r\n", (timerIMU));
+			printf_mux("IMUSample = %lu ms\r\n", (timerIMU));
 		break;
 	}
 }
 
-static void initializeIMUVariables(){
+static void initializeIMUVariables(void){
 	memset(acel, 0, sizeof(acel));
 	memset(gyro, 0, sizeof(gyro));
 	anglePure = 0;
@@ -135,9 +138,7 @@ void cResetVariables(commVar val){
 	xTimerStart(xTimerIMU, portMAX_DELAY);
 }
 
-void cStartSampleReset(commVar val){
-	uint32_t value = val.value;
-	
+void cStartSampleReset(commVar val){	
 	//Reset Variables:
 	cResetVariables(val);
 	
@@ -162,7 +163,7 @@ void IMUTask(void *pvParameters){
 	
 #ifndef INT_PIN
 	//Timer Task:
-	xTimerIMU = xTimerCreate("TimerIMU", TWI_TASK_DELAY , pdTRUE, NULL, vTimerIMU);
+	xTimerIMU = xTimerCreate( (const signed char *) "TimerIMU", TWI_TASK_DELAY , pdTRUE, NULL, vTimerIMU);
 	xTimerStart(xTimerIMU, 0);
 #endif
 	
