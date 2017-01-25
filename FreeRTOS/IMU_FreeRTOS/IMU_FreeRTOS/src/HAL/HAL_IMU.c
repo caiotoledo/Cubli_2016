@@ -109,6 +109,11 @@ void getAllAcelValue(ADXL_Addr_Dev dev, double *acel){
 	uint16_t adxl = 0;
 	uint8_t i = 0;
 	
+	/* Check if the dev exists: */
+	if (imu_probe(dev) != TWI_SUCCESS){
+		return;
+	}
+	
 	//Read all axis address:
 	result = adxl_read(dev, b, ADXL_DataX0, sizeof(b));
 	
@@ -134,6 +139,11 @@ void getAllGyroValue(ITG_Addr_Dev dev, double *gyro){
 	uint8_t b[6] = {0};
 	uint16_t itg = 0;
 	uint8_t i = 0;
+	
+	/* Check if the dev exists: */
+	if (imu_probe(dev) != TWI_SUCCESS){
+		return;
+	}
 	
 	//Read all axis address:
 	result = itg_read(dev, b, ITG_DataX1, sizeof(b));

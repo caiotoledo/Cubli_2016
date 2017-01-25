@@ -11,9 +11,11 @@
 
 #include <asf.h>
 
+typedef struct commVar_t commVar;
+
 typedef void (*funcCommand)(commVar);
 
-typedef struct {
+typedef struct commVar_t{
 	funcCommand func;
 	uint8_t type;
 	float value;

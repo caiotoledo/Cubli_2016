@@ -72,6 +72,9 @@ static void parseCMD(char *buf, commVar *cmdParse){
 						cmdParse->value = 0;
 					}
 					break;
+				default:
+					printf_mux("Too much args: [%s]", pch);
+					break;
 			}
 			pch = strtok(NULL, ";");
 		}

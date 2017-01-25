@@ -30,6 +30,16 @@ static uint8_t imu_init(IMU_Addr_Dev IMU_Dev);
 static status_code_t imu_write(IMU_Addr_Dev imu_addr, uint8_t value, IMU_Addr_Reg imu_reg);
 static status_code_t imu_read (IMU_Addr_Dev imu_addr, uint8_t *value, IMU_Addr_Reg imu_reg, uint8_t len);
 
+static double offsetAcelIMU[2][NUM_AXIS] = {
+	{ ACEL_OFFSET_X, ACEL_OFFSET_Y, ACEL_OFFSET_Z },
+	{ ACEL_OFFSET_X, ACEL_OFFSET_Y, ACEL_OFFSET_Z }
+};
+
+static double offsetGyroIMU[2][NUM_AXIS] = {
+	{ GYRO_OFFSET_X, GYRO_OFFSET_Y, GYRO_OFFSET_Z },
+	{ GYRO_OFFSET_X, GYRO_OFFSET_Y, GYRO_OFFSET_Z }
+};
+
 static float offsetAcel[] = {
 	ACEL_OFFSET_X,
 	ACEL_OFFSET_Y,
@@ -91,11 +101,19 @@ void getAllAcelValue(IMU_Addr_Dev dev, double *acel){
 	uint16_t raw_accel = 0;
 	uint8_t i = 0;
 	
+	/* Check if the dev exists: */
+	if (imu_probe(dev) != TWI_SUCCESS){
+		return;
+	}
+	
 	//Read all axis address:
 	result = imu_read(dev, b, IMU_ACCEL_XOUT_H, sizeof(b));
 	
 	//If there is an error in read return with wrong values:
 	if (result != STATUS_OK) return;
+	
+	/* Defines the device for offset array */
+	uint8_t IMUdev = ( (dev == IMU_Low) ? 0 : 1);
 	
 	//Convert each axis from two complements to float:
 	for (i = 0; i < NUM_AXIS; i++){
@@ -106,7 +124,7 @@ void getAllAcelValue(IMU_Addr_Dev dev, double *acel){
 			raw_accel = ( ( (~raw_accel) +1 ) & 0x7FFF);
 			acel[i] = -(((float) raw_accel) / CONST_ACCEL );
 		}
-		acel[i] += offsetAcel[i];	//Apply Offset
+		acel[i] += offsetAcel[IMUdev][i];	//Apply Offset
 	}
 }
 
@@ -117,11 +135,19 @@ void getAllGyroValue(IMU_Addr_Dev dev, double *gyro){
 	uint16_t itg = 0;
 	uint8_t i = 0;
 	
+	/* Check if the dev exists: */
+	if (imu_probe(dev) != TWI_SUCCESS){
+		return;
+	}
+	
 	//Read all axis address:
 	result = imu_read(dev, b, IMU_GYRO_XOUT_H, sizeof(b));
 	
 	//If there is an error in read return with wrong values:
 	if (result != STATUS_OK) return;
+	
+	/* Defines the device for offset array */
+	uint8_t IMUdev = ( (dev == IMU_Low) ? 0 : 1);
 	
 	//Convert each axis from two complements to float:
 	for (i = 0; i < NUM_AXIS; i++){
@@ -132,16 +158,21 @@ void getAllGyroValue(IMU_Addr_Dev dev, double *gyro){
 			itg = ( ( (~itg) +1 ) & 0x7FFF);
 			gyro[i] = -( ((float) itg) / CONST_GYRO );
 		}
-		gyro[i] += offsetGyro[i];	//Apply Offset
+		gyro[i] += offsetGyro[IMUdev][i];	//Apply Offset
 	}
 }
 
 float get_gyro_value(Axis_Op axis, IMU_Addr_Dev dev){
 	status_code_t result;
-	float gyro_value = -800;
+	float gyro_value = -16000;
 	uint16_t itg = 0;
 	uint8_t b[2];
 	memset(b, 0, sizeof(b));
+	
+	/* Check if the dev exists: */
+	if (imu_probe(dev) != TWI_SUCCESS){
+		return gyro_value;
+	}
 	
 	switch (axis)
 	{
@@ -179,6 +210,11 @@ float get_acel_value(Axis_Op axis, IMU_Addr_Dev dev){
 	uint8_t b[2];
 	memset(b, 0, sizeof(b));
 	
+	/* Check if the dev exists: */
+	if (imu_probe(dev) != TWI_SUCCESS){
+		return acel_value;
+	}
+	
 	switch (axis) {
 		case Axis_X:
 		result = imu_read(dev, b, IMU_ACCEL_XOUT_H, sizeof(b));
@@ -207,6 +243,60 @@ float get_acel_value(Axis_Op axis, IMU_Addr_Dev dev){
 	return acel_value;
 }
 
+#define TOTAL_SAMPLE_CALIBRATION		100
+#define DELAY_BETWEEN_SAMPLES			100
+uint32_t runIMUCalibration(IMU_Addr_Dev dev, Axis_Op gAxis, Bool positiveG){
+	double acel[3] = {0};
+	double gyro[3] = {0};
+	double sumAcel[3] = {0};
+	double sumGyro[3] = {0};
+	double gForce[3] = {0};
+	uint32_t i, j;
+	
+	/* Check if IMU exists */
+	uint32_t result = imu_probe(dev);
+	if (result != TWI_SUCCESS){
+		return result;
+	}
+	
+	/* It define what axis from IMU is faced to G Force: */
+	gForce[gAxis] = (positiveG ? (1.0) : (-1.0) ) * 1000;
+	
+	/* Define Zero for all Offsets to not be use in getAllAcelValue and getAllGyroValue */
+	uint8_t IMUdev = ( (dev == IMU_Low) ? 0 : 1);
+	for (j = 0; j < NUM_AXIS; j++)
+	{
+		offsetAcelIMU[IMUdev][j] = 0;
+		offsetGyroIMU[IMUdev][j] = 0;
+	}
+	
+	/* Here's where it sample: */
+	for (i = 0; i < TOTAL_SAMPLE_CALIBRATION; i++) {
+		getAllAcelValue(dev, acel);
+		getAllGyroValue(dev, gyro);
+		
+		for (j = 0; j < NUM_AXIS; j++) {
+			sumAcel[j] += acel[j];
+			sumGyro[j] += gyro[j];
+		}
+		
+		vTaskDelay(DELAY_BETWEEN_SAMPLES/portTICK_RATE_MS);
+	}
+	
+	/* Update all Offsets */
+	for (j = 0; j < NUM_AXIS; j++)
+	{
+		offsetAcelIMU[IMUdev][j] = (sumAcel[j]/TOTAL_SAMPLE_CALIBRATION) - gForce[j];
+		offsetGyroIMU[IMUdev][j] = (sumGyro[j]/TOTAL_SAMPLE_CALIBRATION);
+	}
+	
+	return result;
+}
+
+uint32_t imu_probe(IMU_Addr_Dev dev){
+	return twi_probe(TWI0, dev);
+}
+
 status_code_t configIMU(void){
 	status_code_t status = ERR_IO_ERROR;
 	uint32_t probeState = TWI_NO_CHIP_FOUND;
@@ -216,7 +306,7 @@ status_code_t configIMU(void){
 		return ERR_IO_ERROR;
 	}
 	
-	probeState = twi_probe(TWI0, IMU_Low);
+	probeState = imu_probe(IMU_Low);
 	if (probeState == TWI_SUCCESS) {
 		
 		status = imu_init(IMU_Low);
@@ -228,7 +318,7 @@ status_code_t configIMU(void){
 		printf_mux("IMU Low not Found!");
 	}
 	
-	probeState = twi_probe(TWI0, IMU_High);
+	probeState = imu_probe(IMU_High);
 	if (probeState == TWI_SUCCESS) {
 		
 		status = imu_init(IMU_High);

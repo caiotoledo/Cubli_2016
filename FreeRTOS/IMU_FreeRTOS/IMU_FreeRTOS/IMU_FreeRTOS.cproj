@@ -282,7 +282,8 @@
       <ToolNumber>28010143</ToolNumber>
       <ToolName>SAM-ICE</ToolName>
     </com_atmel_avrdbg_tool_samice>
-    <avrtoolinterface>JTAG</avrtoolinterface>
+    <avrtoolinterface>
+    </avrtoolinterface>
     <PercepioTrace>
       <TargetOS>FreeRTOS</TargetOS>
       <Frequency>48000000</Frequency>
@@ -693,12 +694,6 @@
     <Compile Include="src\HAL\HAL_Encoder.h">
       <SubType>compile</SubType>
     </Compile>
-    <None Include="src\HAL\HAL_IMU.c">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\HAL\HAL_IMU.h">
-      <SubType>compile</SubType>
-    </None>
     <Compile Include="src\utils.c">
       <SubType>compile</SubType>
     </Compile>

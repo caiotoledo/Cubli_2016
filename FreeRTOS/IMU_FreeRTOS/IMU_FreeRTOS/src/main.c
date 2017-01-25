@@ -59,6 +59,7 @@ extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 		signed char *pcTaskName);
 extern void vApplicationIdleHook(void);
 extern void vApplicationTickHook(void);
+extern void vApplicationMallocFailedHook(void);
 
 void config_interrupt(void);
 void button_handler(uint32_t id, uint32_t mask);
@@ -85,6 +86,7 @@ extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
  */
 extern void vApplicationIdleHook(void)
 {
+	asm("nop");
 }
 
 /**
@@ -95,7 +97,7 @@ extern void vApplicationTickHook(void)
 	g_tickCounter++;
 }
 
-void vApplicationMallocFailedHook(void)
+extern void vApplicationMallocFailedHook(void)
 {
 	/* vApplicationMallocFailedHook() will only be called if
 	configUSE_MALLOC_FAILED_HOOK is set to 1 in FreeRTOSConfig.h.  It is a hook

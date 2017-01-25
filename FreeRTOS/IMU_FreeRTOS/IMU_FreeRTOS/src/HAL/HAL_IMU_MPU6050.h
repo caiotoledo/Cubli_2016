@@ -59,6 +59,10 @@ typedef enum Axis_t				Axis_Op;
 
 // STANDARD IMU FUNCTIONS:
 status_code_t configIMU(void);
+uint32_t imu_probe(IMU_Addr_Dev dev);
+
+// CALIBRATION FUNCTION:
+uint32_t runIMUCalibration(IMU_Addr_Dev dev, Axis_Op gAxis, Bool positiveG);
 
 //OFFSET FUNCTIONS:
 Bool setOffsetAccel(Axis_Op ax, float offset);
