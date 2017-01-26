@@ -22,8 +22,10 @@
 #define GYRO_OFFSET_Y		(0.0)
 #define GYRO_OFFSET_Z		(1.25)//(1.0)
 
-#define CONST_ACCEL		(16.384)
-#define CONST_GYRO		(131)
+#define CONST_ACCEL			(16.384)
+#define CONST_GYRO			(131)
+
+#define IMUADDR_TO_NUM(x)	( (x == IMU_Low) ? 0 : 1 )
 
 static uint8_t twi_init(void);
 static uint8_t imu_init(IMU_Addr_Dev IMU_Dev);
@@ -54,6 +56,20 @@ static float offsetGyro[] = {
 
 freertos_twi_if freertos_twi;
 
+Bool setOffsetAccelIMU(IMU_Addr_Dev dev, Axis_Op ax, float offset){
+	Bool flag = false;
+	
+	/* Defines the device for offset array */
+	uint8_t IMUdev = IMUADDR_TO_NUM(dev);
+	
+	if ( (offset > (-2000.0)) && (offset < (2000.0)) ) {
+		offsetAcelIMU[IMUdev][ax] = offset;
+		flag = true;
+	}
+	
+	return flag;
+}
+
 Bool setOffsetAccel(Axis_Op ax, float offset){
 	Bool flag = false;
 	if ( (offset > (-2000.0)) && (offset < (2000.0)) ) {
@@ -63,8 +79,30 @@ Bool setOffsetAccel(Axis_Op ax, float offset){
 	return flag;
 }
 
+float getOffsetAccelIMU(IMU_Addr_Dev dev, Axis_Op ax){
+	
+	/* Defines the device for offset array */
+	uint8_t IMUdev = IMUADDR_TO_NUM(dev);
+	
+	return offsetAcelIMU[IMUdev][ax];
+}
+
 float getOffsetAccel(Axis_Op ax){
 	return offsetAcel[ax];
+}
+
+Bool setOffsetGyroIMU(IMU_Addr_Dev dev, Axis_Op ax, float offset){
+	Bool flag = false;
+	
+	/* Defines the device for offset array */
+	uint8_t IMUdev = IMUADDR_TO_NUM(dev);
+	
+	if ( (offset > (-2000.0)) && (offset < (2000.0)) ) {
+		offsetGyroIMU[IMUdev][ax] = offset;
+		flag = true;
+	}
+	
+	return flag;
 }
 
 Bool setOffsetGyro(Axis_Op ax, float offset){
@@ -74,6 +112,14 @@ Bool setOffsetGyro(Axis_Op ax, float offset){
 		flag = true;
 	}
 	return flag;
+}
+
+float getOffsetGyroIMU(IMU_Addr_Dev dev, Axis_Op ax){
+	
+	/* Defines the device for offset array */
+	uint8_t IMUdev = IMUADDR_TO_NUM(dev);
+	
+	return offsetGyroIMU[IMUdev][ax];
 }
 
 float getOffsetGyro(Axis_Op ax){
@@ -96,10 +142,14 @@ double getPureAngle(double *acel){
 
 void getAllAcelValue(IMU_Addr_Dev dev, double *acel){
 	status_code_t result;
-	memset(acel, (-16000), NUM_AXIS);
 	uint8_t b[6] = {0};
 	uint16_t raw_accel = 0;
 	uint8_t i = 0;
+	
+	/* Reset Buffer: */
+	for (i = 0; i < NUM_AXIS; i++) {
+		acel[i] = -16000.0;
+	}
 	
 	/* Check if the dev exists: */
 	if (imu_probe(dev) != TWI_SUCCESS){
@@ -113,7 +163,7 @@ void getAllAcelValue(IMU_Addr_Dev dev, double *acel){
 	if (result != STATUS_OK) return;
 	
 	/* Defines the device for offset array */
-	uint8_t IMUdev = ( (dev == IMU_Low) ? 0 : 1);
+	uint8_t IMUdev = IMUADDR_TO_NUM(dev);
 	
 	//Convert each axis from two complements to float:
 	for (i = 0; i < NUM_AXIS; i++){
@@ -124,16 +174,20 @@ void getAllAcelValue(IMU_Addr_Dev dev, double *acel){
 			raw_accel = ( ( (~raw_accel) +1 ) & 0x7FFF);
 			acel[i] = -(((float) raw_accel) / CONST_ACCEL );
 		}
-		acel[i] += offsetAcel[IMUdev][i];	//Apply Offset
+		acel[i] += offsetAcelIMU[IMUdev][i];	//Apply Offset
 	}
 }
 
 void getAllGyroValue(IMU_Addr_Dev dev, double *gyro){
 	status_code_t result;
-	memset(gyro, (-16000), NUM_AXIS);
 	uint8_t b[6] = {0};
 	uint16_t itg = 0;
 	uint8_t i = 0;
+	
+	/* Reset Buffer: */
+	for (i = 0; i < NUM_AXIS; i++) {
+		gyro[i] = -16000.0;
+	}
 	
 	/* Check if the dev exists: */
 	if (imu_probe(dev) != TWI_SUCCESS){
@@ -147,7 +201,7 @@ void getAllGyroValue(IMU_Addr_Dev dev, double *gyro){
 	if (result != STATUS_OK) return;
 	
 	/* Defines the device for offset array */
-	uint8_t IMUdev = ( (dev == IMU_Low) ? 0 : 1);
+	uint8_t IMUdev = IMUADDR_TO_NUM(dev);
 	
 	//Convert each axis from two complements to float:
 	for (i = 0; i < NUM_AXIS; i++){
@@ -158,12 +212,12 @@ void getAllGyroValue(IMU_Addr_Dev dev, double *gyro){
 			itg = ( ( (~itg) +1 ) & 0x7FFF);
 			gyro[i] = -( ((float) itg) / CONST_GYRO );
 		}
-		gyro[i] += offsetGyro[IMUdev][i];	//Apply Offset
+		gyro[i] += offsetGyroIMU[IMUdev][i];	//Apply Offset
 	}
 }
 
 float get_gyro_value(Axis_Op axis, IMU_Addr_Dev dev){
-	status_code_t result;
+	status_code_t result = ERR_IO_ERROR;
 	float gyro_value = -16000;
 	uint16_t itg = 0;
 	uint8_t b[2];
@@ -204,7 +258,7 @@ float get_gyro_value(Axis_Op axis, IMU_Addr_Dev dev){
 }
 
 float get_acel_value(Axis_Op axis, IMU_Addr_Dev dev){
-	status_code_t result;
+	status_code_t result = ERR_IO_ERROR;
 	float acel_value = -16000;
 	uint16_t adxl = 0;
 	uint8_t b[2];
@@ -244,7 +298,7 @@ float get_acel_value(Axis_Op axis, IMU_Addr_Dev dev){
 }
 
 #define TOTAL_SAMPLE_CALIBRATION		100
-#define DELAY_BETWEEN_SAMPLES			100
+#define DELAY_BETWEEN_SAMPLES			(100/portTICK_RATE_MS)
 uint32_t runIMUCalibration(IMU_Addr_Dev dev, Axis_Op gAxis, Bool positiveG){
 	double acel[3] = {0};
 	double gyro[3] = {0};
@@ -263,7 +317,7 @@ uint32_t runIMUCalibration(IMU_Addr_Dev dev, Axis_Op gAxis, Bool positiveG){
 	gForce[gAxis] = (positiveG ? (1.0) : (-1.0) ) * 1000;
 	
 	/* Define Zero for all Offsets to not be use in getAllAcelValue and getAllGyroValue */
-	uint8_t IMUdev = ( (dev == IMU_Low) ? 0 : 1);
+	uint8_t IMUdev = IMUADDR_TO_NUM(dev);
 	for (j = 0; j < NUM_AXIS; j++)
 	{
 		offsetAcelIMU[IMUdev][j] = 0;
@@ -280,7 +334,7 @@ uint32_t runIMUCalibration(IMU_Addr_Dev dev, Axis_Op gAxis, Bool positiveG){
 			sumGyro[j] += gyro[j];
 		}
 		
-		vTaskDelay(DELAY_BETWEEN_SAMPLES/portTICK_RATE_MS);
+		vTaskDelay(DELAY_BETWEEN_SAMPLES);
 	}
 	
 	/* Update all Offsets */
@@ -294,7 +348,8 @@ uint32_t runIMUCalibration(IMU_Addr_Dev dev, Axis_Op gAxis, Bool positiveG){
 }
 
 uint32_t imu_probe(IMU_Addr_Dev dev){
-	return twi_probe(TWI0, dev);
+	return imu_write(dev, 0, 0);
+	//return twi_probe(TWI0, dev);
 }
 
 status_code_t configIMU(void){
@@ -311,11 +366,11 @@ status_code_t configIMU(void){
 		
 		status = imu_init(IMU_Low);
 		if (status != STATUS_OK){
-			printf_mux("MPU6050 Low Init Error!");
+			printf_mux("MPU6050 Low Init Error!\n");
 		}
 		
 	} else {
-		printf_mux("IMU Low not Found!");
+		printf_mux("IMU Low not Found!\n");
 	}
 	
 	probeState = imu_probe(IMU_High);
@@ -323,11 +378,11 @@ status_code_t configIMU(void){
 		
 		status = imu_init(IMU_High);
 		if (status != STATUS_OK){
-			printf_mux("MPU6050 High Init Error!");
+			printf_mux("MPU6050 High Init Error!\n");
 		}
 		
 	} else {
-		printf_mux("IMU High not Found!");
+		printf_mux("IMU High not Found!\n");
 	}
 	
 	return status;

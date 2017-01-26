@@ -10,6 +10,12 @@
 #define COMMANDS_H_
 
 #include <asf.h>
+#include "HAL/HAL_IMU_MPU6050.h"
+
+typedef enum {
+	cGet,
+	cSet
+} cType;
 
 typedef struct commVar_t commVar;
 
@@ -17,14 +23,10 @@ typedef void (*funcCommand)(commVar);
 
 typedef struct commVar_t{
 	funcCommand func;
-	uint8_t type;
+	cType type;
 	float value;
+	IMU_Addr_Dev device;
 }commVar;
-
-typedef enum {
-	cGet,
-	cSet	
-} cType;
 
 void receiveCMD(char *buf);
 void sendErrorCMD(char *buf);

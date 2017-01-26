@@ -31,6 +31,9 @@ void cResetVariables(commVar val);
 void cStartSampleReset(commVar val);
 void cTaskSample(commVar val);
 
+//Calibration Function for IMU
+void cRunCalibrationIMU(commVar val);
+
 //Complementary Filter Constant:
 void cAlphaComplFilter(commVar val);
 

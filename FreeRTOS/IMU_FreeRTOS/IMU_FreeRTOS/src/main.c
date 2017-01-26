@@ -37,8 +37,6 @@
 #include "utils.h"
 #include "HAL/HAL_Encoder.h"
 
-#define TASK_MONITOR
-
 #define TASK_LCD_STACK_SIZE				(1024/sizeof(portSTACK_TYPE))
 #define TASK_LCD_STACK_PRIORITY			(tskIDLE_PRIORITY+2)
 #define TASK_IMU_STACK_SIZE				(2048/sizeof(portSTACK_TYPE))
@@ -46,9 +44,9 @@
 #define TASK_UART_STACK_SIZE			(2048/sizeof(portSTACK_TYPE))
 #define TASK_UART_STACK_PRIORITY		(tskIDLE_PRIORITY+3)
 #define TASK_MONITOR_STACK_SIZE         (1024/sizeof(portSTACK_TYPE))
-#define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY)
+#define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY+1)
 #define TASK_LED_STACK_SIZE             configMINIMAL_STACK_SIZE
-#define TASK_LED_STACK_PRIORITY         (tskIDLE_PRIORITY+1)
+#define TASK_LED_STACK_PRIORITY         (tskIDLE_PRIORITY)
 
 #define DELAY_5S						(5000/portTICK_RATE_MS)
 #define DELAY_1S						(1000/portTICK_RATE_MS)
@@ -118,6 +116,7 @@ extern void vApplicationMallocFailedHook(void)
 /**
  * \brief This task, when activated, send every ten seconds on debug UART
  * the whole report of free heap and total tasks status
+ * AVAILABLE ONLY IN RELEASE BUILD
  */
 static void task_monitor(void *pvParameters)
 {
@@ -194,6 +193,7 @@ int main (void)
 	config_interrupt();
 	
 #ifdef TASK_MONITOR
+	/* AVAILABLE ONLY IN RELEASE BUILD */
 	/* Create task to monitor processor activity */
 	if (xTaskCreate(task_monitor, (const signed char *) "Monitor", TASK_MONITOR_STACK_SIZE, NULL,
 	TASK_MONITOR_STACK_PRIORITY, NULL) != pdPASS) {

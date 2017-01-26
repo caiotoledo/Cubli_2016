@@ -35,8 +35,6 @@ xSemaphoreHandle xseIMU;
 xSemaphoreHandle xSemIMUInt;
 xTimerHandle xTimerIMU;
 
-//uint8_t configBWRate = BWrate6_25Hz;
-//uint8_t configBWRate = BWrate100Hz;
 uint32_t lastTickCounter = 0;
 double dt = (((double)TWI_TASK_DELAY)/ ((double)configTICK_RATE_HZ));
 
@@ -218,6 +216,41 @@ void IMUTask(void *pvParameters){
 	}
 }
 
+void cRunCalibrationIMU(commVar val){
+	const char *str = "Calibration IMU";
+	IMU_Addr_Dev dev = val.device;
+	uint32_t result;
+	
+	/* Disable LCD Task to avoid CPU Load */
+	vTaskSuspend(xLCDHandler);
+	
+	/* Stop IMU Timer to not interrupt Calibration Process */
+	xTimerStop(xTimerIMU, 100/portTICK_RATE_MS);
+	
+	/* Run Calibration Process: */
+	LED_On(LED1_GPIO);
+	printf_mux("%s Starting...\n", str);
+	result = runIMUCalibration(dev, Axis_Z, true);
+	if (result == TWI_SUCCESS) {
+		printf_mux("Calibration Done! [Device %s]\n", ( (dev == IMU_Low) ? "IMU Low" : "IMU High" ));
+		vTaskDelay(5/portTICK_RATE_MS);
+		printf_mux("New Accel Offsets: [X = %0.3f] [Y = %0.3f] [Z = %0.3f]\n", getOffsetAccelIMU(dev, Axis_X), getOffsetAccelIMU(dev, Axis_Y), getOffsetAccelIMU(dev, Axis_Z));
+		vTaskDelay(5/portTICK_RATE_MS);
+		printf_mux("New Gyro Offsets: [X = %0.3f] [Y = %0.3f] [Z = %0.3f]\n", getOffsetGyroIMU(dev, Axis_X), getOffsetGyroIMU(dev, Axis_Y), getOffsetGyroIMU(dev, Axis_Z));
+	} 
+	else {
+		vTaskDelay(5/portTICK_RATE_MS);
+		printf_mux("IMU Not Found!\r\n");
+	}
+	LED_Off(LED1_GPIO);
+	
+	/* Starts again IMU Task */
+	xTimerStart(xTimerIMU, 100/portTICK_RATE_MS);
+	
+	/* Enable LCD Task */
+	vTaskResume(xLCDHandler);
+}
+
 void cAlphaComplFilter(commVar val){
 	const char *str = "Alpha Compl. Filter";	
 	
@@ -262,6 +295,7 @@ void cOffsetGyroZ(commVar val){
 /* Threat all commands about Offset Gyro and Accel (both set and get) */
 static void cmdHandlerOffset(commVar val, Axis_Op ax, const char *axName){
 	Bool ret;
+	IMU_Addr_Dev dev = val.device;
 	float offset = val.value;
 	Bool offsetType = true;
 	
@@ -278,9 +312,9 @@ static void cmdHandlerOffset(commVar val, Axis_Op ax, const char *axName){
 	{
 		case cSet:
 			if (offsetType) {
-				ret = setOffsetAccel(ax,offset);
+				ret = setOffsetAccelIMU(dev,ax,offset);
 			} else {
-				ret = setOffsetGyro(ax,offset);
+				ret = setOffsetGyroIMU(dev,ax,offset);
 			}
 			if (ret){
 				printf_mux("%s = %0.5f\r\n",axName , offset);
@@ -290,9 +324,9 @@ static void cmdHandlerOffset(commVar val, Axis_Op ax, const char *axName){
 			break;
 		case cGet:
 			if (offsetType) {
-				offset = getOffsetAccel(ax);
+				offset = getOffsetAccelIMU(dev,ax);
 			} else {
-				offset = getOffsetGyro(ax);
+				offset = getOffsetGyroIMU(dev,ax);
 			}
 			printf_mux("%s = %0.5f\r\n", axName, offset);
 			break;

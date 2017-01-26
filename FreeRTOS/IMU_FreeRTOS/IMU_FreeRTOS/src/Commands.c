@@ -23,32 +23,34 @@ static uint8_t isFloat(char *str);
 
 /*
 	Mapping all commands, it should follow this Syntax:
-	"Command;Type;Value"
+	"Command;Type;Value;Device"
 */
 const str2Func functionsMap[] = {
-	{	"go",			cStartSample},
-	{	"resetVar",		cResetVariables},
-	{	"goReset",		cStartSampleReset},
-	{	"tTotalSample",	cTotalTimeTest},
-	{	"tTaskSample",	cTaskSample},
-	{	"kalQAngle",	cKalQAngle},
-	{	"kalQBias",		cKalQBias},
-	{	"kalRMeasure",	cKalRMeasure},
-	{	"alphaCFilter",	cAlphaComplFilter},
-	{	"offsetAccelX",	cOffsetAccelX},
-	{	"offsetAccelY",	cOffsetAccelY},
-	{	"offsetAccelZ",	cOffsetAccelZ},
-	{	"offsetGyroX",	cOffsetGyroX},
-	{	"offsetGyroY",	cOffsetGyroY},
-	{	"offsetGyroZ",	cOffsetGyroZ},
-	{	"end",			cUnknowCommand},
+	{	"go",				cStartSample},
+	{	"resetVar",			cResetVariables},
+	{	"goReset",			cStartSampleReset},
+	{	"tTotalSample",		cTotalTimeTest},
+	{	"tTaskSample",		cTaskSample},
+	{	"kalQAngle",		cKalQAngle},
+	{	"kalQBias",			cKalQBias},
+	{	"kalRMeasure",		cKalRMeasure},
+	{	"alphaCFilter",		cAlphaComplFilter},
+	{	"offsetAccelX",		cOffsetAccelX},
+	{	"offsetAccelY",		cOffsetAccelY},
+	{	"offsetAccelZ",		cOffsetAccelZ},
+	{	"offsetGyroX",		cOffsetGyroX},
+	{	"offsetGyroY",		cOffsetGyroY},
+	{	"offsetGyroZ",		cOffsetGyroZ},
+	{	"calibrationIMU",	cRunCalibrationIMU},
+	{	"end",				cUnknowCommand},
 };
 
 static void parseCMD(char *buf, commVar *cmdParse){
 	uint32_t i = 0;
 	cmdParse->func = NULL;
-	cmdParse->type = 0;
+	cmdParse->type = cGet;
 	cmdParse->value = 0;
+	cmdParse->device = IMU_Low;
 	char *pch;
 	
 	if (strstr(buf, ";")){
@@ -62,18 +64,30 @@ static void parseCMD(char *buf, commVar *cmdParse){
 					if (isFloat(pch)){
 						cmdParse->type = atoi(pch);
 					} else {
-						cmdParse->type = 0;
+						printf_mux("Wrong format [%s]\n", pch);
 					}					
 					break;
 				case 2:
 					if (isFloat(pch)){
 						cmdParse->value = atoff(pch);
 					} else {
-						cmdParse->value = 0;
+						printf_mux("Wrong format [%s]\n", pch);
+					}
+					break;
+				case 3:
+					if (isFloat(pch)) {
+						uint8_t dev_addr = atoi(pch);
+						if (dev_addr == 1) {
+							cmdParse->device = IMU_High;
+						} else if (dev_addr == 0) {
+							cmdParse->device = IMU_Low;
+						}
+					} else {
+						printf_mux("Wrong format [%s]\n", pch);
 					}
 					break;
 				default:
-					printf_mux("Too much args: [%s]", pch);
+					printf_mux("Too much args: [%s]\n", pch);
 					break;
 			}
 			pch = strtok(NULL, ";");

@@ -152,8 +152,8 @@ src/Commands.d src/Commands.o: ../src/Commands.c ../src/Commands.h \
  ../src/ASF/common/services/twi/sam_twi/twi_slave.h \
  ../src/ASF/common/services/twi/twi_slave.h \
  ../src/ASF/common/services/twi/sam_twi/twi_slave.h \
- ../src/ASF/sam/drivers/pio/pio_handler.h ../src/UART_Comm.h \
- ../src/HAL/HAL_IMU_MPU6050.h ../src/HAL/HAL_UART.h ../src/IMU.h \
+ ../src/ASF/sam/drivers/pio/pio_handler.h ../src/HAL/HAL_IMU_MPU6050.h \
+ ../src/UART_Comm.h ../src/HAL/HAL_UART.h ../src/IMU.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-none-eabi\include\string.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-none-eabi\include\sys\string.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-none-eabi\include\ctype.h
@@ -480,9 +480,9 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-no
 
 ../src/ASF/sam/drivers/pio/pio_handler.h:
 
-../src/UART_Comm.h:
-
 ../src/HAL/HAL_IMU_MPU6050.h:
+
+../src/UART_Comm.h:
 
 ../src/HAL/HAL_UART.h:
 

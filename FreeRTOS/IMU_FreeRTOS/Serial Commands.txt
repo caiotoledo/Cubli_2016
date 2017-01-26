@@ -1,5 +1,5 @@
 Commands Syntax:
-"Command;Type;Value"
+"Command;Type;Value;Device"
 
 Commands:
 - "resetVar": Reset all Sample Variables;
@@ -17,10 +17,18 @@ Commands:
 - "offsetGyroX": Configure offset for Gyroscope Axis X;
 - "offsetGyroY": Configure offset for Gyroscope Axis Y;
 - "offsetGyroZ": Configure offset for Gyroscope Axis Z;
+- "calibrationIMU": Start calibration Routine.
 
 Type:
 - "0": Get Value;
 - "1": Set Value;
+Parameter only matter for values configuration.
 
 Value:
 - "##.###": Float Value
+Parameter only matter for values configuration.
+
+Device:
+- "0": IMU Address Low;
+- "1": IMU Address High;
+This parameter is applicable only for offset commands.

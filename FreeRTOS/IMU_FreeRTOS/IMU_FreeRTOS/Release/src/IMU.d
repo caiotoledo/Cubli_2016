@@ -153,9 +153,9 @@ src/IMU.d src/IMU.o: ../src/IMU.c ../src/asf.h \
  ../src/ASF/common/services/twi/twi_slave.h \
  ../src/ASF/common/services/twi/sam_twi/twi_slave.h \
  ../src/ASF/sam/drivers/pio/pio_handler.h ../src/IMU.h ../src/Commands.h \
- ../src/HAL/HAL_UART.h ../src/LCD.h ../src/Filter/KalmanFilter.h \
- ../src/Filter/ComplementaryFilter.h ../src/HAL/HAL_IMU_MPU6050.h \
- ../src/UART_Comm.h ../src/HAL/HAL_IMU_MPU6050.h ../src/HAL/HAL_Encoder.h \
+ ../src/HAL/HAL_IMU_MPU6050.h ../src/HAL/HAL_UART.h ../src/LCD.h \
+ ../src/Filter/KalmanFilter.h ../src/Filter/ComplementaryFilter.h \
+ ../src/HAL/HAL_IMU_MPU6050.h ../src/UART_Comm.h ../src/HAL/HAL_Encoder.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-none-eabi\include\string.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-none-eabi\include\sys\string.h
 
@@ -483,6 +483,8 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-no
 
 ../src/Commands.h:
 
+../src/HAL/HAL_IMU_MPU6050.h:
+
 ../src/HAL/HAL_UART.h:
 
 ../src/LCD.h:
@@ -494,8 +496,6 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-no
 ../src/HAL/HAL_IMU_MPU6050.h:
 
 ../src/UART_Comm.h:
-
-../src/HAL/HAL_IMU_MPU6050.h:
 
 ../src/HAL/HAL_Encoder.h:
 

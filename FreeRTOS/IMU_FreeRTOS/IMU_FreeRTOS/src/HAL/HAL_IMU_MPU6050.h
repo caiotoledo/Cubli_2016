@@ -69,6 +69,11 @@ Bool setOffsetAccel(Axis_Op ax, float offset);
 float getOffsetAccel(Axis_Op ax);
 Bool setOffsetGyro(Axis_Op ax, float offset);
 float getOffsetGyro(Axis_Op ax);
+//NEW OFFSET FUNCTIONS:
+Bool setOffsetAccelIMU(IMU_Addr_Dev dev, Axis_Op ax, float offset);
+float getOffsetAccelIMU(IMU_Addr_Dev dev, Axis_Op ax);
+Bool setOffsetGyroIMU(IMU_Addr_Dev dev, Axis_Op ax, float offset);
+float getOffsetGyroIMU(IMU_Addr_Dev dev, Axis_Op ax);
 
 // HIGH LEVEL FUNCITONS:
 double getPureAngle(double *acel);
