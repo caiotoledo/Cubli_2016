@@ -25,8 +25,6 @@
 #define CONST_ACCEL			(16.384)
 #define CONST_GYRO			(131)
 
-#define IMUADDR_TO_NUM(x)	( (x == IMU_Low) ? 0 : 1 )
-
 static uint8_t twi_init(void);
 static uint8_t imu_init(IMU_Addr_Dev IMU_Dev);
 static status_code_t imu_write(IMU_Addr_Dev imu_addr, uint8_t value, IMU_Addr_Reg imu_reg);
@@ -124,6 +122,40 @@ float getOffsetGyroIMU(IMU_Addr_Dev dev, Axis_Op ax){
 
 float getOffsetGyro(Axis_Op ax){
 	return offsetGyro[ax];
+}
+
+uint32_t sampleIMU(IMU_Addr_Dev dev, double *acel, double *gyro){
+	uint32_t status_imu;
+	
+	status_imu = imu_probe(dev);
+	if (status_imu != TWI_SUCCESS) {
+		return status_imu;
+	}
+	
+	memset(acel, 0, NUM_AXIS);
+	memset(gyro, 0, NUM_AXIS);
+	
+	getAllAcelValue(dev, acel);
+	getAllGyroValue(dev, gyro);
+	
+	return status_imu;
+}
+
+/************************************************************************/
+/* Based on "The Cubli: A Cube that can Jump Up and Balance" III - a    */
+/************************************************************************/
+#define R1		15.5
+#define R2		5.5
+double getPureAngleTwoIMU(double *acelLow, double *acelHigh){
+	double mx,my;
+	double ratioRelation = (R1/R2);
+	
+	mx = acelHigh[Axis_X] - ratioRelation * acelLow[Axis_X];
+	my = acelHigh[Axis_Y] - ratioRelation * acelLow[Axis_Y];
+	
+	double angle = (atan(-mx/my));
+	
+	return angle;
 }
 
 double getPureAngle(double *acel){

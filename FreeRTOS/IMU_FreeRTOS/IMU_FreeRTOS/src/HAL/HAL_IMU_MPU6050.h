@@ -11,6 +11,8 @@
 
 #define NUM_AXIS			3
 
+#define IMUADDR_TO_NUM(x)	( (x == IMU_Low) ? 0 : 1 )
+
 enum IMU_Addr_Reg_t {
 	IMU_SMPLRT_DIV		= 0x19,
 	
@@ -76,6 +78,8 @@ Bool setOffsetGyroIMU(IMU_Addr_Dev dev, Axis_Op ax, float offset);
 float getOffsetGyroIMU(IMU_Addr_Dev dev, Axis_Op ax);
 
 // HIGH LEVEL FUNCITONS:
+uint32_t sampleIMU(IMU_Addr_Dev dev, double *acel, double *gyro);
+double getPureAngleTwoIMU(double *acelLow, double *acelHigh);
 double getPureAngle(double *acel);
 void getAllAcelValue(IMU_Addr_Dev dev, double *acel);
 void getAllGyroValue(IMU_Addr_Dev dev, double *gyro);

@@ -31,4 +31,4 @@ Parameter only matter for values configuration.
 Device:
 - "0": IMU Address Low;
 - "1": IMU Address High;
-This parameter is applicable only for offset commands.
+This parameter is applicable only for offset and calibration commands.

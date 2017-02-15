@@ -185,10 +185,9 @@ int main (void)
 
 	/* Initialize the console uart */
 	configure_console();
-	printf("%s\n", PROJECT_NAME);
 	char buildVer[50] = { 0 };
 	formatVersion(buildVer);
-	printf("Version: %s\n", buildVer);
+	printf("%s - Version: %s\n", PROJECT_NAME, buildVer);
 	
 	config_interrupt();
 	

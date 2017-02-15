@@ -18,6 +18,8 @@
 
 #define xQueueOverwrite(xQueue,pvItemToQueue)	xQueueReset(xQueue);xQueueSendToFront(xQueue,pvItemToQueue,(0))
 
+static double getFinalAngle(double *acel, double *gyro);
+
 static void initIMUQueue(void);
 static void initializeIMUVariables(void);
 
@@ -43,8 +45,8 @@ uint32_t timerIMU = (TWI_TASK_DELAY);
 
 /* ANGLE MEASUREMENT VARIABLES */
 static KalmanConst kalmanC;
-double acel[3] = { 0 };
-double gyro[3] = { 0 };
+double gAcel[3] = { 0 };
+double gGyro[3] = { 0 };
 double anglePure = 0;
 double angleComplFilter = 0;
 double angleKalman = 0;
@@ -102,8 +104,8 @@ void cTaskSample(commVar val){
 }
 
 static void initializeIMUVariables(void){
-	memset(acel, 0, sizeof(acel));
-	memset(gyro, 0, sizeof(gyro));
+	memset(gAcel, 0, sizeof(gAcel));
+	memset(gGyro, 0, sizeof(gGyro));
 	anglePure = 0;
 	angleComplFilter = initComplFilter(IMU_Low);
 	angleKalman = angleComplFilter;
@@ -142,6 +144,41 @@ void cStartSampleReset(commVar val){
 	
 	//Start Serial Task
 	cStartSample(val);
+}
+
+static double getFinalAngle(double *acel, double *gyro){
+	uint32_t statusLow, statusHigh;
+	double dAcel[2][NUM_AXIS], dGyro[2][NUM_AXIS];
+	double resultAngle = 0;
+	uint32_t i;
+	
+	statusLow = sampleIMU(IMU_Low, &dAcel[0][0], &dGyro[0][0]);
+	statusHigh = sampleIMU(IMU_High, &dAcel[1][0], &dGyro[1][0]);
+	
+	if ( (statusLow | statusHigh) == TWI_SUCCESS ) {
+		resultAngle = getPureAngleTwoIMU(&dAcel[IMUADDR_TO_NUM(IMU_Low)][0], &dAcel[IMUADDR_TO_NUM(IMU_High)][0]);
+		/* Give the Mean value between two IMU back */
+		for (i = 0; i < NUM_AXIS; i++) {
+			acel[i] = ( ( dAcel[IMUADDR_TO_NUM(IMU_Low)][i] + dAcel[IMUADDR_TO_NUM(IMU_High)][i] ) / 2 );
+			gyro[i] = ( ( dGyro[IMUADDR_TO_NUM(IMU_Low)][i] + dGyro[IMUADDR_TO_NUM(IMU_High)][i] ) / 2 );
+		}
+	} 
+	else if ( statusLow == TWI_SUCCESS ) {
+		resultAngle = getPureAngle(&dAcel[IMUADDR_TO_NUM(IMU_Low)][0]);
+		for (i = 0; i < NUM_AXIS; i++) {
+			acel[i] = dAcel[IMUADDR_TO_NUM(IMU_Low)][i];
+			gyro[i] = dGyro[IMUADDR_TO_NUM(IMU_Low)][i];
+		}
+	}
+	else if ( statusHigh == TWI_SUCCESS ) {
+		resultAngle = getPureAngle(&dAcel[IMUADDR_TO_NUM(IMU_High)][0]);
+		for (i = 0; i < NUM_AXIS; i++) {
+			acel[i] = dAcel[IMUADDR_TO_NUM(IMU_High)][i];
+			gyro[i] = dGyro[IMUADDR_TO_NUM(IMU_High)][i];
+		}
+	}
+
+	return resultAngle;
 }
 
 void IMUTask(void *pvParameters){
@@ -188,23 +225,20 @@ void IMUTask(void *pvParameters){
 	for (;;){
 		xSemaphoreTake(xSemIMUInt, portMAX_DELAY);
 		
-		memset(acel, 0, sizeof(acel));
-		getAllAcelValue(IMU_Low, acel);
+		memset(gAcel, 0, sizeof(gAcel));
+		memset(gGyro, 0, sizeof(gGyro));
+		anglePure = getFinalAngle(gAcel, gGyro);
+		
+		/* Send to UART Task: */
 		for (i = 0; i < NUM_AXIS; i++){
-			xQueueOverwrite(xQueueAcel[i], (void * ) &acel[i]);
+			xQueueOverwrite(xQueueAcel[i], (void * ) &gAcel[i]);
+			xQueueOverwrite(xQueueGyro[i], (void * ) &gGyro[i]);
 		}
 		
-		memset(gyro, 0, sizeof(gyro));
-		getAllGyroValue(IMU_Low, gyro);
-		for (i = 0; i < NUM_AXIS; i++){
-			xQueueOverwrite(xQueueGyro[i], (void * ) &gyro[i]);
-		}
-		
-		anglePure = getPureAngle(acel);
 		xQueueOverwrite(xQueueAngle[0], (void * ) &anglePure);
-		getComplFilterAngle(&angleComplFilter, acel, gyro, dt);
+		getComplFilterAngle(&angleComplFilter, gAcel, gGyro, dt);
 		xQueueOverwrite(xQueueAngle[1], (void * ) &angleComplFilter);
-		angleKalman = getKalmanAngle(anglePure, gyro[Axis_Z], dt);
+		angleKalman = getKalmanAngle(anglePure, gGyro[Axis_Z], dt);
 		xQueueOverwrite(xQueueAngle[2], (void * ) &angleKalman);
 		
 		//Check if TX is actived:
