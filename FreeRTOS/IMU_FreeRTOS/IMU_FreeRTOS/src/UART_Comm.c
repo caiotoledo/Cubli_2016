@@ -20,7 +20,9 @@ uint8_t enableTX = 0;
 static void vTimerTX(void *pvParameters){
 	LED_Off(LED1_GPIO);
 	enableTX = 1;
-	vTaskResume(xLCDHandler);
+	if (xLCDHandler) {
+		vTaskResume(xLCDHandler);
+	}
 }
 
 void cTotalTimeTest(commVar val){
@@ -44,7 +46,9 @@ void cTotalTimeTest(commVar val){
 
 void cStartSample(commVar val){
 	if (timer){
-		vTaskSuspend(xLCDHandler);
+		if (xLCDHandler) {
+			vTaskSuspend(xLCDHandler);
+		}
 		LED_On(LED1_GPIO);
 		xTimerChangePeriod(xTimerTX, timer, portMAX_DELAY);
 		enableTX = 2;
@@ -57,9 +61,9 @@ void cStartSample(commVar val){
 void UARTTXTask (void *pvParameters){
 	UNUSED(pvParameters);
 		
-	double uart_acel[3];
+	double uart_acel[2][3];
 	double uart_angle[3];
-	double uart_gyro[3];
+	double uart_gyro[2][3];
 	//char uartBuf[100] = {0};
 	uint8_t i = 0;
 	signed portBASE_TYPE statusQueue;
@@ -78,7 +82,12 @@ void UARTTXTask (void *pvParameters){
 		
 		memset(uart_acel, 0, sizeof(uart_acel));
 		for (i = 0; i < NUM_AXIS; i++){
-			statusQueue = xQueuePeek(xQueueAcel[i], &(uart_acel[i]),portMAX_DELAY);
+			/* Get Acel Values from Low IMU: */
+			statusQueue = xQueuePeek(xQueueAcel[0][i], &(uart_acel[0][i]),portMAX_DELAY);
+			if (statusQueue != pdPASS) LED_Toggle(LED2_GPIO);
+			
+			/* Get Acel Values from High IMU: */
+			statusQueue = xQueuePeek(xQueueAcel[1][i], &(uart_acel[1][i]),portMAX_DELAY);
 			if (statusQueue != pdPASS) LED_Toggle(LED2_GPIO);
 		}
 		
@@ -90,13 +99,20 @@ void UARTTXTask (void *pvParameters){
 		
 		memset(uart_gyro, 0, sizeof(uart_gyro));
 		for (i = 0; i < NUM_AXIS; i++){
-			statusQueue = xQueuePeek(xQueueGyro[i], &(uart_gyro[i]),portMAX_DELAY);
+			/* Get Acel Values from Low IMU: */
+			statusQueue = xQueuePeek(xQueueGyro[0][i], &(uart_gyro[0][i]),portMAX_DELAY);
+			if (statusQueue != pdPASS) LED_Toggle(LED2_GPIO);
+			
+			/* Get Acel Values from High IMU: */
+			statusQueue = xQueuePeek(xQueueGyro[1][i], &(uart_gyro[1][i]),portMAX_DELAY);
 			if (statusQueue != pdPASS) LED_Toggle(LED2_GPIO);
 		}
 		
-		result = printf_mux("%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;\r\n",
-							uart_acel[0], uart_acel[1], uart_acel[2],
-							uart_gyro[0], uart_gyro[1], uart_gyro[2],
+		result = printf_mux("%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;%0.4f;\r\n",
+							uart_acel[0][0], uart_acel[0][1], uart_acel[0][2],
+							uart_acel[1][0], uart_acel[1][1], uart_acel[1][2],
+							uart_gyro[0][0], uart_gyro[0][1], uart_gyro[0][2],
+							uart_gyro[1][0], uart_gyro[1][1], uart_gyro[1][2],
 							uart_angle[0], uart_angle[1], uart_angle[2],
 							getAngleEncoder(true));
 		if (result != STATUS_OK) LED_Toggle(LED2_GPIO);

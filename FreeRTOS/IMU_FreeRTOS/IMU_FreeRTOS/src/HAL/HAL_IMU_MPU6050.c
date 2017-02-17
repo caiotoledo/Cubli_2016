@@ -127,13 +127,13 @@ float getOffsetGyro(Axis_Op ax){
 uint32_t sampleIMU(IMU_Addr_Dev dev, double *acel, double *gyro){
 	uint32_t status_imu;
 	
+	memset(acel, 0, NUM_AXIS);
+	memset(gyro, 0, NUM_AXIS);
+	
 	status_imu = imu_probe(dev);
 	if (status_imu != TWI_SUCCESS) {
 		return status_imu;
 	}
-	
-	memset(acel, 0, NUM_AXIS);
-	memset(gyro, 0, NUM_AXIS);
 	
 	getAllAcelValue(dev, acel);
 	getAllGyroValue(dev, gyro);
@@ -144,16 +144,16 @@ uint32_t sampleIMU(IMU_Addr_Dev dev, double *acel, double *gyro){
 /************************************************************************/
 /* Based on "The Cubli: A Cube that can Jump Up and Balance" III - a    */
 /************************************************************************/
-#define R1		15.5
-#define R2		5.5
+#define R1		300.0
+#define R2		1.0
+const float ratioRelation = (R1/R2);
 double getPureAngleTwoIMU(double *acelLow, double *acelHigh){
 	double mx,my;
-	double ratioRelation = (R1/R2);
 	
 	mx = acelHigh[Axis_X] - ratioRelation * acelLow[Axis_X];
 	my = acelHigh[Axis_Y] - ratioRelation * acelLow[Axis_Y];
 	
-	double angle = (atan(-mx/my));
+	double angle = (atan(-mx/my)) * (180.0/M_PI);
 	
 	return angle;
 }
@@ -162,12 +162,16 @@ double getPureAngle(double *acel){
 	double angle = 0.0;
 		
 	/*angle = acos( (acel[Axis_X]) / sqrt(acel[Axis_Y]*acel[Axis_Y] + acel[Axis_Z]*acel[Axis_Z] + acel[Axis_X]*acel[Axis_X] ) ) * (180.0/M_PI);
-	
 	if (acel[Axis_Y] < 0){
 		angle = - angle;
 	}*/
 	
-	angle = (sin( acel[Axis_Y]/ acel[Axis_X] ) * (180.0/M_PI));
+	angle = acos( (acel[Axis_Y]) / sqrt(acel[Axis_Y]*acel[Axis_Y] + acel[Axis_Z]*acel[Axis_Z] + acel[Axis_X]*acel[Axis_X] ) ) * (180.0/M_PI);
+	if (acel[Axis_X] < 0){
+		angle = - angle;
+	}
+	
+	//angle = (sin( acel[Axis_Y]/ acel[Axis_X] ) * (180.0/M_PI));
 	
 	return angle;
 }

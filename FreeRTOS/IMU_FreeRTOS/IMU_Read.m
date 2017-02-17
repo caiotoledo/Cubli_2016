@@ -13,13 +13,15 @@ alpha       = 0.7143; %0.98;
 
 %Initialize Variables for Sample:
 sample = (tTest*1000)/tTaskSample;
-acel = zeros(sample,3);
-gyro = zeros(sample,3);
+acelHigh = zeros(sample,3);
+acelLow = zeros(sample,3);
+gyroHigh = zeros(sample,3);
+gyroLow = zeros(sample,3);
 angle = zeros(sample,3);
 encoder = zeros(sample,1);
 
 %Open Serial Port:
-s = serial('COM7','BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
+s = serial('COM5','BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none', 'Timeout', 3, 'Terminator', 'CR/LF');
 fclose(s);
 fopen(s);
 disp('Serial Port Opened');
@@ -65,18 +67,32 @@ while true
     i = i+1;
     
     k = 1;
-    acel(i,1) = str2double(strVal(k));
+    acelLow(i,1) = str2double(strVal(k));
     k= k+1;
-    acel(i,2) = str2double(strVal(k));
+    acelLow(i,2) = str2double(strVal(k));
     k= k+1;
-    acel(i,3) = str2double(strVal(k));
+    acelLow(i,3) = str2double(strVal(k));
     k= k+1;
     
-    gyro(i,1) = str2double(strVal(k));
+    acelHigh(i,1) = str2double(strVal(k));
     k= k+1;
-    gyro(i,2) = str2double(strVal(k));
+    acelHigh(i,2) = str2double(strVal(k));
     k= k+1;
-    gyro(i,3) = str2double(strVal(k));
+    acelHigh(i,3) = str2double(strVal(k));
+    k= k+1;
+    
+    gyroLow(i,1) = str2double(strVal(k));
+    k= k+1;
+    gyroLow(i,2) = str2double(strVal(k));
+    k= k+1;
+    gyroLow(i,3) = str2double(strVal(k));
+    k= k+1;
+    
+    gyroHigh(i,1) = str2double(strVal(k));
+    k= k+1;
+    gyroHigh(i,2) = str2double(strVal(k));
+    k= k+1;
+    gyroHigh(i,3) = str2double(strVal(k));
     k= k+1;
     
     angle(i,1) = str2double(strVal(k));
@@ -109,36 +125,44 @@ title('Angle');
 grid on;
 
 figure;
-plot(Tempo, acel(:,1), '-*');
+plot(Tempo, acelLow(:,1), '-*');
 hold on;
-plot(Tempo, acel(:,2), '-*r');
+plot(Tempo, acelLow(:,2), '-*r');
 hold on;
-plot(Tempo, acel(:,3), '-*k');
+plot(Tempo, acelLow(:,3), '-*k');
 hold on;
-legend('X', 'Y', 'Z');
+plot(Tempo, acelHigh(:,1), '-s');
+hold on;
+plot(Tempo, acelHigh(:,2), '-sr');
+hold on;
+plot(Tempo, acelHigh(:,3), '-sk');
+hold on;
+legend('X_L_o_w', 'Y_L_o_w', 'Z_L_o_w', 'X_H_i_g_h', 'Y_H_i_g_h', 'Z_H_i_g_h');
 title('Acel (mG)');
 grid on;
 
 figure;
-plot(Tempo, gyro(:,3), '-*k');
+plot(Tempo, gyroLow(:,3), '-*k');
 hold on;
-legend('Z');
+plot(Tempo, gyroHigh(:,3), '-*');
+hold on;
+legend('Z_L_o_w', 'Z_H_i_g_h');
 title('Gyro (º/s)');
 grid on;
 
-X_mean = mean(acel(:,1));
-disp('X_mean:');
-disp(X_mean);
-Y_mean = mean(acel(:,2));
-disp('Y_mean:');
-disp(Y_mean);
-Z_mean = mean(acel(:,3));
-disp('Z_mean:');
-disp(Z_mean);
-finalVetor = sqrt(X_mean^2 + Y_mean^2 + Z_mean^2);
-disp('Result Vector:');
-disp(finalVetor);
-
-Zgyro_mean = mean(gyro(:,3));
-disp('Zgyro_mean:');
-disp(Zgyro_mean);
+% X_mean = mean(acelLow(:,1));
+% disp('X_mean:');
+% disp(X_mean);
+% Y_mean = mean(acelLow(:,2));
+% disp('Y_mean:');
+% disp(Y_mean);
+% Z_mean = mean(acelLow(:,3));
+% disp('Z_mean:');
+% disp(Z_mean);
+% finalVetor = sqrt(X_mean^2 + Y_mean^2 + Z_mean^2);
+% disp('Result Vector:');
+% disp(finalVetor);
+% 
+% Zgyro_mean = mean(gyroLow(:,3));
+% disp('Zgyro_mean:');
+% disp(Zgyro_mean);

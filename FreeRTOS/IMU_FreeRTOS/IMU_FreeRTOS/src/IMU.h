@@ -15,9 +15,9 @@
 
 //#define INT_PIN				PIO_PA20
 
-extern volatile xQueueHandle xQueueAcel[];
+extern volatile xQueueHandle xQueueAcel[2][NUM_AXIS];
 extern volatile xQueueHandle xQueueAngle[];
-extern volatile xQueueHandle xQueueGyro[];
+extern volatile xQueueHandle xQueueGyro[2][NUM_AXIS];
 
 volatile uint32_t g_tickCounter;
 

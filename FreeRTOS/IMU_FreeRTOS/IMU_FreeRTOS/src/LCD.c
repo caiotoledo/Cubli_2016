@@ -13,7 +13,7 @@
 
 #define TASK_DELAY		(500/portTICK_RATE_MS)
 
-xTaskHandle xLCDHandler;
+xTaskHandle xLCDHandler = NULL;
 
 struct ili9225_opt_t g_ili9225_display_opt;
 /**
@@ -68,7 +68,7 @@ void LCDTask(void *pvParameters){
 		
 		memset(lcd_acel, 0, sizeof(lcd_acel));
 		for (i = 0; i < NUM_AXIS; i++){
-			statusQueue = xQueuePeek(xQueueAcel[i], &(lcd_acel[i]),LCD_WAIT);
+			statusQueue = xQueuePeek(xQueueAcel[1][i], &(lcd_acel[i]),LCD_WAIT);
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
@@ -80,7 +80,7 @@ void LCDTask(void *pvParameters){
 		
 		memset(lcd_gyro, 0, sizeof(lcd_gyro));
 		for (i = 0; i < NUM_AXIS; i++){
-			statusQueue = xQueuePeek(xQueueGyro[i], &(lcd_gyro[i]),LCD_WAIT);
+			statusQueue = xQueuePeek(xQueueGyro[1][i], &(lcd_gyro[i]),LCD_WAIT);
 			if (statusQueue != pdPASS) vTaskDelete(NULL);
 		}
 		
@@ -88,10 +88,10 @@ void LCDTask(void *pvParameters){
 		ili9225_draw_filled_rectangle(0,30,ILI9225_LCD_WIDTH,ILI9225_LCD_HEIGHT);
 		
 		ili9225_set_foreground_color(COLOR_BLACK);
-		sprintf(lcd_buf, "Acel:\nX=%0.3f mG\nY=%0.3f mG\nGyro:\n%0.3f Graus/s", lcd_acel[0], lcd_acel[1],lcd_gyro[2]);
-		ili9225_draw_string(5,30, (uint8_t *)lcd_buf);
 		sprintf(lcd_buf, "Angle Pure:\n%0.3f Graus\nAngle Comp.:\n%0.3f Graus\nAngle Kalman:\n%0.3f Graus", lcd_angle[0], lcd_angle[1],lcd_angle[2]);
-		ili9225_draw_string(5,110, (uint8_t *)lcd_buf);
+		ili9225_draw_string(5,30, (uint8_t *)lcd_buf);
+		/*sprintf(lcd_buf, "Acel:\nX=%0.3f mG\nY=%0.3f mG\nGyro:\n%0.3f Graus/s", lcd_acel[0], lcd_acel[1],lcd_gyro[2]);
+		ili9225_draw_string(5,110, (uint8_t *)lcd_buf);*/
 		/*sprintf(lcd_buf,"%u bytes Free", (uint32_t)xPortGetFreeHeapSize());
 		ili9225_draw_string(5,200, (uint8_t *)lcd_buf);*/
 	}

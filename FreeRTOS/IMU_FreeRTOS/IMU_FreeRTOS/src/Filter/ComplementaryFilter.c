@@ -27,14 +27,22 @@ double getAlpha(void){
 
 double initComplFilter(IMU_Addr_Dev dev){
 	double acelInit[3];
+	uint32_t status_dev;
+	
+	/* Check if IMU exists */
+	status_dev = imu_probe(dev);
+	if (status_dev != TWI_SUCCESS) {
+		if (dev == IMU_Low) {
+			dev = IMU_High;
+		} else {
+			dev = IMU_Low;
+		}
+	}
+	
 	getAllAcelValue(dev, acelInit);
 	return getPureAngle(acelInit);
 }
 
-void getComplFilterAngle(double *angle, double *acel, double *gyro, double dt){
-	double angle_measure;
-	
-	angle_measure = getPureAngle(acel);
-	
-	*angle = (*angle + (gyro[Axis_Z]*dt) )*alpha + (1-alpha)*angle_measure;
+void getComplFilterAngle(double *angle, double angle_measure, double *acel, double *gyro, double dt){	
+	*angle = (*angle + (gyro[Axis_Z]*dt) )*alpha + (1-alpha)*(angle_measure) ;
 }

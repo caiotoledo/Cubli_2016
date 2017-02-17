@@ -14,6 +14,6 @@
 Bool setAlpha(double val);
 double getAlpha(void);
 double initComplFilter(IMU_Addr_Dev dev);
-void getComplFilterAngle(double *angle, double *acel, double *gyro, double dt);
+void getComplFilterAngle(double *angle, double angle_measure, double *acel, double *gyro, double dt);
 
 #endif /* COMPLEMENTARYFILTER_H_ */

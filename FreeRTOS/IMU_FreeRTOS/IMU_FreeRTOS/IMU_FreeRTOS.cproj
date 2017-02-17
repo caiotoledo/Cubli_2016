@@ -358,7 +358,7 @@
       <Value>ARM_MATH_CM3=true</Value>
       <Value>printf=iprintf</Value>
       <Value>__FREERTOS__</Value>
-      <Value>TASK_MONITOR</Value>
+      <Value>TASK_MONITOR1</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.DefaultIncludePath>False</armgcc.compiler.directories.DefaultIncludePath>

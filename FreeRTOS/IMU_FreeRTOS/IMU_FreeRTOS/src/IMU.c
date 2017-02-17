@@ -18,7 +18,7 @@
 
 #define xQueueOverwrite(xQueue,pvItemToQueue)	xQueueReset(xQueue);xQueueSendToFront(xQueue,pvItemToQueue,(0))
 
-static double getFinalAngle(double *acel, double *gyro);
+static double getFinalAngle(double *acelHigh, double *gyroHigh, double *acelLow, double *gyroLow);
 
 static void initIMUQueue(void);
 static void initializeIMUVariables(void);
@@ -29,9 +29,9 @@ static void cmdHandlerOffset(commVar val, Axis_Op ax, const char *axName);
 freertos_twi_if freertos_twi;
 char buffer[50];
 
-volatile xQueueHandle xQueueAcel[NUM_AXIS];
-volatile xQueueHandle xQueueAngle[NUM_AXIS];
-volatile xQueueHandle xQueueGyro[NUM_AXIS];
+volatile xQueueHandle xQueueAcel[2][NUM_AXIS];
+volatile xQueueHandle xQueueAngle[3];
+volatile xQueueHandle xQueueGyro[2][NUM_AXIS];
 
 xSemaphoreHandle xseIMU;
 xSemaphoreHandle xSemIMUInt;
@@ -45,8 +45,9 @@ uint32_t timerIMU = (TWI_TASK_DELAY);
 
 /* ANGLE MEASUREMENT VARIABLES */
 static KalmanConst kalmanC;
-double gAcel[3] = { 0 };
-double gGyro[3] = { 0 };
+/* For both IMUs */
+double gAcel[2][NUM_AXIS] = { {0} };
+double gGyro[2][NUM_AXIS] = { {0} };	
 double anglePure = 0;
 double angleComplFilter = 0;
 double angleKalman = 0;
@@ -55,8 +56,9 @@ static void initIMUQueue(void){
 	/* Queue FreeRTOS Initialization */
 	uint8_t i;
 	for (i = 0; i < NUM_AXIS; i++){
-		xQueueAcel[i] = xQueueCreate(1, sizeof(double));
-		if (xQueueAcel[i] == NULL){
+		xQueueAcel[0][i] = xQueueCreate(1, sizeof(double));
+		xQueueAcel[1][i] = xQueueCreate(1, sizeof(double));
+		if ( (xQueueAcel[0][i] == NULL) || (xQueueAcel[1][i] == NULL) ){
 			LED_On(LED2_GPIO);
 			while(1);
 		}
@@ -65,8 +67,9 @@ static void initIMUQueue(void){
 			LED_On(LED2_GPIO);
 			while(1);
 		}
-		xQueueGyro[i] = xQueueCreate(1, sizeof(double));
-		if (xQueueGyro[i] == NULL){
+		xQueueGyro[0][i] = xQueueCreate(1, sizeof(double));
+		xQueueGyro[1][i] = xQueueCreate(1, sizeof(double));
+		if ( (xQueueGyro[0][i] == NULL) || (xQueueGyro[1][i] == NULL) ){
 			LED_On(LED2_GPIO);
 			while(1);
 		}
@@ -107,7 +110,7 @@ static void initializeIMUVariables(void){
 	memset(gAcel, 0, sizeof(gAcel));
 	memset(gGyro, 0, sizeof(gGyro));
 	anglePure = 0;
-	angleComplFilter = initComplFilter(IMU_Low);
+	angleComplFilter = initComplFilter(IMU_High);
 	angleKalman = angleComplFilter;
 	
 	//Init Kalman Constants:
@@ -146,35 +149,37 @@ void cStartSampleReset(commVar val){
 	cStartSample(val);
 }
 
-static double getFinalAngle(double *acel, double *gyro){
+static double getFinalAngle(double *acelHigh, double *gyroHigh, double *acelLow, double *gyroLow){
 	uint32_t statusLow, statusHigh;
-	double dAcel[2][NUM_AXIS], dGyro[2][NUM_AXIS];
+	double dAcel[2][NUM_AXIS] = { {0} }, dGyro[2][NUM_AXIS] = { {0} };
 	double resultAngle = 0;
-	uint32_t i;
 	
 	statusLow = sampleIMU(IMU_Low, &dAcel[0][0], &dGyro[0][0]);
 	statusHigh = sampleIMU(IMU_High, &dAcel[1][0], &dGyro[1][0]);
 	
 	if ( (statusLow | statusHigh) == TWI_SUCCESS ) {
 		resultAngle = getPureAngleTwoIMU(&dAcel[IMUADDR_TO_NUM(IMU_Low)][0], &dAcel[IMUADDR_TO_NUM(IMU_High)][0]);
-		/* Give the Mean value between two IMU back */
-		for (i = 0; i < NUM_AXIS; i++) {
-			acel[i] = ( ( dAcel[IMUADDR_TO_NUM(IMU_Low)][i] + dAcel[IMUADDR_TO_NUM(IMU_High)][i] ) / 2 );
-			gyro[i] = ( ( dGyro[IMUADDR_TO_NUM(IMU_Low)][i] + dGyro[IMUADDR_TO_NUM(IMU_High)][i] ) / 2 );
-		}
 	} 
 	else if ( statusLow == TWI_SUCCESS ) {
 		resultAngle = getPureAngle(&dAcel[IMUADDR_TO_NUM(IMU_Low)][0]);
-		for (i = 0; i < NUM_AXIS; i++) {
-			acel[i] = dAcel[IMUADDR_TO_NUM(IMU_Low)][i];
-			gyro[i] = dGyro[IMUADDR_TO_NUM(IMU_Low)][i];
-		}
 	}
 	else if ( statusHigh == TWI_SUCCESS ) {
 		resultAngle = getPureAngle(&dAcel[IMUADDR_TO_NUM(IMU_High)][0]);
-		for (i = 0; i < NUM_AXIS; i++) {
-			acel[i] = dAcel[IMUADDR_TO_NUM(IMU_High)][i];
-			gyro[i] = dGyro[IMUADDR_TO_NUM(IMU_High)][i];
+	}
+	
+	uint32_t i;
+	for (i = 0; i < NUM_AXIS; i++) {
+		if (acelLow != NULL) {
+			acelLow[i] = dAcel[IMUADDR_TO_NUM(IMU_Low)][i];
+		}
+		if (acelHigh != NULL){
+			acelHigh[i] = dAcel[IMUADDR_TO_NUM(IMU_High)][i];
+		}
+		if (gyroLow != NULL) {
+			gyroLow[i] = dGyro[IMUADDR_TO_NUM(IMU_Low)][i];
+		}
+		if (gyroHigh != NULL) {
+			gyroHigh[i] = dGyro[IMUADDR_TO_NUM(IMU_High)][i];
 		}
 	}
 
@@ -222,23 +227,32 @@ void IMUTask(void *pvParameters){
 	kalmanC.Rmeasure	=	0.03;
 	initializeIMUVariables();
 	
+	/* Used for Complementary Filter */
+	double meanAcel[NUM_AXIS] = {0};
+	double meanGyro[NUM_AXIS] = {0};
 	for (;;){
 		xSemaphoreTake(xSemIMUInt, portMAX_DELAY);
 		
-		memset(gAcel, 0, sizeof(gAcel));
-		memset(gGyro, 0, sizeof(gGyro));
-		anglePure = getFinalAngle(gAcel, gGyro);
+		/* Sampling IMU Devices Avaliables: */
+		anglePure = getFinalAngle(&gAcel[1][0], &gGyro[1][0], &gAcel[0][0], &gGyro[0][0]);
 		
 		/* Send to UART Task: */
 		for (i = 0; i < NUM_AXIS; i++){
-			xQueueOverwrite(xQueueAcel[i], (void * ) &gAcel[i]);
-			xQueueOverwrite(xQueueGyro[i], (void * ) &gGyro[i]);
+			xQueueOverwrite(xQueueAcel[0][i], (void * ) &gAcel[0][i]);
+			xQueueOverwrite(xQueueAcel[1][i], (void * ) &gAcel[1][i]);
+			xQueueOverwrite(xQueueGyro[0][i], (void * ) &gGyro[0][i]);
+			xQueueOverwrite(xQueueGyro[1][i], (void * ) &gGyro[1][i]);
 		}
 		
+		/* Sending to Queues to other Tasks: */
 		xQueueOverwrite(xQueueAngle[0], (void * ) &anglePure);
-		getComplFilterAngle(&angleComplFilter, gAcel, gGyro, dt);
+		for (i = 0; i < NUM_AXIS; i++) {
+			meanAcel[i] = (gAcel[0][i] + gAcel[1][i]) / 2;
+			meanGyro[i] = (gGyro[0][i] + gGyro[1][i]) / 2;
+		}
+		getComplFilterAngle(&angleComplFilter, anglePure, meanAcel, meanGyro, dt);
 		xQueueOverwrite(xQueueAngle[1], (void * ) &angleComplFilter);
-		angleKalman = getKalmanAngle(anglePure, gGyro[Axis_Z], dt);
+		angleKalman = getKalmanAngle(anglePure, gGyro[1][Axis_Z], dt);
 		xQueueOverwrite(xQueueAngle[2], (void * ) &angleKalman);
 		
 		//Check if TX is actived:
@@ -256,7 +270,9 @@ void cRunCalibrationIMU(commVar val){
 	uint32_t result;
 	
 	/* Disable LCD Task to avoid CPU Load */
-	vTaskSuspend(xLCDHandler);
+	if (xLCDHandler){
+		vTaskSuspend(xLCDHandler);
+	}
 	
 	/* Stop IMU Timer to not interrupt Calibration Process */
 	xTimerStop(xTimerIMU, 100/portTICK_RATE_MS);
@@ -282,7 +298,9 @@ void cRunCalibrationIMU(commVar val){
 	xTimerStart(xTimerIMU, 100/portTICK_RATE_MS);
 	
 	/* Enable LCD Task */
-	vTaskResume(xLCDHandler);
+	if (xLCDHandler) {
+		vTaskResume(xLCDHandler);
+	}
 }
 
 void cAlphaComplFilter(commVar val){
