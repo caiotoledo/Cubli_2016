@@ -111,7 +111,10 @@ delete(s);
 disp('IMU Read Finished');
 
 %Tempo = (0:tTaskSample/1000:tTest)';
-Tempo = linspace(tTaskSample/1000,tTest,i);
+%Tempo = linspace(tTaskSample/1000,tTest,i);
+%Tempo = linspace(0,tTest,i);
+Tempo = linspace(0,tTest,length(angle(:,1)));
+%Tempo = (0:tTaskSample/1000:( (length(angle(:,1))-1) * tTaskSample/1000));
 
 figure;
 plot(Tempo, angle(:,1), '-*');

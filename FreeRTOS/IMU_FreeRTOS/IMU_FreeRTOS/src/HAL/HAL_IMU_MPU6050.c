@@ -14,13 +14,13 @@
 #define TWI_SPEED		400000	//400KHz Fast-Speed
 #define TWI_BLOCK_TIME	(portMAX_DELAY)
 
-#define ACEL_OFFSET_X		(-57.4)//(-37.0)
-#define ACEL_OFFSET_Y		(7.0)
-#define ACEL_OFFSET_Z		(-5.0)//(-26.0)
+#define ACEL_OFFSET_X		0//(-57.4)//(-37.0)
+#define ACEL_OFFSET_Y		0//(7.0)
+#define ACEL_OFFSET_Z		0//(-5.0)//(-26.0)
 
 #define GYRO_OFFSET_X		(0.0)
 #define GYRO_OFFSET_Y		(0.0)
-#define GYRO_OFFSET_Z		(1.25)//(1.0)
+#define GYRO_OFFSET_Z		(0.0)//(1.25)//(1.0)
 
 #define CONST_ACCEL			(16.384)
 #define CONST_GYRO			(131)
@@ -249,6 +249,9 @@ void getAllGyroValue(IMU_Addr_Dev dev, double *gyro){
 			gyro[i] = -( ((float) itg) / CONST_GYRO );
 		}
 		gyro[i] += offsetGyroIMU[IMUdev][i];	//Apply Offset
+		
+		/* Gyro Value is opposite value from Accelerometer */
+		gyro[i] = - gyro[i];
 	}
 }
 
@@ -290,7 +293,8 @@ float get_gyro_value(Axis_Op axis, IMU_Addr_Dev dev){
 		gyro_value = -(((float)itg) / CONST_GYRO);
 	}
 	
-	return gyro_value;
+	/* Gyro Value is opposite value from Accelerometer */
+	return (- gyro_value);
 }
 
 float get_acel_value(Axis_Op axis, IMU_Addr_Dev dev){

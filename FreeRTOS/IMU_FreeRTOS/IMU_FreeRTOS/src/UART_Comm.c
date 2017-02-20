@@ -49,9 +49,13 @@ void cStartSample(commVar val){
 		if (xLCDHandler) {
 			vTaskSuspend(xLCDHandler);
 		}
+				
 		LED_On(LED1_GPIO);
 		xTimerChangePeriod(xTimerTX, timer, portMAX_DELAY);
 		enableTX = 2;
+		
+		/* Give Semaphore to UART TX Transfer the last IMU Value: */
+		xSemaphoreGive(xseIMUValues);
 	}
 }
 
@@ -64,7 +68,6 @@ void UARTTXTask (void *pvParameters){
 	double uart_acel[2][3];
 	double uart_angle[3];
 	double uart_gyro[2][3];
-	//char uartBuf[100] = {0};
 	uint8_t i = 0;
 	signed portBASE_TYPE statusQueue;
 	
@@ -78,6 +81,7 @@ void UARTTXTask (void *pvParameters){
 			enableTX = 0;
 			printf_mux("STOP\r\n");
 		}
+		
 		xSemaphoreTake(xseIMUValues, portMAX_DELAY);
 		
 		memset(uart_acel, 0, sizeof(uart_acel));
